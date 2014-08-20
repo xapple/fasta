@@ -1,4 +1,1 @@
-This project is a python package.
-
-Full documentation is available at:
-http://xapple.github.com/empty/
+The fasta python package enables you to deal with biological sequence files easily.

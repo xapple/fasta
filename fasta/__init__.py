@@ -1,7 +1,7 @@
 b'This module needs Python 2.7.x'
 
 # Special variables #
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 # Built-in modules #
 import os, gzip, shutil
