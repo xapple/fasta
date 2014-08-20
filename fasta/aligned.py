@@ -4,9 +4,9 @@ from collections import OrderedDict
 
 # Internal modules #
 from fasta import FASTA
-from gefes.common.cache import property_cached
-from gefes.common.autopaths import FilePath
-from gefes.common.tmpstuff import new_temp_dir
+from plumbing.cache import property_cached
+from plumbing.autopaths import FilePath
+from plumbing.tmpstuff import new_temp_dir
 
 # Third party modules #
 import sh, shutil

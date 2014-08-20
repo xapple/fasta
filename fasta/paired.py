@@ -6,6 +6,7 @@ import os, sys, gzip, tempfile, shutil
 from itertools import izip
 
 # Internal modules #
+from fasta import FASTQ
 from plumbing.common import average, isubsample
 from plumbing.cache import property_cached
 from plumbing.autopaths import FilePath
@@ -27,9 +28,13 @@ class PairedFASTQ(object):
         # Basic #
         self.fwd_path = FilePath(fwd_path)
         self.rev_path = FilePath(rev_path)
-        # Extra #
-        self.pool, self.parent = parent, parent
+        # FASTQ objects #
+        self.fwd = FASTQ(fwd_path)
+        self.rev = FASTQ(rev_path)
+        # Gzipped #
         self.gziped = True if self.fwd_path.endswith('gz') else False
+        # Extra #
+        self.parent = parent
 
     @property_cached
     def count(self):
@@ -80,6 +85,18 @@ class PairedFASTQ(object):
             SeqIO.write(pair[1], self.rev_handle, 'fastq')
         self.buffer = []
 
+    @property
+    def avg_quality(self):
+        self.open()
+        fwd_reads = (r for r in SeqIO.parse(self.fwd_handle, "fastq"))
+        fwd_scores = (s for r in fwd_reads for s in r.letter_annotations["phred_quality"])
+        fwd_mean = average(fwd_scores)
+        rev_reads = (r for r in SeqIO.parse(self.rev_handle, "fastq"))
+        rev_scores = (s for r in rev_reads for s in r.letter_annotations["phred_quality"])
+        rev_mean = average(rev_scores)
+        self.close()
+        return (fwd_mean, rev_mean)
+
     def fastqc(self, directory):
         # Symbolic link #
         tmp_dir = tempfile.mkdtemp() + '/'
@@ -97,26 +114,6 @@ class PairedFASTQ(object):
         shutil.move(tmp_dir + 'rev_fastqc/', directory + "rev_fastqc/")
         # Clean up #
         shutil.rmtree(tmp_dir)
-
-    @property
-    def avg_quality(self):
-        self.open()
-        fwd_reads = (r for r in SeqIO.parse(self.fwd_handle, "fastq"))
-        fwd_scores = (s for r in fwd_reads for s in r.letter_annotations["phred_quality"])
-        fwd_mean = average(fwd_scores)
-        rev_reads = (r for r in SeqIO.parse(self.rev_handle, "fastq"))
-        rev_scores = (s for r in rev_reads for s in r.letter_annotations["phred_quality"])
-        rev_mean = average(rev_scores)
-        self.close()
-        return (fwd_mean, rev_mean)
-
-    def cut_in_half(self, new_pair):
-        new_pair.create()
-        pairs = iter(self)
-        for i in xrange(int(len(self)/2)): new_pair.add_pair(pairs.next())
-        new_pair.close()
-        #shell_output('zcat %s |head -n %i > %s' % (self.fwd_path, len(self)*2, new_pair.fwd_path))
-        #shell_output('zcat %s |head -n %i > %s' % (self.rev_path, len(self)*2, new_pair.rev_path))
 
     def subsample(self, down_to, dest_pair=None):
         # Check size #

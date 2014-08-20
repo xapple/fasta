@@ -20,11 +20,6 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 
-# Expose objects #
-from fasta.fastq import FASTQ
-from fasta.aligned import AlignedFASTA
-from fasta.paired import PairedFASTQ
-
 ################################################################################
 class FASTA(FilePath):
     """A single FASTA file somewhere in the filesystem. You can read from it in
@@ -191,3 +186,23 @@ class FASTA(FilePath):
         if out_path is None: out_path = self.prefix_path + '.aln'
         sh.muscle("-in", self.path, "-out", out_path)
         return AlignedFASTA(out_path)
+
+    def template_align(self, ref_path):
+        # Run it #
+        sh.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
+        # Move things #
+        shutil.move(self.path[:-6] + '.align', self.aligned_path)
+        shutil.move(self.path[:-6] + '.align.report', self.report_path)
+        shutil.move(self.path[:-6] + '.flip.accnos', self.accnos_path)
+        # Clean up #
+        if os.path.exists('formatdb.log'): os.remove('formatdb.log')
+        if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
+        for p in sh.glob('mothur.*.logfile'): os.remove(p)
+
+################################################################################
+# Expose objects #
+from fasta.fastq import FASTQ
+from fasta.aligned import AlignedFASTA
+from fasta.paired import PairedFASTQ
+from fasta.sizes import SizesFASTA
+from fasta.qual import QualFile
