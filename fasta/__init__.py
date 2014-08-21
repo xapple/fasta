@@ -33,7 +33,7 @@ class FASTA(FilePath):
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
     def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.path)
-    def __nonzero__(self): return os.path.getsize(self.path) != 0
+    def __nonzero__(self): return self.exists and os.path.getsize(self.path) != 0
     def __contains__(self, other): return other in self.ids
 
     def __enter__(self): return self.create()
@@ -125,6 +125,16 @@ class FASTA(FilePath):
         Consider using the SQLite API instead."""
         return OrderedDict(((seq.id,seq) for seq in self))
 
+    @property_cached
+    def sql(self):
+        """If you access this attribute, we will build an SQLite database
+        out of the FASTA file and you will be able access everything in an
+        indexed fashion"""
+        from fasta.database import DatabaseFASTA, fasta_to_sql
+        db = DatabaseFASTA(self.prefix_path + ".db")
+        if not db.exists: fasta_to_sql(self.path, db.path)
+        return db
+
     def subsample(self, down_to=1, new_path=None):
         """Pick a number of sequences from the file randomly"""
         # Auto path #
@@ -184,7 +194,7 @@ class FASTA(FilePath):
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle"""
         if out_path is None: out_path = self.prefix_path + '.aln'
-        sh.muscle("-in", self.path, "-out", out_path)
+        sh.muscle38("-in", self.path, "-out", out_path)
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
@@ -206,3 +216,4 @@ from fasta.aligned import AlignedFASTA
 from fasta.paired import PairedFASTQ
 from fasta.sizes import SizesFASTA
 from fasta.qual import QualFile
+from fasta.splitable import SplitableFASTA
