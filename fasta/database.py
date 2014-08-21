@@ -37,6 +37,6 @@ def generate_values(path, progress=False):
             yield (seq.id, seq.description, str(seq.seq))
 
 def fasta_to_sql(source, dest):
-    values = generate_values(progress=True)
+    values = generate_values(source, progress=True)
     convert_to_sql(source, dest, base_keys, values)
     return DatabaseFASTA(dest)
