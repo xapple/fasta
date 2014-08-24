@@ -44,8 +44,9 @@ class FASTA(FilePath):
         elif isinstance(key, int): return self.sequences.items()[key]
 
     def __init__(self, path):
-        self.path = path
-        self.gziped = True if self.path.endswith('gz') else False
+        if hasattr(path, 'path'): self.path = path.path
+        else: self.path = path
+        self.gzipped = True if self.path.endswith('gz') else False
 
     @property
     def first(self):
@@ -58,7 +59,7 @@ class FASTA(FilePath):
     @property_cached
     def count(self):
         """Should probably check file size instead of just caching once #TODO"""
-        if self.gziped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
+        if self.gzipped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
         else: return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
 
     @property_cached
@@ -74,7 +75,7 @@ class FASTA(FilePath):
         return Counter((len(s) for s in self.parse()))
 
     def open(self, mode='r'):
-        if self.gziped: self.handle = gzip.open(self.path, mode)
+        if self.gzipped: self.handle = gzip.open(self.path, mode)
         else: self.handle = open(self.path, mode)
 
     def close(self):
