@@ -136,6 +136,12 @@ class FASTA(FilePath):
         if not db.exists: fasta_to_sql(self.path, db.path)
         return db
 
+    @property_cached
+    def length_by_id(self):
+        """In some use cases you just need the sequence lengths in an indexed
+        fashion. If you access this attribute, we will make a hash map in memory."""
+        return dict((seq.id, len(seq)) for seq in self)
+
     def subsample(self, down_to=1, new_path=None):
         """Pick a number of sequences from the file randomly"""
         # Auto path #
