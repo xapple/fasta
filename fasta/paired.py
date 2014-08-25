@@ -12,9 +12,13 @@ class PairedFASTQ(object):
 
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
-    def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.fwd_path)
     def __enter__(self): return self.create()
     def __exit__(self, exc_type, exc_value, traceback): self.close()
+    def __repr__(self): return '<%s object on "%s" and "%s">' % \
+                        (self.__class__.__name__, self.fwd.path, self.rev.path)
+
+    @property
+    def exists(self): return self.fwd.exists
 
     def __init__(self, fwd, rev, parent=None):
         # FASTQ objects #
@@ -47,7 +51,7 @@ class PairedFASTQ(object):
 
     def add_pair(self, pair):
         self.fwd.add_seq(pair[0])
-        self.fwd.add_seq(pair[1])
+        self.rev.add_seq(pair[1])
 
     def subsample(self, down_to, dest_pair=None):
         # Check size #

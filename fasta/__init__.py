@@ -8,6 +8,7 @@ import os, gzip, shutil
 from collections import Counter, OrderedDict
 
 # Internal modules #
+from fasta import graphs
 from plumbing.common import isubsample
 from plumbing.color import Color
 from plumbing.cache import property_cached
@@ -215,6 +216,16 @@ class FASTA(FilePath):
         if os.path.exists('formatdb.log'): os.remove('formatdb.log')
         if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
         for p in sh.glob('mothur.*.logfile'): os.remove(p)
+
+    @property_cached
+    def graphs(self):
+        return dict(((cls,getattr(graphs, cls)(self)) for cls in graphs.__all__))
+
+    @property_cached
+    def length_dist(self):
+        graph = self.graphs['LengthDist']
+        if not graph: graph.plot()
+        return graph
 
 ################################################################################
 # Expose objects #
