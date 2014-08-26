@@ -236,6 +236,19 @@ class FASTA(FilePath):
         if not graph: graph.plot()
         return graph
 
+    def index(self):
+        """Create two indexes. For both bowtie2 and samtools on the contigs fasta file."""
+        sh.bowtie2_build(self.contigs_fasta, self.contigs_fasta)
+        sh.samtools('faidx', self.contigs_fasta)
+
+    def index_bowtie(self):
+        """Create an index on the fasta file compatible with bowtie2"""
+        sh.bowtie2_build(self.path, self.path)
+
+    def index_samtools(self):
+        """Create an index on the fasta file compatible with samtools"""
+        sh.samtools('faidx', self.path)
+
 ################################################################################
 # Expose objects #
 from fasta.fastq import FASTQ
