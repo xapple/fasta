@@ -6,6 +6,9 @@ from fasta import FASTQ
 from plumbing.common import isubsample
 from plumbing.cache import property_cached
 
+# Third party modules #
+from tqdm import tqdm
+
 ###############################################################################
 class PairedFASTQ(object):
     """Read and write FASTQ file pairs without using too much RAM"""
@@ -52,6 +55,11 @@ class PairedFASTQ(object):
     def add_pair(self, pair):
         self.fwd.add_seq(pair[0])
         self.rev.add_seq(pair[1])
+
+    @property
+    def progress(self):
+        """Just like self.parse but display a progress bar"""
+        return tqdm(self, total=len(self))
 
     def subsample(self, down_to, dest_pair=None):
         # Check size #

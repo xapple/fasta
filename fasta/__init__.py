@@ -17,6 +17,7 @@ from plumbing.tmpstuff import new_temp_path
 
 # Third party modules #
 import sh
+from tqdm import tqdm
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
@@ -115,6 +116,11 @@ class FASTA(FilePath):
         SeqIO.write(reads, self.handle, self.format)
         self.close()
 
+    @property
+    def progress(self):
+        """Just like self.parse but display a progress bar"""
+        return tqdm(self, total=len(self))
+
     def get_id(self, id_num):
         """Extract one sequence from the file based on its ID. This is highly ineffective.
         Consider using the SQLite API instead."""
@@ -141,7 +147,10 @@ class FASTA(FilePath):
     def length_by_id(self):
         """In some use cases you just need the sequence lengths in an indexed
         fashion. If you access this attribute, we will make a hash map in memory."""
-        return dict((seq.id, len(seq)) for seq in self)
+        hashmap = dict((seq.id, len(seq)) for seq in self)
+        tmp = hashmap.copy()
+        hashmap.update(tmp)
+        return hashmap
 
     def subsample(self, down_to=1, new_path=None):
         """Pick a number of sequences from the file randomly"""
