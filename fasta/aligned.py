@@ -57,10 +57,9 @@ class AlignedFASTA(FASTA):
         # Reformat FASTA #
         AlignIO.write(AlignIO.parse(created_file, 'fasta'), new_path, 'fasta')
         # Clean up #
-        return created_file #TODO
         os.remove(created_file)
 
-    def build_tree(self, out_path=None):
+    def build_tree(self, out_path=None, nucleotide=True):
         """Make a tree with raxml. Note that you need at least four
         taxa to express some evolutionary history on an unrooted tree"""
         # Check length #
@@ -71,6 +70,8 @@ class AlignedFASTA(FASTA):
         # Run it #
         temp_dir = new_temp_dir()
         cpus = max(multiprocessing.cpu_count(), 4) - 2
-        sh.raxml811('-m', 'GTRGAMMA', "-T", cpus, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir)
+        if nucleotide: model = "GTRGAMMA"
+        else: model = "PROTGAMMAJTTF"
+        sh.raxml811('-m', model, "-T", cpus, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir)
         # Move into place #
         shutil.move(temp_dir + 'RAxML_parsimonyTree.tree', out_path)
