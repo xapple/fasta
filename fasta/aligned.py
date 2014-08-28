@@ -40,11 +40,14 @@ class AlignedFASTA(FASTA):
     def sequences(self):
         return OrderedDict(((seq.id, seq) for seq in self))
 
-    def gblocks(self, new_path=None):
+    def gblocks(self, new_path=None, nucleotide=True):
         """Apply the gblocks filtering algorithm to the alignment and overwrite it.
         See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html"""
         # Run it #
-        sh.gblocks91(self, "-t=d", '-p=n', _ok_code=[0,1])
+        if nucleotide: t = "-t=d"
+        else: t = "-t=p"
+        # Run it #
+        sh.gblocks91(self, t, '-p=n', "-b5=a", _ok_code=[0,1])
         created_file = self.path + '-gb'
         assert os.path.exists(created_file)
         # Replace it #
@@ -54,6 +57,7 @@ class AlignedFASTA(FASTA):
         # Reformat FASTA #
         AlignIO.write(AlignIO.parse(created_file, 'fasta'), new_path, 'fasta')
         # Clean up #
+        return created_file #TODO
         os.remove(created_file)
 
     def build_tree(self, out_path=None):
