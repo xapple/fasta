@@ -48,7 +48,9 @@ class FASTA(FilePath):
     def __init__(self, path):
         if hasattr(path, 'path'): self.path = path.path
         else: self.path = path
-        self.gzipped = True if self.path.endswith('gz') else False
+
+    @property
+    def gzipped(self): return True if self.path.endswith('gz') else False
 
     @property
     def first(self):
