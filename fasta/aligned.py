@@ -67,11 +67,12 @@ class AlignedFASTA(FASTA):
         # Check output #
         if out_path is None: out_path = self.prefix_path + '.tree'
         elif not isinstance(out_path, FilePath): out_path = FilePath(out_path)
+        # What model to choose #
+        if nucleotide: model = "GTRGAMMA"
+        else: model = "PROTGAMMAJTTF"
         # Run it #
         temp_dir = new_temp_dir()
         cpus = max(multiprocessing.cpu_count(), 4) - 2
-        if nucleotide: model = "GTRGAMMA"
-        else: model = "PROTGAMMAJTTF"
-        sh.raxml811('-m', model, "-T", cpus, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir)
+        sh.raxml811('-m', model, "-T", cpus, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
         shutil.move(temp_dir + 'RAxML_parsimonyTree.tree', out_path)
