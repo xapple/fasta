@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+"""
+Convert single FASTQ files to an SQL database
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this::
+$ fastaq_to_db reads.fastq reads.db
+"""
+
+# The libraries we need #
+import sys, os, sqlite3
+from Bio import SeqIO
+# Get the shell arguments #
+fq_path = sys.argv[1]
+db_path = sys.argv[2]
+# Check that the path is valid #
+if not os.path.exists(fq_path): raise Exception("No file at %s." % fq_path)
+# Do it #
+    all_seqs = SeqIO.parse(open(fq_path), 'fastq')
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    cursor.execute("CREATE table 'seqs' (id text, dna text, phred text)")
+    sql_command = "INSERT into 'seqs' values (?,?,?)"
+    gen = ((x.id, str(x.seq), str(x.letter_annotations["phred_quality"]) for x in all_seqs)
+    cursor.executemany(sql_command, gen)
+    connection.commit()
+    cursor.close()

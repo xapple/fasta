@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+"""
+Get sequences in a fasta file longer than a given size.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ fasta_longer_than seqs.fasta 150
+"""
+
+###############################################################################
+# The libraries we need #
+import sys, os
+from Bio import SeqIO
+# Get the shell arguments #
+if len(sys.argv) < 2: sys.exit(sys.modules[__name__].__doc__)
+fa_path = sys.argv[1]
+min_len = int(sys.argv[2])
+# Check that the path is valid #
+if not os.path.exists(fa_path): raise Exception("No file at %s." % fa_path)
+# Do it #
+with open(fa_path) as f:
+    seqs = (s for s in SeqIO.parse(f, 'fasta') if len(s) >= min_len)
+    count = SeqIO.write(seqs, sys.stdout, "fasta")
