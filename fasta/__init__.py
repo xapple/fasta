@@ -64,7 +64,10 @@ class FASTA(FilePath):
 
     @property_cached
     def ids(self):
-        return frozenset([seq.description.split()[0] for seq in self])
+        as_list = [seq.description.split()[0] for seq in self]
+        as_set = frozenset(as_list)
+        assert len(as_set) == len(as_list)
+        return as_set
 
     @property
     def lengths(self):

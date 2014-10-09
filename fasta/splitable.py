@@ -31,6 +31,8 @@ class SplitableFASTA(FASTA):
             self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
         # Make parts #
         self.parts = [FASTA(self.make_part_paths(i)) for i in range(self.num_parts)]
+        # Give numbers #
+        for i, part in enumerate(self.parts): part.num = i
 
     def make_part_paths(self, i):
         """Generate the paths for the different parts"""
