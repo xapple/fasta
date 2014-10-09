@@ -122,6 +122,7 @@ class FASTA(FilePath):
         """Just like self.parse but display a progress bar"""
         return tqdm(self, total=len(self))
 
+    #-------------------------------------------------------------------------#
     def get_id(self, id_num):
         """Extract one sequence from the file based on its ID. This is highly ineffective.
         Consider using the SQLite API instead."""
@@ -153,6 +154,7 @@ class FASTA(FilePath):
         hashmap.update(tmp)
         return hashmap
 
+    #-------------------------------------------------------------------------#
     def subsample(self, down_to=1, new_path=None):
         """Pick a number of sequences from the file randomly"""
         # Auto path #

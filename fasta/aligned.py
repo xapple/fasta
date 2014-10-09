@@ -40,39 +40,46 @@ class AlignedFASTA(FASTA):
     def sequences(self):
         return OrderedDict(((seq.id, seq) for seq in self))
 
-    def gblocks(self, new_path=None, nucleotide=True):
-        """Apply the gblocks filtering algorithm to the alignment and overwrite it.
+    def gblocks(self,
+                new_path = None,
+                seq_type = 'nucl' or 'prot'):
+        """Apply the gblocks filtering algorithm to the alignment.
         See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html"""
         # Run it #
-        if nucleotide: t = "-t=d"
-        else: t = "-t=p"
+        if seq_type == 'nucl': t_option = "-t=d"
+        if seq_type == 'prot': t_option = "-t=p"
         # Run it #
-        sh.gblocks91(self, t, '-p=n', "-b5=a", _ok_code=[0,1])
+        sh.gblocks91(self, t_option, '-p=n', "-b5=a", _ok_code=[0,1])
         created_file = self.path + '-gb'
         assert os.path.exists(created_file)
-        # Replace it #
-        if new_path is None:
-            os.remove(self.path)
-            new_path = self.path
-        # Reformat FASTA #
+        # Replace it maybe #
+        if new_path is None: new_path = self.path
+        # Reformat FASTA to the new path #
         AlignIO.write(AlignIO.parse(created_file, 'fasta'), new_path, 'fasta')
         # Clean up #
         os.remove(created_file)
 
-    def build_tree(self, out_path=None, nucleotide=True):
+    def build_tree(self,
+                   new_path    = None,
+                   seq_type    = 'nucl' or 'prot',
+                   num_threads = None):
         """Make a tree with raxml. Note that you need at least four
         taxa to express some evolutionary history on an unrooted tree"""
         # Check length #
         assert len(self) > 3
         # Check output #
-        if out_path is None: out_path = self.prefix_path + '.tree'
-        elif not isinstance(out_path, FilePath): out_path = FilePath(out_path)
+        if new_path is None: new_path = self.prefix_path + '.tree'
         # What model to choose #
-        if nucleotide: model = "GTRGAMMA"
-        else: model = "PROTGAMMAJTTF"
+        if seq_type == 'nucl': model = "GTRGAMMA"
+        if seq_type == 'prot': model = "PROTGAMMAJTTF"
+        # Threads #
+        if num_threads is None: num_threads = multiprocessing.cpu_count() - 2
+        else:                   num_threads = int(num_threads) - 2
+        num_threads = max(1, num_threads)
         # Run it #
         temp_dir = new_temp_dir()
-        cpus = max(multiprocessing.cpu_count(), 4) - 2
-        sh.raxml811('-m', model, "-T", cpus, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
+        sh.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
-        shutil.move(temp_dir + 'RAxML_parsimonyTree.tree', out_path)
+        shutil.move(temp_dir + 'RAxML_parsimonyTree.tree', new_path)
+        # Return #
+        return FilePath(new_path)
