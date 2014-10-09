@@ -45,10 +45,6 @@ class FASTA(FilePath):
         if isinstance(key, basestring): return self.sequences[key]
         elif isinstance(key, int): return self.sequences.items()[key]
 
-    def __init__(self, path):
-        if hasattr(path, 'path'): self.path = path.path
-        else: self.path = path
-
     @property
     def gzipped(self): return True if self.path.endswith('gz') else False
 
@@ -133,7 +129,7 @@ class FASTA(FilePath):
     def sequences(self):
         """Another way of easily retrieving sequences. Also highly ineffective.
         Consider using the SQLite API instead."""
-        return OrderedDict(((seq.id,seq) for seq in self))
+        return OrderedDict(((seq.id, seq) for seq in self))
 
     @property_cached
     def sql(self):
@@ -209,6 +205,26 @@ class FASTA(FilePath):
         fraction.write(fraction_iterator())
         fraction.close()
         return fraction
+
+    def rename_sequences(self, new_fasta, mapping):
+        """Given a new file path, will rename all sequences in the
+        current fasta file using the mapping dictionary also provided."""
+        assert isinstance(new_fasta, FASTA)
+        new_fasta.create()
+        for seq in self:
+            new_name = mapping[seq.id]
+            nucleotides = str(seq.seq)
+            new_fasta.add_str(nucleotides, new_name)
+        new_fasta.close()
+
+    def extract_sequences(self, new_fasta, ids):
+        """Will take all the sequences from the current file who's id appears in
+        the ids given and place them in the new file path given."""
+        assert isinstance(new_fasta, FASTA)
+        new_fasta.create()
+        for seq in self:
+            if seq.id in ids: new_fasta.add_seq(seq)
+        new_fasta.close()
 
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle"""
