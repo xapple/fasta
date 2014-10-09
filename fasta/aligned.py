@@ -62,7 +62,8 @@ class AlignedFASTA(FASTA):
     def build_tree(self,
                    new_path    = None,
                    seq_type    = 'nucl' or 'prot',
-                   num_threads = None):
+                   num_threads = None,
+                   free_cores  = 2):
         """Make a tree with raxml. Note that you need at least four
         taxa to express some evolutionary history on an unrooted tree"""
         # Check length #
@@ -73,8 +74,8 @@ class AlignedFASTA(FASTA):
         if seq_type == 'nucl': model = "GTRGAMMA"
         if seq_type == 'prot': model = "PROTGAMMAJTTF"
         # Threads #
-        if num_threads is None: num_threads = multiprocessing.cpu_count() - 2
-        else:                   num_threads = int(num_threads) - 2
+        if num_threads is None: num_threads = multiprocessing.cpu_count() - free_cores
+        else:                   num_threads = int(num_threads) - free_cores
         num_threads = max(1, num_threads)
         # Run it #
         temp_dir = new_temp_dir()
