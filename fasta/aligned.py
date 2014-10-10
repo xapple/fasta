@@ -82,7 +82,10 @@ class AlignedFASTA(FASTA):
         temp_dir = new_temp_dir()
         sh.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
-        if keep_dir: shutil.move(temp_dir, new_path)
-        else:        shutil.move(temp_dir + 'RAxML_bestTree.tree', new_path)
+        if keep_dir:
+            shutil.rmtree(new_path)
+            shutil.move(temp_dir, new_path)
+        if not keep_dir:
+            shutil.move(temp_dir + 'RAxML_bestTree.tree', new_path)
         # Return #
         return FilePath(new_path)
