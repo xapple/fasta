@@ -63,7 +63,8 @@ class AlignedFASTA(FASTA):
                    new_path    = None,
                    seq_type    = 'nucl' or 'prot',
                    num_threads = None,
-                   free_cores  = 2):
+                   free_cores  = 2,
+                   keep_dir    = False):
         """Make a tree with raxml. Note that you need at least four
         taxa to express some evolutionary history on an unrooted tree"""
         # Check length #
@@ -81,6 +82,7 @@ class AlignedFASTA(FASTA):
         temp_dir = new_temp_dir()
         sh.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
-        shutil.move(temp_dir + 'RAxML_parsimonyTree.tree', new_path)
+        if keep_dir: shutil.move(temp_dir, new_path)
+        else:        shutil.move(temp_dir + 'RAxML_bestTree.tree', new_path)
         # Return #
         return FilePath(new_path)
