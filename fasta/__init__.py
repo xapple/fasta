@@ -276,7 +276,7 @@ class FASTA(FilePath):
 # Expose objects #
 from fasta.fastq import FASTQ
 from fasta.aligned import AlignedFASTA
-from fasta.paired import PairedFASTQ
+from fasta.paired import PairedFASTQ, PairedFASTA
 from fasta.sizes import SizesFASTA
 from fasta.qual import QualFile
 from fasta.splitable import SplitableFASTA

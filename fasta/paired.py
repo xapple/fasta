@@ -2,7 +2,7 @@
 from itertools import izip
 
 # Internal modules #
-from fasta import FASTQ
+from fasta import FASTA, FASTQ
 from plumbing.common import isubsample
 from plumbing.cache import property_cached
 
@@ -10,8 +10,8 @@ from plumbing.cache import property_cached
 from tqdm import tqdm
 
 ###############################################################################
-class PairedFASTQ(object):
-    """Read and write FASTQ file pairs without using too much RAM"""
+class PairedFASTA(object):
+    """Read and write FASTA file pairs without using too much RAM"""
 
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
@@ -24,9 +24,9 @@ class PairedFASTQ(object):
     def exists(self): return self.fwd.exists
 
     def __init__(self, fwd, rev, parent=None):
-        # FASTQ objects #
-        self.fwd = FASTQ(fwd)
-        self.rev = FASTQ(rev)
+        # FASTA objects #
+        self.fwd = FASTA(fwd)
+        self.rev = FASTA(rev)
         # Extra #
         self.gzipped = self.fwd.gzipped
         self.parent = parent
@@ -75,3 +75,15 @@ class PairedFASTQ(object):
         self.subsampled.close()
         # Did it work #
         assert len(dest_pair) == down_to
+
+###############################################################################
+class PairedFASTQ(PairedFASTA):
+    """Read and write FASTQ file pairs without using too much RAM"""
+
+    def __init__(self, fwd, rev, parent=None):
+        # FASTQ objects #
+        self.fwd = FASTQ(fwd)
+        self.rev = FASTQ(rev)
+        # Extra #
+        self.gzipped = self.fwd.gzipped
+        self.parent = parent
