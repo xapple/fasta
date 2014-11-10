@@ -15,14 +15,19 @@ $ ./fasta_length_hist < genes.fasta > genes_hist.pdf
 # Modules #
 import sys, time, getpass, locale
 from Bio import SeqIO
-import pandas, matplotlib
+import pandas
+
+# Matplotlib #
+import matplotlib
+matplotlib.use('Agg', warn=False)
 from matplotlib import pyplot
 
 ################################################################################
 # Read #
 lengths = map(len, SeqIO.parse(sys.stdin, 'fasta'))
 # Report #
-sys.stderr.write("Read all lengths (%i)\n" % len(lengths))
+sys.stderr.write("Read all lengths (%i sequences)\n" % len(lengths))
+sys.stderr.write("Making graph...\n")
 # Data #
 values = pandas.Series(lengths)
 # Plot #

@@ -12,6 +12,7 @@ from tqdm import tqdm
 ###############################################################################
 class PairedFASTA(object):
     """Read and write FASTA file pairs without using too much RAM"""
+    format = 'fasta'
 
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
@@ -79,6 +80,7 @@ class PairedFASTA(object):
 ###############################################################################
 class PairedFASTQ(PairedFASTA):
     """Read and write FASTQ file pairs without using too much RAM"""
+    format = 'fastq'
 
     def __init__(self, fwd, rev, parent=None):
         # FASTQ objects #

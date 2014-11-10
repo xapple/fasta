@@ -4,7 +4,7 @@ b'This module needs Python 2.7.x'
 __version__ = '1.0.2'
 
 # Built-in modules #
-import os, gzip, shutil
+import os, sys, gzip, shutil
 from collections import Counter, OrderedDict
 
 # Internal modules #
@@ -195,13 +195,14 @@ class FASTA(FilePath):
             os.remove(self.path)
             shutil.move(numbered, self.path)
 
-    def extract_length(self, lower_bound, upper_bound, new_path=None, cls=None):
+    def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
         """Extract a certain length fraction and place them in a new file"""
         # Temporary path #
         cls = cls or self.__class__
         fraction = cls(new_temp_path()) if new_path is None else cls(new_path)
         # Generator #
         if lower_bound is None: lower_bound = 0
+        if upper_bound is None: upper_bound = sys.maxint
         def fraction_iterator():
             for read in self:
                 if lower_bound <= len(read) <= upper_bound:
