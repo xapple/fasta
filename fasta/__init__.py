@@ -92,6 +92,7 @@ class FASTA(FilePath):
         return SeqIO.parse(self.handle, self.format)
 
     def create(self):
+        """Create the file on the filesystem"""
         self.buffer = []
         self.buf_count = 0
         if not self.directory.exists: self.directory.create()
@@ -99,14 +100,17 @@ class FASTA(FilePath):
         return self
 
     def add_seq(self, seq):
+        """Use this method to add a SeqRecord object to this fasta"""
         self.buffer.append(seq)
         self.buf_count += 1
         if self.buf_count % self.buffer_size == 0: self.flush()
 
     def add_str(self, seq, name=None, description=""):
+        """Use this method to add a sequence as a string to this fasta"""
         self.add_seq(SeqRecord(Seq(seq), id=name, description=description))
 
     def flush(self):
+        """Empty the buffer"""
         for seq in self.buffer:
             SeqIO.write(seq, self.handle, self.format)
         self.buffer = []
@@ -119,7 +123,7 @@ class FASTA(FilePath):
 
     @property
     def progress(self):
-        """Just like self.parse but display a progress bar"""
+        """Just like self.parse() but will display a progress bar"""
         return tqdm(self, total=len(self))
 
     #-------------------------------------------------------------------------#
