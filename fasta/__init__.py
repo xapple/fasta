@@ -4,7 +4,7 @@ b'This module needs Python 2.7.x'
 __version__ = '1.0.2'
 
 # Built-in modules #
-import os, gzip, shutil
+import os, sys, gzip, shutil
 from collections import Counter, OrderedDict
 
 # Internal modules #
@@ -92,6 +92,7 @@ class FASTA(FilePath):
         return SeqIO.parse(self.handle, self.format)
 
     def create(self):
+        """Create the file on the filesystem"""
         self.buffer = []
         self.buf_count = 0
         if not self.directory.exists: self.directory.create()
@@ -99,14 +100,17 @@ class FASTA(FilePath):
         return self
 
     def add_seq(self, seq):
+        """Use this method to add a SeqRecord object to this fasta"""
         self.buffer.append(seq)
         self.buf_count += 1
         if self.buf_count % self.buffer_size == 0: self.flush()
 
     def add_str(self, seq, name=None, description=""):
+        """Use this method to add a sequence as a string to this fasta"""
         self.add_seq(SeqRecord(Seq(seq), id=name, description=description))
 
     def flush(self):
+        """Empty the buffer"""
         for seq in self.buffer:
             SeqIO.write(seq, self.handle, self.format)
         self.buffer = []
@@ -119,7 +123,7 @@ class FASTA(FilePath):
 
     @property
     def progress(self):
-        """Just like self.parse but display a progress bar"""
+        """Just like self.parse() but will display a progress bar"""
         return tqdm(self, total=len(self))
 
     #-------------------------------------------------------------------------#
@@ -195,13 +199,14 @@ class FASTA(FilePath):
             os.remove(self.path)
             shutil.move(numbered, self.path)
 
-    def extract_length(self, lower_bound, upper_bound, new_path=None, cls=None):
+    def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
         """Extract a certain length fraction and place them in a new file"""
         # Temporary path #
         cls = cls or self.__class__
         fraction = cls(new_temp_path()) if new_path is None else cls(new_path)
         # Generator #
         if lower_bound is None: lower_bound = 0
+        if upper_bound is None: upper_bound = sys.maxint
         def fraction_iterator():
             for read in self:
                 if lower_bound <= len(read) <= upper_bound:
@@ -276,7 +281,7 @@ class FASTA(FilePath):
 # Expose objects #
 from fasta.fastq import FASTQ
 from fasta.aligned import AlignedFASTA
-from fasta.paired import PairedFASTQ
+from fasta.paired import PairedFASTQ, PairedFASTA
 from fasta.sizes import SizesFASTA
 from fasta.qual import QualFile
 from fasta.splitable import SplitableFASTA
