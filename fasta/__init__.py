@@ -139,8 +139,8 @@ class FASTA(FilePath):
     def sql(self):
         """If you access this attribute, we will build an SQLite database
         out of the FASTA file and you will be able access everything in an
-        indexed fashion"""
-        from fasta.database import DatabaseFASTA, fasta_to_sql
+        indexed fashion."""
+        from fasta.indexed import DatabaseFASTA, fasta_to_sql
         db = DatabaseFASTA(self.prefix_path + ".db")
         if not db.exists: fasta_to_sql(self.path, db.path)
         return db
