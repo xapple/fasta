@@ -37,10 +37,9 @@ class Database(object):
     @property_cached
     def files_to_retrive(self):
         """The files we want to download with their destinations."""
-        pattern = 'bacteria.nonredundant_protein.*.protein.faa.gz'
         files = self.ftp.listdir(self.ftp.curdir)
         return OrderedDict((f, FilePath(self.p.raw_dir+f)) for f in files
-                            if fnmatch.fnmatch(f, pattern))
+                            if fnmatch.fnmatch(f, self.pattern))
 
     @property_cached
     def files_remaining(self):
@@ -63,6 +62,7 @@ class RefSeqBacteriaProtNR(Database):
     short_name = "refseq_bact_prot_nr"
     ftp_url    = "ftp.ncbi.nlm.nih.gov"
     ftp_dir    = "/refseq/release/bacteria/"
+    pattern    = 'bacteria.nonredundant_protein.*.protein.faa.gz'
 
 ###############################################################################
 class RefSeqArchaeaProtNR(Database):
@@ -73,6 +73,7 @@ class RefSeqArchaeaProtNR(Database):
     short_name = "refseq_arch_prot_nr"
     ftp_url    = "ftp.ncbi.nlm.nih.gov"
     ftp_dir    = "/refseq/release/archaea/"
+    pattern    = 'archaea.nonredundant_protein.*.protein.faa.gz'
 
 ###############################################################################
 refseq_bact_prot_nr = RefSeqBacteriaProtNR('prot')
