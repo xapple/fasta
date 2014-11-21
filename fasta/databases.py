@@ -46,7 +46,7 @@ class Database(object):
     def files_remaining(self):
         """The files we haven't downloaded yet based on size checks."""
         return OrderedDict((source,dest) for source,dest in self.files_to_retrive.items()
-                           if dest.size != self.ftp.path.getsize(source))
+                           if dest.count_bytes != self.ftp.path.getsize(source))
 
     def download(self):
         """Retrieve all files from the FTP site"""
@@ -70,7 +70,7 @@ class RefSeqArchaeaProtNR(Database):
     non-redundant version. We will download the raw sequences by FTP
     and format them as a blast data base."""
 
-    short_name = "refseq_bact_prot_nr"
+    short_name = "refseq_arch_prot_nr"
     ftp_url    = "ftp.ncbi.nlm.nih.gov"
     ftp_dir    = "/refseq/release/archaea/"
 
