@@ -29,7 +29,7 @@ class Database(object):
 
     @property_cached
     def ftp(self):
-        """If the data is obtained by FTP here is the ftputil object."""
+        """If the data is to be obtained by FTP here is the ftputil object."""
         ftp = FTPHost(self.ftp_url, "anonymous")
         ftp.chdir(self.ftp_dir)
         return ftp
@@ -46,6 +46,11 @@ class Database(object):
         """The files we haven't downloaded yet based on size checks."""
         return OrderedDict((source,dest) for source,dest in self.files_to_retrive.items()
                            if dest.count_bytes != self.ftp.path.getsize(source))
+
+    @property
+    def raw_files(self):
+        """The files we have downloaded."""
+        return self.p.raw.contents
 
     def download(self):
         """Retrieve all files from the FTP site"""
