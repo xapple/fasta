@@ -50,7 +50,7 @@ class Database(object):
     @property
     def raw_files(self):
         """The files we have downloaded."""
-        return self.p.raw.contents
+        return self.p.raw_dir.contents
 
     def download(self):
         """Retrieve all files from the FTP site"""
