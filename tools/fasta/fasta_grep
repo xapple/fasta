@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+"""
+A custom made script to extract some sequences from a FASTA file
+given a certain name pattern.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ ./fasta_grep ACD_58C AMFJ01.fasta > ACD_58C.fasta
+"""
+
+###############################################################################
+# Modules #
+import sys, os, re
+from Bio import SeqIO
+# Check usage #
+if len(sys.argv) != 3: sys.exit(sys.modules[__name__].__doc__)
+# Get the shell arguments #
+name = sys.argv[1]
+fasta_path = sys.argv[2]
+# Check that the path is valid #
+if not os.path.exists(fasta_path): raise Exception("No file at %s." % fasta_path)
+# Match function #
+pattern = re.compile(name)
+def primer_matches(reads):
+    for read in reads:
+        if pattern.search(read.description): yield read
+# Read and output #
+reads = SeqIO.parse(open(fasta_path), 'fasta')
+SeqIO.write(primer_matches(reads), sys.stdout, "fasta")

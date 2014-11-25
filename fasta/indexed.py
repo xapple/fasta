@@ -18,7 +18,7 @@ from tqdm import tqdm
 base_keys = ('id', 'description', 'seq')
 
 ###############################################################################
-class DatabaseFASTA(Database, FASTA):
+class DatabaseFASTA(Database):
 
     def __init__(self, path=None):
         self.path = path

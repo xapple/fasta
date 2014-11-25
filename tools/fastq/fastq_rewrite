@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+"""
+Convert non standard FASTQ files to standard FASTQ
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this::
+$ fastaq_rewrite reads.fastq reads_norm.fastq
+"""
+
+# The libraries we need #
+import sys, os
+from Bio import SeqIO
+# Get the shell arguments #
+fq_path = sys.argv[1]
+out_path = sys.argv[2]
+# Check that the path is valid #
+if not os.path.exists(fq_path): raise Exception("No file at %s." % fq_path)
+# Do it #
+all_seqs = SeqIO.parse(open(fq_path), 'fastq')
+with open(out_path, 'w') as handle: SeqIO.write(all_seqs, handle,'fastq')

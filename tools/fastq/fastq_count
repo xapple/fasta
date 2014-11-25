@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+"""
+A custom made script to count sequences in a fastq file.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ ./fastq_count < genes.fastq
+"""
+
+###############################################################################
+# Modules #
+import sys
+from Bio import SeqIO
+# Read and output #
+print sum([1 for x in SeqIO.parse(sys.stdin, 'fastq')]), "sequences"

@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+
+"""
+A script to compare sequence ids in two fastqq files.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ ./fastq_compare reads1.fastq reads2.fastq
+"""
+
+###############################################################################
+# The libraries we need #
+import sys, os
+from Bio import SeqIO
+# Check usage #
+if len(sys.argv) != 3: sys.exit(sys.modules[__name__].__doc__)
+# Get the shell arguments #
+fasta1_path = sys.argv[1]
+fasta2_path = sys.argv[2]
+# Check that the path is valid #
+if not os.path.exists(fasta1_path): raise Exception("No file at %s." % fasta1_path)
+if not os.path.exists(fasta2_path): raise Exception("No file at %s." % fasta2_path)
+# Parse fasta #
+names_fasta1 = [x.id for x in SeqIO.parse(open(fasta1_path), 'fastq')]
+names_fasta2 = [x.id for x in SeqIO.parse(open(fasta2_path), 'fastq')]
+# Disjoint #
+agree = []
+print "Sequences in FASTA1:", len(names_fasta1)
+print "Sequences in FASTA2:", len(names_fasta2)
+for i in names_fasta1:
+    if i in names_fasta2:
+        agree.append(i)
+print "Agreeing:", len(agree)

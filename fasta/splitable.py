@@ -12,23 +12,31 @@ import humanfriendly
 
 ###############################################################################
 class SplitableFASTA(FASTA):
+    """A FASTA file which you can split into chunks. Either you give the number
+    of parts you want to generate, or you can give a target size in bytes for
+    each part."""
 
-    def __init__(self, path, part_size, base_dir=None):
+    def __init__(self, path, num_parts=None, part_size=None, base_dir=None):
         # Basic #
         self.path = path
         # Directory #
         if base_dir is None: self.base_dir = path + '.parts/'
         else:                self.base_dir = base_dir
+        # Num parts #
+        if num_parts is not None: self.num_parts = num_parts
         # Evaluate size #
-        self.bytes_target = humanfriendly.parse_size(part_size)
-        # Chose number of parts #
-        self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
+        if part_size is not None:
+            self.bytes_target = humanfriendly.parse_size(part_size)
+            self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
         # Make parts #
         self.make_name = lambda i: self.base_dir + "%03d/part.fasta" % i
         self.parts = [FASTA(self.make_name(i)) for i in range(self.num_parts)]
+        # Give a number to each part #
+        for i, part in enumerate(self.parts): part.num = i
 
     @property
     def status(self):
+        """Has the splitting been done already ?"""
         if all(os.path.exists(p.path) for p in self.parts): return 'splitted'
         return False
 
@@ -48,7 +56,7 @@ class SplitableFASTA(FASTA):
         # Do the job #
         seqs = self.parse()
         for part in self.parts:
-            for i in xrange(self.seqs_per_part): part.add_read(seqs.next())
-        for seq in seqs: part.add_read(seq)
+            for i in xrange(self.seqs_per_part): part.add_seq(seqs.next())
+        for seq in seqs: part.add_seq(seq)
         # Clean up #
         for part in self.parts: part.close()

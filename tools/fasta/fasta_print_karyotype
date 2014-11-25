@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+"""
+Get the names and sizes of sequences in a FASTA file
+in a specific format.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ fasta_print_karyotype seqs.fasta > contigs.chr
+"""
+
+###############################################################################
+# The libraries we need #
+import sys, os
+from Bio import SeqIO
+# Get the shell arguments #
+fa_path = sys.argv[1]
+# Check that the path is valid #
+if not os.path.exists(fa_path): raise Exception("No file at %s." % fa_path)
+# Do it #
+seqs = ((s.id, str(len(s))) for s in SeqIO.parse(open(fa_path), 'fasta'))
+# Print output #
+for i,s in enumerate(seqs):
+    print 'chr - ' + s[0] + ' ' + s[0][16:24] + ' 0 ' + s[1] + ' chr1'
