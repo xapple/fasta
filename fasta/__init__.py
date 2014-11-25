@@ -230,11 +230,16 @@ class FASTA(FilePath):
 
     @property_cached
     def graphs(self):
-        return dict(((cls,getattr(graphs, cls)(self)) for cls in graphs.__all__))
+        class Graphs(object): pass
+        result = Graphs()
+        for graph in graphs.__all__:
+            cls = getattr(graphs, graph)
+            setattr(result, cls.short_name, cls(self))
+        return result
 
     @property_cached
     def length_dist(self):
-        graph = self.graphs['LengthDist']
+        graph = self.graphs.length_dist
         if not graph: graph.plot()
         return graph
 

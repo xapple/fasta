@@ -19,6 +19,8 @@ class FastQC(object):
     See http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
     Expects version 0.10.1."""
 
+    def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.source.path)
+
     def __init__(self, source, dest=None):
         # Basic #
         self.source = FASTQ(source)
@@ -32,12 +34,12 @@ class FastQC(object):
 
     def run(self):
         if self.dest is None:
-            sh.fastqc(self.source, '-q')
+            sh.fastqc101(self.source, '-q')
             os.remove(self.source.prefix_path + '_fastqc.zip')
         if self.dest is not None:
             if self.dest.exists: self.dest.remove()
             self.tmp_dir = new_temp_dir()
-            sh.fastqc(self.source, '-q', '-o', self.tmp_dir)
+            sh.fastqc101(self.source, '-q', '-o', self.tmp_dir)
             created_dir = self.tmp_dir + self.source.prefix.split('.')[0] + '_fastqc/'
             shutil.move(created_dir, self.dest)
             self.tmp_dir.remove()

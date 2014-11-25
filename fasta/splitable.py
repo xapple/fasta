@@ -18,16 +18,14 @@ class SplitableFASTA(FASTA):
         self.path = path
         # Directory #
         if base_dir is None: self.base_dir = path + '.parts/'
-        else: self.base_dir = base_dir
-        if not os.path.exists(self.base_dir): os.makedirs(self.base_dir)
+        else:                self.base_dir = base_dir
         # Evaluate size #
         self.bytes_target = humanfriendly.parse_size(part_size)
         # Chose number of parts #
         self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
         # Make parts #
-        self.parts = [FASTA(self.make_part_paths(i)) for i in range(self.num_parts)]
-
-    def make_part_paths(self, i): return self.base_dir + "%s%03d.fasta" % (self.prefix, i)
+        self.make_name = lambda i: self.base_dir + "%03d/part.fasta" % i
+        self.parts = [FASTA(self.make_name(i)) for i in range(self.num_parts)]
 
     @property
     def status(self):
@@ -37,7 +35,7 @@ class SplitableFASTA(FASTA):
     def split(self):
         # Clean #
         for i in xrange(sys.maxint):
-            if os.path.exists(self.make_part_paths(i)): os.remove(self.make_part_paths(i))
+            if os.path.exists(self.make_name(i)): os.remove(self.make_name(i))
             else: break
         # Case only one part #
         if len(self.parts) == 1:

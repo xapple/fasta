@@ -10,6 +10,7 @@ __all__ = ['LengthDist']
 ################################################################################
 class LengthDist(Graph):
     """The length distribution of the sequences"""
+    short_name = 'length_dist'
 
     def __init__(self, parent):
         self.parent = parent
