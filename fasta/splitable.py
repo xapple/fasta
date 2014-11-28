@@ -30,7 +30,7 @@ class SplitableFASTA(FASTA):
             self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
         # Make parts #
         self.make_name = lambda i: self.base_dir + "%03d/part.fasta" % i
-        self.parts = [FASTA(self.make_name(i)) for i in range(self.num_parts)]
+        self.parts = [FASTA(self.make_name(i)) for i in range(1, self.num_parts+1)]
         # Give a number to each part #
         for i, part in enumerate(self.parts): part.num = i
 
@@ -42,12 +42,13 @@ class SplitableFASTA(FASTA):
 
     def split(self):
         # Clean #
-        for i in xrange(sys.maxint):
+        for i in xrange(1, sys.maxint):
             if os.path.exists(self.make_name(i)): os.remove(self.make_name(i))
             else: break
         # Case only one part #
         if len(self.parts) == 1:
-            os.symlink(self.path, self.parts[0].path)
+            self.parts[0].directory.create(safe=True)
+            self.link_to(self.parts[0])
             return
         # Compute number of sequences #
         self.seqs_per_part = int(math.floor(self.count / self.num_parts))
