@@ -2,7 +2,7 @@
 from __future__ import division
 
 # Built-in modules #
-import os, sys, math
+import os, sys, math, shutil
 
 # Internal modules #
 from fasta import FASTA
@@ -43,7 +43,8 @@ class SplitableFASTA(FASTA):
     def split(self):
         # Clean #
         for i in xrange(1, sys.maxint):
-            if os.path.exists(self.make_name(i)): os.remove(self.make_name(i))
+            dir_path = self.base_dir + "%03d/" % i
+            if os.path.exists(dir_path): shutil.rmtree(dir_path)
             else: break
         # Case only one part #
         if len(self.parts) == 1:
