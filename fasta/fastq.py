@@ -2,7 +2,7 @@
 
 # Internal modules #
 from fasta import FASTA
-from plumbing.common import imean
+from plumbing.common import average
 from plumbing.cache import property_cached
 from plumbing.autopaths import FilePath
 
@@ -34,7 +34,7 @@ class FASTQ(FASTA):
 
     @property_cached
     def avg_quality(self):
-        mean = imean(s for r in self for s in r.letter_annotations["phred_quality"])
+        mean = average(s for r in self for s in r.letter_annotations["phred_quality"])
         self.close()
         return mean
 
