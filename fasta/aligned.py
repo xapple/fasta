@@ -65,7 +65,7 @@ class AlignedFASTA(FASTA):
                    num_threads = None,
                    free_cores  = 2,
                    keep_dir    = False):
-        """Make a tree with raxml. Note that you need at least four
+        """Make a tree with RAxML. Note that you need at least four
         taxa to express some evolutionary history on an unrooted tree"""
         # Check length #
         assert len(self) > 3
