@@ -62,8 +62,8 @@ axes.set_xlabel('Number of nucleotides in sequence')
 axes.set_ylabel('Number of sequences with this length')
 axes.xaxis.grid(False)
 # Log #
-if x_log: axes.set_yscale('symlog')
-if y_log: axes.set_xscale('symlog')
+if x_log: axes.set_xscale('symlog')
+if y_log: axes.set_yscale('symlog')
 # Adjust #
 width=18.0; height=10.0; bottom=0.1; top=0.93; left=0.07; right=0.98
 fig.set_figwidth(width)
