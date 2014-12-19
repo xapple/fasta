@@ -16,7 +16,7 @@ class LengthDist(Graph):
         self.parent = parent
         self.path = self.parent.prefix_path + '_len_dist.pdf'
 
-    def plot(self):
+    def plot(self, x_log=False, y_log=False):
         # Data #
         counts = self.parent.lengths_counter
         # Plot #
@@ -29,5 +29,8 @@ class LengthDist(Graph):
         axes.set_xlabel('Length of sequence in nucleotides')
         axes.set_ylabel('Number of sequences with this length')
         axes.xaxis.grid(False)
+        # Add logarithm to axes #
+        if x_log: axes.set_xscale('symlog')
+        if y_log: axes.set_yscale('symlog')
         # Save it #
         self.save_plot(fig, axes, sep=('x'))
