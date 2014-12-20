@@ -4,7 +4,7 @@ b'This module needs Python 2.7.x'
 __version__ = '1.0.2'
 
 # Built-in modules #
-import os, sys, gzip, shutil
+import os, sys, gzip, shutil, itertools
 from collections import Counter, OrderedDict
 
 # Internal modules #
@@ -43,7 +43,8 @@ class FASTA(FilePath):
 
     def __getitem__(self, key):
         if isinstance(key, basestring): return self.sequences[key]
-        elif isinstance(key, int): return self.sequences.items()[key]
+        elif isinstance(key, int):      return self.sequences.items()[key]
+        elif isinstance(key, slice):    return itertools.islice(self, key.start, key.stop, key.step)
 
     @property
     def gzipped(self): return True if self.path.endswith('gz') else False
