@@ -1,9 +1,9 @@
 # Internal modules #
 from plumbing.graphs import Graph
+from plumbing.autopaths import FilePath
 
 # Third party modules #
 from matplotlib import pyplot
-from autopaths import FilePath
 
 # Constants #
 __all__ = ['LengthDist']
