@@ -3,6 +3,7 @@ from plumbing.graphs import Graph
 
 # Third party modules #
 from matplotlib import pyplot
+from autopaths import FilePath
 
 # Constants #
 __all__ = ['LengthDist']
@@ -14,7 +15,7 @@ class LengthDist(Graph):
 
     def __init__(self, parent):
         self.parent = parent
-        self.path = self.parent.prefix_path + '_len_dist.pdf'
+        self.path = FilePath(self.parent.prefix_path + '_len_dist.pdf')
 
     def plot(self, x_log=False, y_log=False):
         # Data #
