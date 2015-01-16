@@ -35,7 +35,6 @@ class FASTA(FilePath):
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
     def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.path)
-    def __nonzero__(self): return self.exists and os.path.getsize(self.path) != 0
     def __contains__(self, other): return other in self.ids
 
     def __enter__(self): return self.create()
