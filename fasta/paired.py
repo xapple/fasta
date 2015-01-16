@@ -22,7 +22,7 @@ class PairedFASTA(object):
                         (self.__class__.__name__, self.fwd.path, self.rev.path)
 
     @property
-    def exists(self): return self.fwd.exists
+    def exists(self): return self.fwd.exists and self.rev.exists
 
     def __init__(self, fwd, rev, parent=None):
         # FASTA objects #

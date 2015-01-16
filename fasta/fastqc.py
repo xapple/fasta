@@ -53,7 +53,7 @@ class FastQC(object):
     @property_cached
     def results(self):
         results = FastQCResults(self.output_dir)
-        if not results: self.run()
+        if not results: raise Exception("You can't access results from FastQC before running the tool.")
         return results
 
 ###############################################################################
