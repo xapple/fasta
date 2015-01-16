@@ -16,10 +16,12 @@ class PairedFASTA(object):
 
     def __len__(self): return self.count
     def __iter__(self): return self.parse()
-    def __enter__(self): return self.create()
-    def __exit__(self, exc_type, exc_value, traceback): self.close()
+    def __nonzero__(self): return bool(self.fwd) and bool(self.rev)
     def __repr__(self): return '<%s object on "%s" and "%s">' % \
                         (self.__class__.__name__, self.fwd.path, self.rev.path)
+
+    def __enter__(self): return self.create()
+    def __exit__(self, exc_type, exc_value, traceback): self.close()
 
     @property
     def exists(self): return self.fwd.exists and self.rev.exists
