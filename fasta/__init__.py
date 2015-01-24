@@ -64,6 +64,7 @@ class FASTA(FilePath):
 
     @property_cached
     def ids(self):
+        """A frozen set of all unique IDs in the file"""
         as_list = [seq.description.split()[0] for seq in self]
         as_set = frozenset(as_list)
         assert len(as_set) == len(as_list)

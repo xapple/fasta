@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Get sequences in a fasta file longer than a given size.
+Get the first N sequences in a fasta file.
 
 Written by Lucas Sinclair.
 Kopimi.
