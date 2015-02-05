@@ -19,14 +19,14 @@ import sys, os
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-from collection import Counter
+from collections import Counter
 # Function #
 def make_unique(reads):
 	counts = Counter()
-	for read in reads: Counter.update([str(read.seq)])
+	for read in reads: counts.update([str(read.seq)])
 	i = 0
 	for read, count in counts.items():
-		yield read = SeqRecord(Seq(read), name="sequence_" + str(i) + ";size=" + str(count) + ";")
+		yield SeqRecord(Seq(read), id="sequence_" + str(i) + ";size=" + str(count) + ";", description="")
 		i += 1
 # Do it #
 reads = SeqIO.parse(sys.stdin, 'fasta')
