@@ -10,16 +10,20 @@ Written by Lucas Sinclair.
 Kopimi.
 
 You can use this script from the shell like this:
-$ fasta_make_unique < seqs.fasta > seqs_unique.fasta
+$ fasta_make_unique seqs.fasta seqs_unique.fasta
 """
 
 ###############################################################################
 # The libraries we need #
-import sys, os
+import sys
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 from collections import Counter
+# Get the shell arguments #
+if len(sys.argv) < 2: sys.exit(sys.modules[__name__].__doc__)
+input_path = sys.argv[1]
+unique_path = sys.argv[2]
 # Function #
 def make_unique(reads):
 	counts = Counter()
@@ -29,5 +33,5 @@ def make_unique(reads):
 		yield SeqRecord(Seq(read), id="sequence_" + str(i) + ";size=" + str(count) + ";", description="")
 		i += 1
 # Do it #
-reads = SeqIO.parse(sys.stdin, 'fasta')
-SeqIO.write(make_unique(reads), sys.stdout, "fasta")
+reads = SeqIO.parse(input_path, 'fasta')
+SeqIO.write(make_unique(reads), unique_path, "fasta")
