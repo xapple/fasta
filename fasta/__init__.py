@@ -163,29 +163,30 @@ class FASTA(FilePath):
     def subsample(self, down_to=1, new_path=None):
         """Pick a number of sequences from the file randomly"""
         # Auto path #
-        if not new_path: new_path = self.p.subsample
+        if new_path is None: subsampled = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): subsampled = new_path
+        else:                subsampled = self.__class__(new_path)
         # Check size #
         if down_to > len(self):
             message = "Can't subsample %s down to %i. Only down to %i."
             print Color.ylw + message % (self, down_to, len(self)) + Color.end
             self.copy(new_path)
             return
-        # Make new file #
-        self.subsampled = self.__class__(new_path)
-        self.subsampled.create()
         # Do it #
+        subsampled.create()
         for seq in isubsample(self, down_to):
-            self.subsampled.add_seqrecord(seq)
-        # Clean up #
-        self.subsampled.close()
+            subsampled.add_seqrecord(seq)
+        subsampled.close()
         # Did it work #
-        assert len(self.subsampled) == down_to
+        assert len(subsampled) == down_to
+        return subsampled
 
     def rename_with_num(self, prefix="", new_path=None, remove_desc=True):
         """Rename every sequence based on a prefix and a number"""
         # Temporary path #
         if new_path is None: numbered = self.__class__(new_temp_path())
-        else: numbered = self.__class__(new_path)
+        elif isinstance(new_path, FASTA): numbered = new_path
+        else:                numbered = self.__class__(new_path)
         # Generator #
         def numbered_iterator():
             for i,read in enumerate(self):
@@ -199,12 +200,14 @@ class FASTA(FilePath):
         if new_path is None:
             os.remove(self.path)
             shutil.move(numbered, self.path)
+        return numbered
 
     def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
         """Extract a certain length fraction and place them in a new file"""
         # Temporary path #
-        cls = cls or self.__class__
-        fraction = cls(new_temp_path()) if new_path is None else cls(new_path)
+        if new_path is None: fraction = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): fraction = new_path
+        else:                fraction = self.__class__(new_path)
         # Generator #
         if lower_bound is None: lower_bound = 0
         if upper_bound is None: upper_bound = sys.maxint
@@ -217,25 +220,31 @@ class FASTA(FilePath):
         fraction.close()
         return fraction
 
-    def rename_sequences(self, new_fasta, mapping):
+    def rename_sequences(self, mapping, new_path=None):
         """Given a new file path, will rename all sequences in the
         current fasta file using the mapping dictionary also provided."""
-        assert isinstance(new_fasta, FASTA)
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
         for seq in self:
             new_name = mapping[seq.id]
             nucleotides = str(seq.seq)
             new_fasta.add_str(nucleotides, new_name)
         new_fasta.close()
+        return new_fasta
 
-    def extract_sequences(self, new_fasta, ids):
+    def extract_sequences(self, ids, new_path=None):
         """Will take all the sequences from the current file who's id appears in
         the ids given and place them in the new file path given."""
-        assert isinstance(new_fasta, FASTA)
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
         for seq in self:
             if seq.id in ids: new_fasta.add_seq(seq)
         new_fasta.close()
+        return new_fasta
 
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle"""
@@ -273,10 +282,12 @@ class FASTA(FilePath):
     def index_bowtie(self):
         """Create an index on the fasta file compatible with bowtie2"""
         sh.bowtie2_build(self.path, self.path)
+        return FilePath(self.path + '.1.bt2')
 
     def index_samtools(self):
         """Create an index on the fasta file compatible with samtools"""
         sh.samtools('faidx', self.path)
+        return FilePath(self.path + '.fai')
 
 ################################################################################
 # Expose objects #
