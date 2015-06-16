@@ -35,5 +35,6 @@ class LengthDist(Graph):
         if y_log: axes.set_yscale('symlog')
         # Save it #
         self.save_plot(fig, axes, sep=('x'))
+        pyplot.close(fig)
         # For convenience #
         return self
