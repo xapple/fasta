@@ -4,11 +4,12 @@ from __future__ import division
 # Built-in modules #
 import os, shutil
 
-# Internal modules #
+# First party modules #
 from fasta import FASTQ
 from plumbing.autopaths import DirectoryPath
 from plumbing.tmpstuff import new_temp_dir
 from plumbing.cache import property_cached
+from plumbing.slurm import num_processors
 
 # Third party modules #
 import sh
@@ -32,14 +33,20 @@ class FastQC(object):
     def check(self):
         assert sh.fastqc('--v', )
 
-    def run(self):
+    def run(self, cpus=None):
+        # Check version #
+        assert "v0.10.1" in sh.fastqc101('--version')
+        # Variable threads #
+        if cpus is None: cpus = num_processors
+        # Destination absent #
         if self.dest is None:
-            sh.fastqc101(self.source, '-q')
+            sh.fastqc101(self.source, '-q', '-t', cpus)
             os.remove(self.source.prefix_path + '_fastqc.zip')
+        # Destination given #
         if self.dest is not None:
             if self.dest.exists: self.dest.remove()
             self.tmp_dir = new_temp_dir()
-            sh.fastqc101(self.source, '-q', '-o', self.tmp_dir)
+            sh.fastqc101(self.source, '-q', '-o', self.tmp_dir, '-t', cpus)
             created_dir = self.tmp_dir + self.source.prefix.split('.')[0] + '_fastqc/'
             shutil.move(created_dir, self.dest)
             self.tmp_dir.remove()
