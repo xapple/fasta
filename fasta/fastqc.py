@@ -27,11 +27,7 @@ class FastQC(object):
         self.source = FASTQ(source)
         self.dest = DirectoryPath(dest)
         # Default case #
-        if dest is None:
-            self.dest = DirectoryPath(self.source.prefix_path + '.fastqc')
-
-    def check(self):
-        assert sh.fastqc('--v', )
+        if dest is None: self.dest = DirectoryPath(self.source.prefix_path + '.fastqc')
 
     def run(self, cpus=None):
         # Check version #
@@ -48,9 +44,10 @@ class FastQC(object):
             self.tmp_dir = new_temp_dir()
             sh.fastqc101(self.source, '-q', '-o', self.tmp_dir, '-t', cpus)
             created_dir = self.tmp_dir + self.source.prefix.split('.')[0] + '_fastqc/'
-            shutil.move(created_dir, self.dest)
+            shutil.move(created_dir, self.dest.path)
             self.tmp_dir.remove()
-            return self.results
+        # Return #
+        return self.results
 
     @property
     def output_dir(self):
