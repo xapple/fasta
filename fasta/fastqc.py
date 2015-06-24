@@ -40,12 +40,16 @@ class FastQC(object):
             os.remove(self.source.prefix_path + '_fastqc.zip')
         # Destination given #
         if self.dest is not None:
-            if self.dest.exists: self.dest.remove()
             self.tmp_dir = new_temp_dir()
             sh.fastqc101(self.source, '-q', '-o', self.tmp_dir, '-t', cpus)
-            created_dir = self.tmp_dir + self.source.prefix.split('.')[0] + '_fastqc/'
-            shutil.move(created_dir, self.dest.path)
+            created_name = self.source.prefix.split('.')[0] + '_fastqc/'
+            created_dir  = self.tmp_dir + created_name
+            if self.dest.exists: shutil.rmtree(self.dest)
+            shutil.move(created_dir, self.dest)
             self.tmp_dir.remove()
+        # Strange case where created_dir is not renamed to self.dest but put inside instead #
+        if self.dest + created_name in self.dest.flat_directories:
+            raise Exception("Looks like the shutil.move didn't do what was expected. Should fix.")
         # Return #
         return self.results
 
