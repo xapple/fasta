@@ -20,6 +20,7 @@ class FastQC(object):
     See http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
     Expects version 0.10.1."""
 
+    def __nonzero__(self): return os.path.exists(self.output_dir + 'Images/per_base_quality.png')
     def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.source.path)
 
     def __init__(self, source, dest=None):
