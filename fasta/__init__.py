@@ -100,6 +100,10 @@ class FASTA(FilePath):
         self.open('w')
         return self
 
+    def add(self, seqs):
+        """Use this method to add a bunch of SeqRecord at once."""
+        for seq in seqs: self.add_seq(seq)
+
     def add_seq(self, seq):
         """Use this method to add a SeqRecord object to this fasta"""
         self.buffer.append(seq)
