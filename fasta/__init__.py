@@ -72,10 +72,12 @@ class FASTA(FilePath):
 
     @property
     def lengths(self):
+        """All the lengths, one by one, in a list"""
         return map(len, self.parse())
 
     @property_cached
     def lengths_counter(self):
+        """A Counter() object with all the lengths inside"""
         return Counter((len(s) for s in self.parse()))
 
     def open(self, mode='r'):
