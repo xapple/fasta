@@ -9,6 +9,8 @@ from collections import Counter, OrderedDict
 
 # Internal modules #
 from fasta import graphs
+
+# First party modules #
 from plumbing.common import isubsample
 from plumbing.color import Color
 from plumbing.cache import property_cached
@@ -45,6 +47,7 @@ class FASTA(FilePath):
         elif isinstance(key, int):        return self.sequences.items()[key]
         elif isinstance(key, slice):      return itertools.islice(self, key.start, key.stop, key.step)
 
+    #----------------------------- Properties --------------------------------#
     @property
     def gzipped(self): return True if self.path.endswith('gz') else False
 
@@ -62,24 +65,17 @@ class FASTA(FilePath):
         if self.gzipped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
         else: return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
 
-    @property_cached
-    def ids(self):
-        """A frozen set of all unique IDs in the file"""
-        as_list = [seq.description.split()[0] for seq in self]
-        as_set = frozenset(as_list)
-        assert len(as_set) == len(as_list)
-        return as_set
-
     @property
     def lengths(self):
-        """All the lengths, one by one, in a list"""
+        """All the lengths, one by one, in a list."""
         return map(len, self.parse())
 
     @property_cached
     def lengths_counter(self):
-        """A Counter() object with all the lengths inside"""
+        """A Counter() object with all the lengths inside."""
         return Counter((len(s) for s in self.parse()))
 
+    #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode='r'):
         if self.gzipped: self.handle = gzip.open(self.path, mode)
         else: self.handle = open(self.path, mode)
@@ -94,8 +90,13 @@ class FASTA(FilePath):
         self.open()
         return SeqIO.parse(self.handle, self.format)
 
+    @property
+    def progress(self):
+        """Just like self.parse() but will display a progress bar."""
+        return tqdm(self, total=len(self))
+
     def create(self):
-        """Create the file on the filesystem"""
+        """Create the file on the file system."""
         self.buffer = []
         self.buf_count = 0
         if not self.directory.exists: self.directory.create()
@@ -107,17 +108,17 @@ class FASTA(FilePath):
         for seq in seqs: self.add_seq(seq)
 
     def add_seq(self, seq):
-        """Use this method to add a SeqRecord object to this fasta"""
+        """Use this method to add a SeqRecord object to this fasta."""
         self.buffer.append(seq)
         self.buf_count += 1
         if self.buf_count % self.buffer_size == 0: self.flush()
 
     def add_str(self, seq, name=None, description=""):
-        """Use this method to add a sequence as a string to this fasta"""
+        """Use this method to add a sequence as a string to this fasta."""
         self.add_seq(SeqRecord(Seq(seq), id=name, description=description))
 
     def flush(self):
-        """Empty the buffer"""
+        """Empty the buffer."""
         for seq in self.buffer:
             SeqIO.write(seq, self.handle, self.format)
         self.buffer = []
@@ -128,15 +129,18 @@ class FASTA(FilePath):
         SeqIO.write(reads, self.handle, self.format)
         self.close()
 
-    @property
-    def progress(self):
-        """Just like self.parse() but will display a progress bar"""
-        return tqdm(self, total=len(self))
+    #------------------------- When IDs are important ------------------------#
+    @property_cached
+    def ids(self):
+        """A frozen set of all unique IDs in the file."""
+        as_list = [seq.description.split()[0] for seq in self]
+        as_set = frozenset(as_list)
+        assert len(as_set) == len(as_list)
+        return as_set
 
-    #-------------------------------------------------------------------------#
     def get_id(self, id_num):
         """Extract one sequence from the file based on its ID. This is highly ineffective.
-        Consider using the SQLite API instead."""
+        Consider using the SQLite API instead or memory map the file."""
         for seq in self:
             if seq.id == id_num: return seq
 
@@ -150,7 +154,7 @@ class FASTA(FilePath):
     def sql(self):
         """If you access this attribute, we will build an SQLite database
         out of the FASTA file and you will be able access everything in an
-        indexed fashion."""
+        indexed fashion, and use the blaze library via sql.frame"""
         from fasta.indexed import DatabaseFASTA, fasta_to_sql
         db = DatabaseFASTA(self.prefix_path + ".db")
         if not db.exists: fasta_to_sql(self.path, db.path)
@@ -165,9 +169,9 @@ class FASTA(FilePath):
         hashmap.update(tmp)
         return hashmap
 
-    #-------------------------------------------------------------------------#
+    #----------------- Ways of interacting with the data --------------------#
     def subsample(self, down_to=1, new_path=None):
-        """Pick a number of sequences from the file randomly"""
+        """Pick a number of sequences from the file pseudo-randomly."""
         # Auto path #
         if new_path is None: subsampled = self.__class__(new_temp_path())
         elif isinstance(new_path, FASTA): subsampled = new_path
@@ -188,7 +192,7 @@ class FASTA(FilePath):
         return subsampled
 
     def rename_with_num(self, prefix="", new_path=None, remove_desc=True):
-        """Rename every sequence based on a prefix and a number"""
+        """Rename every sequence based on a prefix and a number."""
         # Temporary path #
         if new_path is None: numbered = self.__class__(new_temp_path())
         elif isinstance(new_path, FASTA): numbered = new_path
@@ -209,7 +213,7 @@ class FASTA(FilePath):
         return numbered
 
     def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
-        """Extract a certain length fraction and place them in a new file"""
+        """Extract a certain length fraction and place them in a new file."""
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())
         elif isinstance(new_path, FASTA): fraction = new_path
@@ -252,13 +256,30 @@ class FASTA(FilePath):
         new_fasta.close()
         return new_fasta
 
+    def remove_trailing_stars(self, new_path=None, in_place=True):
+        """Remove any bad character that can be inserted by some programs at the
+        end of sequences."""
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        else:                new_fasta = self.__class__(new_path)
+        new_fasta.create()
+        for seq in self: new_fasta.add_str(seq.seq.rstrip('*'), seq.id)
+        new_fasta.close()
+        # Replace it #
+        if in_place is True:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        return new_fasta
+
+    #----------------------------- Third party programs ------------------------#
     def align(self, out_path=None):
-        """We align the sequences in the fasta file with muscle"""
+        """We align the sequences in the fasta file with muscle."""
         if out_path is None: out_path = self.prefix_path + '.aln'
         sh.muscle38("-in", self.path, "-out", out_path)
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
+        """We align the sequences in the fasta file with mothur and a template."""
         # Run it #
         sh.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
         # Move things #
@@ -270,6 +291,17 @@ class FASTA(FilePath):
         if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
         for p in sh.glob('mothur.*.logfile'): os.remove(p)
 
+    def index_bowtie(self):
+        """Create an index on the fasta file compatible with bowtie2"""
+        sh.bowtie2_build(self.path, self.path)
+        return FilePath(self.path + '.1.bt2')
+
+    def index_samtools(self):
+        """Create an index on the fasta file compatible with samtools"""
+        sh.samtools('faidx', self.path)
+        return FilePath(self.path + '.fai')
+
+    #---------------------------------- Graphs ---------------------------------#
     @property_cached
     def graphs(self):
         class Graphs(object): pass
@@ -284,16 +316,6 @@ class FASTA(FilePath):
         graph = self.graphs.length_dist
         if not graph: graph.plot()
         return graph
-
-    def index_bowtie(self):
-        """Create an index on the fasta file compatible with bowtie2"""
-        sh.bowtie2_build(self.path, self.path)
-        return FilePath(self.path + '.1.bt2')
-
-    def index_samtools(self):
-        """Create an index on the fasta file compatible with samtools"""
-        sh.samtools('faidx', self.path)
-        return FilePath(self.path + '.fai')
 
 ################################################################################
 # Expose objects #

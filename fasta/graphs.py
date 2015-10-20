@@ -10,7 +10,7 @@ __all__ = ['LengthDist']
 
 ################################################################################
 class LengthDist(Graph):
-    """The length distribution of the sequences"""
+    """The length distribution of the sequences."""
     short_name = 'length_dist'
     sep        = ('x')
     x_grid     = True
