@@ -262,7 +262,7 @@ class FASTA(FilePath):
         if new_path is None: new_fasta = self.__class__(new_temp_path())
         else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
-        for seq in self: new_fasta.add_str(seq.seq.rstrip('*'), seq.id)
+        for seq in self: new_fasta.add_str(str(seq.seq).rstrip('*'), seq.id)
         new_fasta.close()
         # Replace it #
         if in_place is True:
