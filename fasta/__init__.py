@@ -262,6 +262,7 @@ class FASTA(FilePath):
     def remove_trailing_stars(self, new_path=None, in_place=True):
         """Remove any bad character that can be inserted by some programs at the
         end of sequences."""
+        if int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0 and in_place: returns
         if new_path is None: new_fasta = self.__class__(new_temp_path())
         else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
