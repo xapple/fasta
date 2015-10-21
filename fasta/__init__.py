@@ -262,17 +262,17 @@ class FASTA(FilePath):
     def remove_trailing_stars(self, new_path=None, in_place=True):
         """Remove any bad character that can be inserted by some programs at the
         end of sequences."""
-        if int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0 and in_place: return
+        # Fast with bash utils #
+        if in_place is True:
+            if int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0: return self
+            sh.sed('-i', 's/\*$//g', self.path)
+            return self
+        # Standard way #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
         else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
         for seq in self: new_fasta.add_str(str(seq.seq).rstrip('*'), seq.id)
         new_fasta.close()
-        # Replace it #
-        if in_place is True:
-            os.remove(self.path)
-            shutil.move(new_fasta, self.path)
-            return self
         return new_fasta
 
     #----------------------------- Third party programs ------------------------#
