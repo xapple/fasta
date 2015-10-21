@@ -35,12 +35,15 @@ class FASTA(FilePath):
     buffer_size = 1000
 
     def __len__(self): return self.count
-    def __iter__(self): return self.parse()
     def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.path)
     def __contains__(self, other): return other in self.ids
 
     def __enter__(self): return self.create()
     def __exit__(self, exc_type, exc_value, traceback): self.close()
+
+    def __iter__(self):
+        for seq in self.parse(): yield seq
+        self.close()
 
     def __getitem__(self, key):
         if   isinstance(key, basestring): return self.sequences[key]
