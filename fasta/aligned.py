@@ -58,7 +58,7 @@ class AlignedFASTA(FASTA):
         if seq_type == 'nucl': t_option = "-t=d"
         if seq_type == 'prot': t_option = "-t=p"
         # Run it #
-        result = sh.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=5", "-b5=a", _ok_code=[0,1])
+        result = sh.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=3", "-b3=20", "-b5=a", _ok_code=[0,1])
         created_file = temp_fasta.path + '-gb'
         assert os.path.exists(created_file)
         # Check errors #
