@@ -187,8 +187,7 @@ class FASTA(FilePath):
             return
         # Do it #
         subsampled.create()
-        for seq in isubsample(self, down_to):
-            subsampled.add_seqrecord(seq)
+        for seq in isubsample(self, down_to): subsampled.add_seq(seq)
         subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
