@@ -64,7 +64,7 @@ class FASTA(FilePath):
 
     @property_cached
     def count(self):
-        """Should probably check file size instead of just caching once #TODO"""
+        """Should probably check for file size changes instead of just caching once #TODO"""
         if self.gzipped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
         else: return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
 
@@ -215,6 +215,20 @@ class FASTA(FilePath):
             shutil.move(numbered, self.path)
         return numbered
 
+    def rename_sequences(self, mapping, new_path=None):
+        """Given a new file path, will rename all sequences in the
+        current fasta file using the mapping dictionary also provided."""
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else:                new_fasta = self.__class__(new_path)
+        new_fasta.create()
+        for seq in self:
+            new_name = mapping[seq.id]
+            nucleotides = str(seq.seq)
+            new_fasta.add_str(nucleotides, new_name)
+        new_fasta.close()
+        return new_fasta
+
     def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
         """Extract a certain length fraction and place them in a new file."""
         # Temporary path #
@@ -233,26 +247,14 @@ class FASTA(FilePath):
         fraction.close()
         return fraction
 
-    def rename_sequences(self, mapping, new_path=None):
-        """Given a new file path, will rename all sequences in the
-        current fasta file using the mapping dictionary also provided."""
-        if new_path is None: new_fasta = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): new_fasta = new_path
-        else:                new_fasta = self.__class__(new_path)
-        new_fasta.create()
-        for seq in self:
-            new_name = mapping[seq.id]
-            nucleotides = str(seq.seq)
-            new_fasta.add_str(nucleotides, new_name)
-        new_fasta.close()
-        return new_fasta
-
     def extract_sequences(self, ids, new_path=None):
         """Will take all the sequences from the current file who's id appears in
         the ids given and place them in the new file path given."""
+        # Temporary path #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
         elif isinstance(new_path, FASTA): new_fasta = new_path
         else:                new_fasta = self.__class__(new_path)
+        # Do it #
         new_fasta.create()
         for seq in self:
             if seq.id in ids: new_fasta.add_seq(seq)
@@ -262,7 +264,7 @@ class FASTA(FilePath):
     def remove_trailing_stars(self, new_path=None, in_place=True):
         """Remove any bad character that can be inserted by some programs at the
         end of sequences."""
-        # Fast with bash utils #
+        # Faster with bash utils #
         if in_place is True:
             if int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0: return self
             sh.sed('-i', 's/\*$//g', self.path)
