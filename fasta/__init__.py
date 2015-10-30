@@ -182,7 +182,7 @@ class FASTA(FilePath):
         # Check size #
         if down_to > len(self):
             message = "Can't subsample %s down to %i. Only down to %i."
-            print Color.ylw + message % (self, down_to, len(self)) + Color.end
+            print Color.ylw + message % (down_to, len(self)) + Color.end
             self.copy(new_path)
             return
         # Do it #
