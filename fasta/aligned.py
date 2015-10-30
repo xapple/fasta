@@ -99,12 +99,7 @@ class AlignedFASTA(FASTA):
         # Return #
         return FilePath(new_path)
 
-    def build_tree_fast(self,
-                   new_path    = None,
-                   seq_type    = 'nucl' or 'prot',
-                   num_threads = None,
-                   free_cores  = 2,
-                   keep_dir    = False):
+    def build_tree_fast(self, new_path=None, seq_type='nucl' or 'prot'):
         """Make a tree with FastTree."""
         # Check output #
         if new_path is None: new_path = self.prefix_path + '.tree'
