@@ -59,16 +59,25 @@ class AlignedFASTA(FASTA):
         # Clean up #
         os.remove(created_file)
 
-    def build_tree(self,
+    def build_tree(self, *args, **kwargs):
+        """Dispatch a tree build call. Note that you need at least four
+        taxa to express some evolutionary history on an unrooted tree."""
+        # Check length #
+        assert len(self) > 3
+        # Default option #
+        algorithm = kwargs.pop(kwargs, None)
+        if algorithm is None: algorithm = 'raxml'
+        # Dispatch #
+        if algorithm is 'raxml':    return self.build_tree_raxml(*args, **kwargs)
+        if algorithm is 'fasttree': return self.build_tree_fast(*args, **kwargs)
+
+    def build_tree_raxml(self,
                    new_path    = None,
                    seq_type    = 'nucl' or 'prot',
                    num_threads = None,
                    free_cores  = 2,
                    keep_dir    = False):
-        """Make a tree with RAxML. Note that you need at least four
-        taxa to express some evolutionary history on an unrooted tree"""
-        # Check length #
-        assert len(self) > 3
+        """Make a tree with RAxML."""
         # Check output #
         if new_path is None: new_path = self.prefix_path + '.tree'
         # What model to choose #
@@ -89,3 +98,24 @@ class AlignedFASTA(FASTA):
             shutil.move(temp_dir + 'RAxML_bestTree.tree', new_path)
         # Return #
         return FilePath(new_path)
+
+    def build_tree_fast(self,
+                   new_path    = None,
+                   seq_type    = 'nucl' or 'prot',
+                   num_threads = None,
+                   free_cores  = 2,
+                   keep_dir    = False):
+        """Make a tree with FastTree."""
+        # Check output #
+        if new_path is None: new_path = self.prefix_path + '.tree'
+        # Command #
+        command_args = []
+        if seq_type == 'nucl': command_args += ['-nt']
+        command_args += ['-gamma']
+        command_args += ['-out', new_path]
+        command_args += [self.path]
+        # Run it #
+        sh.FastTree(*command_args)
+        # Return #
+        return FilePath(new_path)
+
