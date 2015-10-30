@@ -197,7 +197,6 @@ class FASTA(FilePath):
         """Rename every sequence based on a prefix and a number."""
         # Temporary path #
         if new_path is None: numbered = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): numbered = new_path
         else:                numbered = self.__class__(new_path)
         # Generator #
         def numbered_iterator():
@@ -214,21 +213,27 @@ class FASTA(FilePath):
             shutil.move(numbered, self.path)
         return numbered
 
-    def rename_sequences(self, mapping, new_path=None):
-        """Given a new file path, will rename all sequences in the
-        current fasta file using the mapping dictionary also provided."""
+    def rename_sequences(self, mapping, new_path=None, in_place=False):
+        """Will rename all sequences in the current fasta file using
+        the mapping dictionary also provided. In place or at a new path."""
+        # Where is the new file #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): new_fasta = new_path
         else:                new_fasta = self.__class__(new_path)
+        # Do it #
         new_fasta.create()
         for seq in self:
             new_name = mapping[seq.description]
             nucleotides = str(seq.seq)
             new_fasta.add_str(nucleotides, new_name)
         new_fasta.close()
-        return new_fasta
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
 
-    def extract_length(self, lower_bound=None, upper_bound=None, new_path=None, cls=None):
+    def extract_length(self, lower_bound=None, upper_bound=None, new_path=None):
         """Extract a certain length fraction and place them in a new file."""
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())

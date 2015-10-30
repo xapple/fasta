@@ -62,7 +62,7 @@ class AlignedFASTA(FASTA):
         created_file = temp_fasta.path + '-gb'
         assert os.path.exists(created_file)
         # Check errors #
-        if "Execution terminated" in result.stdout: raise Exception("Sequence name too long for gblocks")
+        if "Execution terminated" in result.stdout: raise Exception("gblocks crashed again.")
         # Back #
         temp_fasta.rename_sequences(temp_name_to_orig, final)
         # Return #
@@ -109,7 +109,7 @@ class AlignedFASTA(FASTA):
         return FilePath(new_path)
 
     def build_tree_fast(self, new_path=None, seq_type='nucl' or 'prot'):
-        """Make a tree with FastTree."""
+        """Make a tree with FastTree. Names will be truncated however."""
         # Check output #
         if new_path is None: new_path = self.prefix_path + '.tree'
         # Command #
