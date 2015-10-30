@@ -222,7 +222,7 @@ class FASTA(FilePath):
         else:                new_fasta = self.__class__(new_path)
         new_fasta.create()
         for seq in self:
-            new_name = mapping[seq.id]
+            new_name = mapping[seq.description]
             nucleotides = str(seq.seq)
             new_fasta.add_str(nucleotides, new_name)
         new_fasta.close()

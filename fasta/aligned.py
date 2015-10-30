@@ -50,7 +50,7 @@ class AlignedFASTA(FASTA):
         if new_path is None: final = self.__class__(new_temp_path())
         else:                final = self.__class__(new_path)
         # Mapping every sequence name with a random name #
-        orig_name_to_temp = {seq.id: 'name' + str(i) for i,seq in enumerate(self)}
+        orig_name_to_temp = {seq.description: 'name' + str(i) for i,seq in enumerate(self)}
         temp_name_to_orig = {v: k for k, v in orig_name_to_temp.items()}
         # Rename every sequence with a random name #
         temp_fasta = self.rename_sequences(orig_name_to_temp)
