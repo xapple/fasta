@@ -6,7 +6,7 @@ from collections import OrderedDict
 from fasta import FASTA
 from plumbing.cache import property_cached
 from plumbing.autopaths import FilePath
-from plumbing.tmpstuff import new_temp_dir
+from plumbing.tmpstuff import new_temp_dir, new_temp_path
 
 # Third party modules #
 import sh, shutil
@@ -44,20 +44,29 @@ class AlignedFASTA(FASTA):
                 new_path = None,
                 seq_type = 'nucl' or 'prot'):
         """Apply the gblocks filtering algorithm to the alignment.
-        See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html"""
-        # Run it #
+        See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html
+        Need to rename all sequences, because it will complain with long names."""
+        # Temporary path #
+        if new_path is None: final = self.__class__(new_temp_path())
+        else:                final = self.__class__(new_path)
+        # Mapping every sequence name with a random name #
+        orig_name_to_temp = {seq.id: 'name' + str(i) for i,seq in enumerate(self)}
+        temp_name_to_orig = {v: k for k, v in orig_name_to_temp.items()}
+        # Rename every sequence with a random name #
+        temp_fasta = self.rename_sequences(orig_name_to_temp)
+        # Options #
         if seq_type == 'nucl': t_option = "-t=d"
         if seq_type == 'prot': t_option = "-t=p"
         # Run it #
-        sh.gblocks91(self, t_option, '-p=n', "-b5=a", _ok_code=[0,1])
-        created_file = self.path + '-gb'
+        result = sh.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=5", "-b5=a", _ok_code=[0,1])
+        created_file = temp_fasta.path + '-gb'
         assert os.path.exists(created_file)
-        # Replace it maybe #
-        if new_path is None: new_path = self.path
-        # Reformat FASTA to the new path #
-        AlignIO.write(AlignIO.parse(created_file, 'fasta'), new_path, 'fasta')
-        # Clean up #
-        os.remove(created_file)
+        # Check errors #
+        if "Execution terminated" in result.stdout: raise Exception("Sequence name too long for gblocks")
+        # Back #
+        temp_fasta.rename_sequences(temp_name_to_orig, final)
+        # Return #
+        return final
 
     def build_tree(self, *args, **kwargs):
         """Dispatch a tree build call. Note that you need at least four
