@@ -41,7 +41,7 @@ class SplitableFASTA(FASTA):
         return False
 
     def split(self):
-        # Clean #
+        # Clean up #
         for i in xrange(1, sys.maxint):
             dir_path = self.base_dir + "%03d/" % i
             if os.path.exists(dir_path): shutil.rmtree(dir_path)
