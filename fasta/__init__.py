@@ -265,12 +265,13 @@ class FASTA(FilePath):
         new_fasta.close()
         return new_fasta
 
-    def remove_trailing_stars(self, new_path=None, in_place=True):
-        """Remove any bad character that can be inserted by some programs at the
+    def remove_trailing_stars(self, new_path=None, in_place=True, check=False):
+        """Remove the bad character that can be inserted by some programs at the
         end of sequences."""
-        # Faster with bash utils #
+        # Optional check #
+        if check and int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0: return self
+        # Faster with bash utilities #
         if in_place is True:
-            if int(sh.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0: return self
             sh.sed('-i', 's/\*$//g', self.path)
             return self
         # Standard way #
