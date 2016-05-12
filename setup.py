@@ -10,6 +10,6 @@ setup(
     author_email     = 'lucas.sinclair@me.com',
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
     packages         = ['fasta'],
-    install_requires = ['plumbing', 'sh', 'biopython'],
+    install_requires = ['plumbing', 'sh', 'biopython', 'matplotlib'],
     long_description = open('README.md').read(),
 )

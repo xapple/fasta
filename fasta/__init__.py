@@ -294,9 +294,9 @@ class FASTA(FilePath):
         # Run it #
         sh.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
         # Move things #
-        shutil.move(self.path[:-6] + '.align', self.aligned_path)
-        shutil.move(self.path[:-6] + '.align.report', self.report_path)
-        shutil.move(self.path[:-6] + '.flip.accnos', self.accnos_path)
+        shutil.move(self.path[:-6] + '.align',        self.p.aligned)
+        shutil.move(self.path[:-6] + '.align.report', self.p.report)
+        shutil.move(self.path[:-6] + '.flip.accnos',  self.p.accnos)
         # Clean up #
         if os.path.exists('formatdb.log'): os.remove('formatdb.log')
         if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
@@ -315,6 +315,9 @@ class FASTA(FilePath):
     #---------------------------------- Graphs ---------------------------------#
     @property_cached
     def graphs(self):
+        """Sorry for the black magic. The result is an object whose attributes
+        are all the graphs found in graphs.py initialized with this instance as
+        only argument."""
         class Graphs(object): pass
         result = Graphs()
         for graph in graphs.__all__:

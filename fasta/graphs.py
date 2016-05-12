@@ -3,16 +3,17 @@ from plumbing.graphs import Graph
 from plumbing.autopaths import FilePath
 
 # Third party modules #
+import numpy
 from matplotlib import pyplot
 
 # Constants #
-__all__ = ['LengthDist']
+__all__ = ['LengthDist', 'LengthHist']
 
 ################################################################################
 class LengthDist(Graph):
-    """The length distribution of the sequences."""
+    """The length distribution of the sequences with a bar plot."""
     short_name = 'length_dist'
-    sep        = ('x')
+    sep        = 'x'
     x_grid     = True
 
     def __init__(self, parent):
@@ -31,6 +32,42 @@ class LengthDist(Graph):
         axes.set_title(title)
         axes.set_xlabel('Length of sequence in nucleotides')
         axes.set_ylabel('Number of sequences with this length')
+        # Save it #
+        self.save_plot(fig, axes, **kwargs)
+        pyplot.close(fig)
+        # For convenience #
+        return self
+
+################################################################################
+class LengthHist(Graph):
+    """The length distribution of the sequences with a histogram."""
+    short_name = 'length_hist'
+    sep        = 'x'
+    x_grid     = True
+
+    def __init__(self, parent):
+        self.parent = parent
+        self.path = FilePath(self.parent.prefix_path + '_len_hist.pdf')
+
+    def plot(self, bins=80, **kwargs):
+        # Data #
+        counts = self.parent.lengths
+        # Linear bins in logarithmic space #
+        if 'log' in kwargs.get('x_scale', ''):
+            start, stop = numpy.log10(1), numpy.log10(max(counts))
+            bins = list(numpy.logspace(start=start, stop=stop, num=bins))
+            bins.insert(0, 0)
+        # Plot #
+        fig = pyplot.figure()
+        pyplot.hist(counts, bins=bins, color='gray')
+        axes = pyplot.gca()
+        # Information #
+        title = 'Histogram of sequence lengths'
+        axes.set_title(title)
+        axes.set_xlabel('Length of sequence in nucleotides')
+        axes.set_ylabel('Number of sequences with this length')
+        # X lim #
+        axes.set_xlim(min(counts), axes.get_xlim()[1])
         # Save it #
         self.save_plot(fig, axes, **kwargs)
         pyplot.close(fig)
