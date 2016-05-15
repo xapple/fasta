@@ -8,7 +8,7 @@ import os, sys, gzip, shutil, itertools
 from collections import Counter, OrderedDict
 
 # Internal modules #
-from fasta import graphs
+from fasta import graphs, primers
 
 # First party modules #
 from plumbing.common import isubsample
@@ -282,7 +282,7 @@ class FASTA(FilePath):
         new_fasta.close()
         return new_fasta
 
-    #----------------------------- Third party programs ------------------------#
+    #---------------------------- Third party programs -----------------------#
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle."""
         if out_path is None: out_path = self.prefix_path + '.aln'
@@ -312,7 +312,7 @@ class FASTA(FilePath):
         sh.samtools('faidx', self.path)
         return FilePath(self.path + '.fai')
 
-    #---------------------------------- Graphs ---------------------------------#
+    #--------------------------------- Graphs --------------------------------#
     @property_cached
     def graphs(self):
         """Sorry for the black magic. The result is an object whose attributes
@@ -330,6 +330,10 @@ class FASTA(FilePath):
         graph = self.graphs.length_dist
         if not graph: graph.plot()
         return graph
+
+    #------------------------------- Extensions ------------------------------#
+    def parse_primers(self, *args, **kwargs):
+        return primers.parse_primers(self, *args, **kwargs)
 
 ################################################################################
 # Expose objects #
