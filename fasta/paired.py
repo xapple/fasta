@@ -3,7 +3,7 @@ from itertools import izip
 
 # Internal modules #
 from fasta import FASTA, FASTQ
-from plumbing.common import isubsample
+from plumbing.common import isubsample, GenWithLength
 from plumbing.cache import property_cached
 
 # Third party modules #
@@ -55,6 +55,9 @@ class PairedFASTA(object):
         self.rev.create()
         return self
 
+    def add(self, f, r):
+        return self.add_pair((f,r))
+
     def add_pair(self, pair):
         self.fwd.add_seq(pair[0])
         self.rev.add_seq(pair[1])
@@ -78,6 +81,13 @@ class PairedFASTA(object):
         self.subsampled.close()
         # Did it work #
         assert len(dest_pair) == down_to
+
+    #------------------------------- Extensions ------------------------------#
+    def parse_primers(self, *args, **kwargs):
+        fwd_gen = self.fwd.parse_primers(*args, **kwargs)
+        rev_gen = self.rev.parse_primers(*args, **kwargs)
+        generator = izip(fwd_gen, rev_gen)
+        return GenWithLength(generator, len(fwd_gen))
 
 ###############################################################################
 class PairedFASTQ(PairedFASTA):
