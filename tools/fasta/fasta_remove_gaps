@@ -20,8 +20,8 @@ from Bio.Seq import Seq
 def remove_gaps(reads):
     for read in reads:
         new_seq = str(read.seq)
-        new_seq = new_seq.seq.replace('-','')
-        new_seq = new_seq.seq.replace('.','')
+        new_seq = new_seq.replace('-','')
+        new_seq = new_seq.replace('.','')
         yield SeqRecord(Seq(new_seq), id=read.id, description=read.description)
 # Read and output #
 reads = SeqIO.parse(sys.stdin, 'fasta')
