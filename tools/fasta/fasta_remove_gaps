@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+"""
+A custom made script to remove all gaps and periods.
+
+Written by Lucas Sinclair.
+Kopimi.
+
+You can use this script from the shell like this:
+$ ./fasta_remove_gaps < in.fasta > out.fasta
+"""
+
+###############################################################################
+# Modules #
+import sys
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+# Match function #
+def remove_gaps(reads):
+    for read in reads:
+        new_seq = str(read.seq)
+        new_seq = new_seq.seq.replace('-','')
+        new_seq = new_seq.seq.replace('.','')
+        yield SeqRecord(Seq(new_seq), id=read.id, description=read.description)
+# Read and output #
+reads = SeqIO.parse(sys.stdin, 'fasta')
+SeqIO.write(remove_gaps(reads), sys.stdout, "fasta")
