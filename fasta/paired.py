@@ -62,6 +62,10 @@ class PairedFASTA(object):
         self.fwd.add_seq(pair[0])
         self.rev.add_seq(pair[1])
 
+    def remove(self):
+        self.fwd.remove()
+        self.rev.remove()
+
     @property
     def progress(self):
         """Just like self.parse but display a progress bar"""
