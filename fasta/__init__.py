@@ -222,6 +222,26 @@ class FASTA(FilePath):
             shutil.move(numbered, self.path)
         return numbered
 
+    def rename_with_prefix(self, prefix="", new_path=None, in_place=True, remove_desc=True):
+        """Rename every sequence based on a prefix."""
+        # Temporary path #
+        if new_path is None: prefixed = self.__class__(new_temp_path())
+        else:                prefixed = self.__class__(new_path)
+        # Generator #
+        def prefixed_iterator():
+            for i,read in enumerate(self):
+                read.id = prefix + read.id
+                if remove_desc: read.description = ""
+                yield read
+        # Do it #
+        prefixed.write(prefixed_iterator())
+        prefixed.close()
+        # Replace it #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(prefixed, self.path)
+        return prefixed
+
     def rename_sequences(self, mapping, new_path=None, in_place=False):
         """Will rename all sequences in the current fasta file using
         the mapping dictionary also provided. In place or at a new path."""
