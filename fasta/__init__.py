@@ -120,6 +120,15 @@ class FASTA(FilePath):
         """Use this method to add a sequence as a string to this fasta."""
         self.add_seq(SeqRecord(Seq(seq), id=name, description=description))
 
+    def add_fasta(self, path):
+        """Use this method to add an other fasta to this fasta."""
+        path = FASTA(path)
+        self.add(path)
+
+    def add_fastas(self, paths):
+        """Use this method to add bunch of fastas to this fasta."""
+        for p in paths: self.add_fasta(p)
+
     def flush(self):
         """Empty the buffer."""
         for seq in self.buffer:
