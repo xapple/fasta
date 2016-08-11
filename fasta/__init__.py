@@ -346,7 +346,8 @@ class FASTA(FilePath):
     def graphs(self):
         """Sorry for the black magic. The result is an object whose attributes
         are all the graphs found in graphs.py initialized with this instance as
-        only argument."""
+        only argument. This attribute will also break pickling, so use dill
+        instead."""
         class Graphs(object): pass
         result = Graphs()
         for graph in graphs.__all__:
