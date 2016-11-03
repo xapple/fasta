@@ -11,11 +11,11 @@ from collections import Counter, OrderedDict
 from fasta import graphs, primers
 
 # First party modules #
-from plumbing.common import isubsample
-from plumbing.color import Color
-from plumbing.cache import property_cached
+from plumbing.common    import isubsample
+from plumbing.color     import Color
+from plumbing.cache     import property_cached
 from plumbing.autopaths import FilePath
-from plumbing.tmpstuff import new_temp_path
+from plumbing.tmpstuff  import new_temp_path
 
 # Third party modules #
 import sh
@@ -30,8 +30,8 @@ class FASTA(FilePath):
     several convenient ways. You can write to it in a automatically buffered way.
     There are several other things you can do with a FASTA file. Look at the class."""
 
-    format    = 'fasta'
-    extension = 'fasta'
+    format      = 'fasta'
+    ext         = 'fasta'
     buffer_size = 1000
 
     def __len__(self): return self.count
@@ -81,7 +81,7 @@ class FASTA(FilePath):
     #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode='r'):
         if self.gzipped: self.handle = gzip.open(self.path, mode)
-        else: self.handle = open(self.path, mode)
+        else:            self.handle =      open(self.path, mode)
 
     def close(self):
         if hasattr(self, 'buffer'):
@@ -103,11 +103,11 @@ class FASTA(FilePath):
         self.buffer = []
         self.buf_count = 0
         if not self.directory.exists: self.directory.create()
-        self.open('w')
+        self.open('w').close()
         return self
 
     def add(self, seqs):
-        """Use this method to add a bunch of SeqRecord at once."""
+        """Use this method to add a bunch of SeqRecords at once."""
         for seq in seqs: self.add_seq(seq)
 
     def add_seq(self, seq):
@@ -174,7 +174,7 @@ class FASTA(FilePath):
 
     @property_cached
     def length_by_id(self):
-        """In some use cases you just need the sequence lengths in an indexed
+        """In some usecases you just need the sequence lengths in an indexed
         fashion. If you access this attribute, we will make a hash map in memory."""
         hashmap = dict((seq.id, len(seq)) for seq in self)
         tmp = hashmap.copy()

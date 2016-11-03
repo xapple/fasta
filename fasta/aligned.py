@@ -16,7 +16,7 @@ from Bio.Align import MultipleSeqAlignment
 ################################################################################
 class AlignedFASTA(FASTA):
     """Also a FASTA file technically, but contains an alignment"""
-    extension = 'aln'
+    ext = 'aln'
 
     def __iter__(self): return iter(self.parse())
 
