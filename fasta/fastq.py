@@ -54,8 +54,8 @@ class FASTQ(FASTA):
         self.intervals = {
             'Sanger':       (33,  74),         # <- This one is the gold standard
             'Solexa':       (59, 105),
-            'Illumina-1.3': (64, 105),
-            'Illumina-1.5': (67, 105),
+            'Illumina-1.3': (64, 105),         # <- These were abandoned after they wised up.
+            'Illumina-1.5': (67, 105),         # <- These were abandoned after they wised up.
         }
         # Initialize variables #
         glob_min  = 9999
@@ -102,7 +102,7 @@ class FASTQ(FASTA):
         return min(values), max(values)
 
     def phred_13_to_18(self, new_path=None, in_place=True):
-        """Illumina-1.3 format conversion to Illumina-1.8 format."""
+        """Illumina-1.3 format conversion to Illumina-1.8 format via BioPython."""
         # New file #
         if new_path is None: new_fastq = self.__class__(new_temp_path(suffix=self.extension))
         else:                new_fastq = self.__class__(new_path)

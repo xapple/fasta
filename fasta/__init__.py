@@ -80,8 +80,11 @@ class FASTA(FilePath):
 
     #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode='r'):
+        # Two cases #
         if self.gzipped: self.handle = gzip.open(self.path, mode)
         else:            self.handle =      open(self.path, mode)
+        # For convenience #
+        return self.handle
 
     def close(self):
         if hasattr(self, 'buffer'):
@@ -103,7 +106,7 @@ class FASTA(FilePath):
         self.buffer = []
         self.buf_count = 0
         if not self.directory.exists: self.directory.create()
-        self.open('w').close()
+        self.open('w')
         return self
 
     def add(self, seqs):
@@ -332,12 +335,15 @@ class FASTA(FilePath):
         for p in sh.glob('mothur.*.logfile'): os.remove(p)
 
     def index_bowtie(self):
-        """Create an index on the fasta file compatible with bowtie2"""
+        """Create an index on the fasta file compatible with bowtie2."""
+        # It returns exit code 1 if the fasta is empty #
+        assert self
+        # Call the bowtie executable #
         sh.bowtie2_build(self.path, self.path)
         return FilePath(self.path + '.1.bt2')
 
     def index_samtools(self):
-        """Create an index on the fasta file compatible with samtools"""
+        """Create an index on the fasta file compatible with samtools."""
         sh.samtools('faidx', self.path)
         return FilePath(self.path + '.fai')
 
