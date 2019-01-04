@@ -216,7 +216,8 @@ class FASTA(FilePath):
         # Generator #
         def numbered_iterator():
             for i,read in enumerate(self):
-                read.id = prefix + str(i)
+                read.id  = prefix + str(i)
+                read.seq = read.seq.upper()
                 if remove_desc: read.description = ""
                 yield read
         # Do it #

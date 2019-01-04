@@ -22,6 +22,7 @@ class FASTQ(FASTA):
     @property_cached
     def count(self):
         if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
+
         return int(sh.grep('-c', "^+$", self.path, _ok_code=[0,1]))
 
     def to_fasta(self, path):
@@ -40,10 +41,16 @@ class FASTQ(FASTA):
         self.close()
         return mean
 
+    #-------------------------------- TOOLS ----------------------------------#
     @property_cached
     def fastqc(self):
         from fasta.fastqc import FastQC
         return FastQC(self)
+
+    def validate(self):
+        """Call https://github.com/statgen/fastQValidator on this file."""
+        if "FASTQ_SUCCESS" not in sh.fastQValidator('--file', self.path):
+            raise Exception("The fastq file '%s' failed to validate." % self.path)
 
     #-------------------------------- PHRED FORMAT ---------------------------#
     def guess_phred_format(self):

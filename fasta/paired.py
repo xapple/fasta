@@ -105,3 +105,8 @@ class PairedFASTQ(PairedFASTA):
         # Extra #
         self.gzipped = self.fwd.gzipped
         self.parent = parent
+
+    def validate(self):
+        """Call https://github.com/statgen/fastQValidator on these files."""
+        self.fwd.validate()
+        self.rev.validate()
