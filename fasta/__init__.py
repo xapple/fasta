@@ -6,6 +6,7 @@ __version__ = '1.0.4'
 # Built-in modules #
 import os, sys, gzip, shutil, itertools
 from collections import Counter, OrderedDict
+from six import string_types
 
 # Internal modules #
 from fasta import graphs, primers
@@ -49,9 +50,9 @@ class FASTA(FilePath):
         self.close()
 
     def __getitem__(self, key):
-        if   isinstance(key, basestring): return self.sequences[key]
-        elif isinstance(key, int):        return self.sequences.items()[key]
-        elif isinstance(key, slice):      return itertools.islice(self, key.start, key.stop, key.step)
+        if   isinstance(key, string_types): return self.sequences[key]
+        elif isinstance(key, int):          return self.sequences.items()[key]
+        elif isinstance(key, slice):        return itertools.islice(self, key.start, key.stop, key.step)
 
     #----------------------------- Properties --------------------------------#
     @property
@@ -197,7 +198,7 @@ class FASTA(FilePath):
         # Check size #
         if down_to > len(self):
             message = "Can't subsample %s down to %i. Only down to %i."
-            print Color.ylw + message % (self, down_to, len(self)) + Color.end
+            print(Color.ylw + message % (self, down_to, len(self)) + Color.end)
             self.copy(new_path)
             return
         # Do it #
