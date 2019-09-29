@@ -1,5 +1,5 @@
 # Built-in modules #
-from itertools import izip
+from six.moves import zip as izip
 
 # Internal modules #
 from fasta import FASTA, FASTQ
@@ -14,8 +14,8 @@ class PairedFASTA(object):
     """Read and write FASTA file pairs without using too much RAM"""
     format = 'fasta'
 
-    def __len__(self): return self.count
-    def __iter__(self): return self.parse()
+    def __len__(self):     return self.count
+    def __iter__(self):    return self.parse()
     def __nonzero__(self): return bool(self.fwd) and bool(self.rev)
     def __repr__(self): return '<%s object on "%s" and "%s">' % \
                         (self.__class__.__name__, self.fwd.path, self.rev.path)
@@ -68,7 +68,7 @@ class PairedFASTA(object):
 
     @property
     def progress(self):
-        """Just like self.parse but display a progress bar"""
+        """Just like self.parse but display a progress bar."""
         return tqdm(self, total=len(self))
 
     def subsample(self, down_to, dest_pair=None):

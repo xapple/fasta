@@ -11,11 +11,11 @@ from collections import Counter, OrderedDict
 from fasta import graphs, primers
 
 # First party modules #
-from plumbing.common    import isubsample
-from plumbing.color     import Color
-from plumbing.cache     import property_cached
-from plumbing.autopaths import FilePath
-from plumbing.tmpstuff  import new_temp_path
+from plumbing.common     import isubsample
+from plumbing.color      import Color
+from plumbing.cache      import property_cached
+from autopaths.file_path import FilePath
+from autopaths.tmp_path  import new_temp_path
 
 # Third party modules #
 import sh
