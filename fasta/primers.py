@@ -6,7 +6,6 @@ from plumbing.common import GenWithLength
 from plumbing.color  import Color
 
 # Third party modules #
-import regex
 from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 
@@ -18,10 +17,14 @@ iupac_pattern = lambda seq: ''.join(['[' + iupac[char] + ']' for char in seq])
 
 ################################################################################
 def parse_primers(self, primers=None, mismatches=0, revcompl=False):
-    """This functions starts with self because it's 
-    meant as an extension to the FASTA class."""
+    """
+    This functions starts with self because it's
+    meant as an extension to the FASTA class.
+    """
     # Default primers #
     if primers is None: primers = self.primers
+    # Special module #
+    import regex
     # Case straight #
     if not revcompl:
         fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern, mismatches))

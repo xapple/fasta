@@ -3,13 +3,15 @@ import os, shutil
 
 # Internal modules #
 from fasta import FASTA
-from plumbing.common    import average
-from plumbing.cache     import property_cached
-from plumbing.autopaths import FilePath
-from plumbing.tmpstuff  import new_temp_path
+
+# First party modules #
+from plumbing.common     import average
+from plumbing.cache      import property_cached
+from autopaths.tmp_path  import new_temp_path
+from autopaths.file_path import FilePath
 
 # Third party modules #
-import sh
+import pbs3
 from Bio import SeqIO
 
 ################################################################################
@@ -22,8 +24,7 @@ class FASTQ(FASTA):
     @property_cached
     def count(self):
         if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
-
-        return int(sh.grep('-c', "^+$", self.path, _ok_code=[0,1]))
+        return int(pbs3.grep('-c', "^+$", self.path, _ok_code=[0,1]))
 
     def to_fasta(self, path):
         with open(path, 'w') as handle:

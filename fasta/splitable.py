@@ -8,7 +8,6 @@ import os, sys, math, shutil
 from fasta import FASTA
 
 # Third party modules #
-import humanfriendly
 
 ###############################################################################
 class SplitableFASTA(FASTA):
@@ -24,6 +23,8 @@ class SplitableFASTA(FASTA):
         else:                self.base_dir = base_dir
         # Num parts #
         if num_parts is not None: self.num_parts = num_parts
+        # Special module #
+        import humanfriendly
         # Evaluate size #
         if part_size is not None:
             self.bytes_target = humanfriendly.parse_size(part_size)

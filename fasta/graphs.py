@@ -1,6 +1,6 @@
 # Internal modules #
 from plumbing.graphs import Graph
-from plumbing.autopaths import FilePath
+from autopaths.file_path import FilePath
 
 # Third party modules #
 import numpy

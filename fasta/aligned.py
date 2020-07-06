@@ -5,8 +5,8 @@ from collections import OrderedDict
 # Internal modules #
 from fasta import FASTA
 from plumbing.cache import property_cached
-from plumbing.autopaths import FilePath
-from plumbing.tmpstuff import new_temp_dir, new_temp_path
+from autopaths.file_path import FilePath
+from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
 import sh, shutil
@@ -77,8 +77,8 @@ class AlignedFASTA(FASTA):
         algorithm = kwargs.pop(kwargs, None)
         if algorithm is None: algorithm = 'raxml'
         # Dispatch #
-        if algorithm is 'raxml':    return self.build_tree_raxml(*args, **kwargs)
-        if algorithm is 'fasttree': return self.build_tree_fast(*args, **kwargs)
+        if algorithm == 'raxml':    return self.build_tree_raxml(*args, **kwargs)
+        if algorithm == 'fasttree': return self.build_tree_fast(*args, **kwargs)
 
     def build_tree_raxml(self,
                    new_path    = None,
