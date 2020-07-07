@@ -46,6 +46,7 @@ class PairedFASTA:
 
     @property_cached
     def count(self):
+        """Check both read counts are equal and return that number."""
         assert self.fwd.count == self.rev.count
         return self.fwd.count
 

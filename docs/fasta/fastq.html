@@ -87,11 +87,13 @@ class FASTQ(FASTA):
     #-------------------------------- Tools ----------------------------------#
     @property_cached
     def validator(self):
+        &#34;&#34;&#34;Validate the format of this FASTQ.&#34;&#34;&#34;
         from fasta.validator import Validator
         return Validator(self.path)
 
     @property_cached
     def fastqc(self):
+        &#34;&#34;&#34;Run the FastQC software on this FASTQ.&#34;&#34;&#34;
         from fasta.fastqc import FastQC
         return FastQC(self)
 
@@ -237,11 +239,13 @@ class FASTQ(FASTA):
     #-------------------------------- Tools ----------------------------------#
     @property_cached
     def validator(self):
+        &#34;&#34;&#34;Validate the format of this FASTQ.&#34;&#34;&#34;
         from fasta.validator import Validator
         return Validator(self.path)
 
     @property_cached
     def fastqc(self):
+        &#34;&#34;&#34;Run the FastQC software on this FASTQ.&#34;&#34;&#34;
         from fasta.fastqc import FastQC
         return FastQC(self)
 
@@ -359,12 +363,49 @@ class FASTQ(FASTA):
 <dl>
 <dt id="fasta.fastq.FASTQ.avg_quality"><code class="name">var <span class="ident">avg_quality</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>If you see the current source code in a seemingly unrelated part of
+an auto-generated documentation, it means the program making the
+documentation was unable to correctly traverse a decorated property.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
+    # If called from a class #
+    if instance is None: return self
+    # Does a cache exist for this instance? #
+    self.check_cache(instance)
+    # Is the answer in the cache? #
+    if self.name in instance.__cache__: return instance.__cache__[self.name]
+    # If not we will compute it #
+    if inspect.isgeneratorfunction(self.func): result = tuple(self.func(instance))
+    else:                                      result = self.func(instance)
+    # Let&#39;s store the answer for later #
+    instance.__cache__[self.name] = result
+    # Return #
+    return result</code></pre>
+</details>
+</dd>
+<dt id="fasta.fastq.FASTQ.count"><code class="name">var <span class="ident">count</span></code></dt>
+<dd>
+<div class="desc"><p>If you see the current source code in a seemingly unrelated part of
+an auto-generated documentation, it means the program making the
+documentation was unable to correctly traverse a decorated property.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -382,12 +423,17 @@ class FASTQ(FASTA):
 </dd>
 <dt id="fasta.fastq.FASTQ.fastqc"><code class="name">var <span class="ident">fastqc</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run the FastQC software on this FASTQ.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -405,12 +451,17 @@ class FASTQ(FASTA):
 </dd>
 <dt id="fasta.fastq.FASTQ.validator"><code class="name">var <span class="ident">validator</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Validate the format of this FASTQ.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -605,7 +656,6 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <li><code><a title="fasta.core.FASTA.add_seq" href="core.html#fasta.core.FASTA.add_seq">add_seq</a></code></li>
 <li><code><a title="fasta.core.FASTA.add_str" href="core.html#fasta.core.FASTA.add_str">add_str</a></code></li>
 <li><code><a title="fasta.core.FASTA.align" href="core.html#fasta.core.FASTA.align">align</a></code></li>
-<li><code><a title="fasta.core.FASTA.count" href="core.html#fasta.core.FASTA.count">count</a></code></li>
 <li><code><a title="fasta.core.FASTA.create" href="core.html#fasta.core.FASTA.create">create</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_length" href="core.html#fasta.core.FASTA.extract_length">extract_length</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_sequences" href="core.html#fasta.core.FASTA.extract_sequences">extract_sequences</a></code></li>
@@ -617,6 +667,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <li><code><a title="fasta.core.FASTA.index_bowtie" href="core.html#fasta.core.FASTA.index_bowtie">index_bowtie</a></code></li>
 <li><code><a title="fasta.core.FASTA.index_samtools" href="core.html#fasta.core.FASTA.index_samtools">index_samtools</a></code></li>
 <li><code><a title="fasta.core.FASTA.length_by_id" href="core.html#fasta.core.FASTA.length_by_id">length_by_id</a></code></li>
+<li><code><a title="fasta.core.FASTA.length_dist" href="core.html#fasta.core.FASTA.length_dist">length_dist</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths" href="core.html#fasta.core.FASTA.lengths">lengths</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths_counter" href="core.html#fasta.core.FASTA.lengths_counter">lengths_counter</a></code></li>
 <li><code><a title="fasta.core.FASTA.progress" href="core.html#fasta.core.FASTA.progress">progress</a></code></li>
@@ -652,6 +703,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <h4><code><a title="fasta.fastq.FASTQ" href="#fasta.fastq.FASTQ">FASTQ</a></code></h4>
 <ul class="two-column">
 <li><code><a title="fasta.fastq.FASTQ.avg_quality" href="#fasta.fastq.FASTQ.avg_quality">avg_quality</a></code></li>
+<li><code><a title="fasta.fastq.FASTQ.count" href="#fasta.fastq.FASTQ.count">count</a></code></li>
 <li><code><a title="fasta.fastq.FASTQ.ext" href="#fasta.fastq.FASTQ.ext">ext</a></code></li>
 <li><code><a title="fasta.fastq.FASTQ.fastqc" href="#fasta.fastq.FASTQ.fastqc">fastqc</a></code></li>
 <li><code><a title="fasta.fastq.FASTQ.format" href="#fasta.fastq.FASTQ.format">format</a></code></li>

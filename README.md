@@ -47,6 +47,6 @@ More documentation is available at:
 
 <http://xapple.github.io/fasta/fasta>
 
-This documentation is simply generated with:
+This documentation is simply generated from the source code with:
 
     $ pdoc --html --output-dir docs --force fasta

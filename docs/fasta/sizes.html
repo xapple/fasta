@@ -105,6 +105,39 @@ class SizesFASTA(FASTA):
 <li>autopaths.base_path.BasePath</li>
 <li>builtins.str</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="fasta.sizes.SizesFASTA.count"><code class="name">var <span class="ident">count</span></code></dt>
+<dd>
+<div class="desc"><p>If you see the current source code in a seemingly unrelated part of
+an auto-generated documentation, it means the program making the
+documentation was unable to correctly traverse a decorated property.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
+    # If called from a class #
+    if instance is None: return self
+    # Does a cache exist for this instance? #
+    self.check_cache(instance)
+    # Is the answer in the cache? #
+    if self.name in instance.__cache__: return instance.__cache__[self.name]
+    # If not we will compute it #
+    if inspect.isgeneratorfunction(self.func): result = tuple(self.func(instance))
+    else:                                      result = self.func(instance)
+    # Let&#39;s store the answer for later #
+    instance.__cache__[self.name] = result
+    # Return #
+    return result</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="fasta.core.FASTA" href="core.html#fasta.core.FASTA">FASTA</a></b></code>:
@@ -115,7 +148,6 @@ class SizesFASTA(FASTA):
 <li><code><a title="fasta.core.FASTA.add_seq" href="core.html#fasta.core.FASTA.add_seq">add_seq</a></code></li>
 <li><code><a title="fasta.core.FASTA.add_str" href="core.html#fasta.core.FASTA.add_str">add_str</a></code></li>
 <li><code><a title="fasta.core.FASTA.align" href="core.html#fasta.core.FASTA.align">align</a></code></li>
-<li><code><a title="fasta.core.FASTA.count" href="core.html#fasta.core.FASTA.count">count</a></code></li>
 <li><code><a title="fasta.core.FASTA.create" href="core.html#fasta.core.FASTA.create">create</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_length" href="core.html#fasta.core.FASTA.extract_length">extract_length</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_sequences" href="core.html#fasta.core.FASTA.extract_sequences">extract_sequences</a></code></li>
@@ -127,6 +159,7 @@ class SizesFASTA(FASTA):
 <li><code><a title="fasta.core.FASTA.index_bowtie" href="core.html#fasta.core.FASTA.index_bowtie">index_bowtie</a></code></li>
 <li><code><a title="fasta.core.FASTA.index_samtools" href="core.html#fasta.core.FASTA.index_samtools">index_samtools</a></code></li>
 <li><code><a title="fasta.core.FASTA.length_by_id" href="core.html#fasta.core.FASTA.length_by_id">length_by_id</a></code></li>
+<li><code><a title="fasta.core.FASTA.length_dist" href="core.html#fasta.core.FASTA.length_dist">length_dist</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths" href="core.html#fasta.core.FASTA.lengths">lengths</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths_counter" href="core.html#fasta.core.FASTA.lengths_counter">lengths_counter</a></code></li>
 <li><code><a title="fasta.core.FASTA.progress" href="core.html#fasta.core.FASTA.progress">progress</a></code></li>
@@ -160,6 +193,9 @@ class SizesFASTA(FASTA):
 <ul>
 <li>
 <h4><code><a title="fasta.sizes.SizesFASTA" href="#fasta.sizes.SizesFASTA">SizesFASTA</a></code></h4>
+<ul class="">
+<li><code><a title="fasta.sizes.SizesFASTA.count" href="#fasta.sizes.SizesFASTA.count">count</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

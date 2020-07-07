@@ -54,11 +54,13 @@ class FASTQ(FASTA):
     #-------------------------------- Tools ----------------------------------#
     @property_cached
     def validator(self):
+        """Validate the format of this FASTQ."""
         from fasta.validator import Validator
         return Validator(self.path)
 
     @property_cached
     def fastqc(self):
+        """Run the FastQC software on this FASTQ."""
         from fasta.fastqc import FastQC
         return FastQC(self)
 

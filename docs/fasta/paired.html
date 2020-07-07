@@ -79,6 +79,7 @@ class PairedFASTA:
 
     @property_cached
     def count(self):
+        &#34;&#34;&#34;Check both read counts are equal and return that number.&#34;&#34;&#34;
         assert self.fwd.count == self.rev.count
         return self.fwd.count
 
@@ -201,6 +202,7 @@ class PairedFASTQ(PairedFASTA):
 
     @property_cached
     def count(self):
+        &#34;&#34;&#34;Check both read counts are equal and return that number.&#34;&#34;&#34;
         assert self.fwd.count == self.rev.count
         return self.fwd.count
 
@@ -273,12 +275,17 @@ class PairedFASTQ(PairedFASTA):
 <dl>
 <dt id="fasta.paired.PairedFASTA.count"><code class="name">var <span class="ident">count</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Check both read counts are equal and return that number.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def __get__(self, instance, owner):
+    &#34;&#34;&#34;
+    If you see the current source code in a seemingly unrelated part of
+    an auto-generated documentation, it means the program making the
+    documentation was unable to correctly traverse a decorated property.
+    &#34;&#34;&#34;
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -521,6 +528,7 @@ def progress(self):
 <ul class="hlist">
 <li><code><b><a title="fasta.paired.PairedFASTA" href="#fasta.paired.PairedFASTA">PairedFASTA</a></b></code>:
 <ul class="hlist">
+<li><code><a title="fasta.paired.PairedFASTA.count" href="#fasta.paired.PairedFASTA.count">count</a></code></li>
 <li><code><a title="fasta.paired.PairedFASTA.progress" href="#fasta.paired.PairedFASTA.progress">progress</a></code></li>
 </ul>
 </li>
