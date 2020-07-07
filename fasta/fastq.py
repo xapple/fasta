@@ -25,7 +25,11 @@ from Bio import SeqIO
 
 ################################################################################
 class FASTQ(FASTA):
-    """A single FASTQ file somewhere in the filesystem."""
+    """
+    A single FASTQ file somewhere in the filesystem.
+    It is very similar to a FASTA file object, except we have a few added
+    methods and properties for dealing with the quality scores.
+    """
 
     ext    = 'fastq'
     format = 'fastq'
@@ -47,6 +51,7 @@ class FASTQ(FASTA):
 
     @property_cached
     def avg_quality(self):
+        """Returns a single float."""
         mean = average(s for r in self for s in r.letter_annotations["phred_quality"])
         self.close()
         return mean

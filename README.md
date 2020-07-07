@@ -8,39 +8,66 @@ The FASTA file format is a standard for storing several short or long DNA sequen
 
 ## Prerequisites
 
-Since `fasta` is written in python it is compatible with all operating systems: Linux, macOS and Windows. The only prerequisite is `python3` which is often installed by default and the `pip3` package manager.
+Since `fasta` is written in python it is compatible with all operating systems: Linux, macOS and Windows. The only prerequisite is `python3` (which is often installed by default) along with the `pip3` package manager.
 
 To check you have `python3` installed, type the following on your terminal:
 
     $ python3 -V
 
-If you do not have `python3` installed, please refer to the section [getting python](docs/installing_tips.md#obtaining-python3).
+If you do not have `python3` installed, please refer to the section [obtaining python3](docs/installing_tips.md#obtaining-python3).
 
 To check you have `pip3` installed, type the following on your terminal:
 
     $ pip3 -V
 
-If you do not have `pip3` installed, please refer to the section [getting pip](docs/installing_tips.md#obtaining-pip3).
+If you do not have `pip3` installed, please refer to the section [obtaining pip3](docs/installing_tips.md#obtaining-pip3).
 
 ## Installing
 
 To install the `fasta` package, simply type the following commands on your terminal:
 
-    $ pip3 install --user waste_flow
+    $ pip3 install --user fasta
 
 Alternatively, if you want to install it for all users of the system:
 
-    $ sudo pip3 install waste_flow
+    $ sudo pip3 install fasta
 
 ## Usage
 
 Bellow are some examples to illustrate the various ways there are to use this package.
 
-To xyz you can do the following:
+Let's say you have a FASTQ file somewhere inside your home directory and you want to analyze it. To validate it, you can start by doing the following:
+
+    >>> from fasta import FASTQ
+    >>> fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    >>> print(fastq.validator())
+    True
+    
+Then to run the FastQC software on that file automatically, do the following:
+
+    >>> from fasta import FASTQ
+    >>> fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    >>> print(fastq.fastqc())
+    True
+
+Next, to randomly pick a hundred sequences from the FASTQ file and put them in a new FASTQ file, use these commands:
+
+
+## Working with forward and reverse reads
+
+The `fasta` package also offers convenient ways of dealing with paired sequence files, where one has two FASTQ files with the same number of sequences in each file.
 
     from fasta import FASTQ
     print(FASTQ)
-    
+
+## Splitting FASTA files into subfiles
+
+The `fasta` package also offers convenient ways of dealing with large number of sequences by automatically splitting them into an arbitrary number of smaller FASTA files. This is usefull for the parallelization of certain operations.
+
+    from fasta import FASTQ
+    print(FASTQ)
+
+
 # Extra documentation 
 
 More documentation is available at:

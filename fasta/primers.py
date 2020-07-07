@@ -15,7 +15,6 @@ from plumbing.common import GenWithLength
 from plumbing.color  import Color
 
 # Third party modules #
-from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 
 # Constants #
@@ -64,8 +63,8 @@ class TwoPrimers:
         self.fwd_len = len(self.fwd_str)
         self.rev_len = len(self.rev_str)
         # Sequences #
-        self.fwd_seq = Seq(self.fwd_str, IUPAC.ambiguous_dna)
-        self.rev_seq = Seq(self.rev_str, IUPAC.ambiguous_dna)
+        self.fwd_seq = Seq(self.fwd_str)
+        self.rev_seq = Seq(self.rev_str)
         # Search patterns #
         self.fwd_pattern = iupac_pattern(self.fwd_seq)
         self.rev_pattern = iupac_pattern(self.rev_seq) # Don't add reverse complement here, use option instead

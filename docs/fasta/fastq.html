@@ -58,7 +58,11 @@ from Bio import SeqIO
 
 ################################################################################
 class FASTQ(FASTA):
-    &#34;&#34;&#34;A single FASTQ file somewhere in the filesystem.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    A single FASTQ file somewhere in the filesystem.
+    It is very similar to a FASTA file object, except we have a few added
+    methods and properties for dealing with the quality scores.
+    &#34;&#34;&#34;
 
     ext    = &#39;fastq&#39;
     format = &#39;fastq&#39;
@@ -80,6 +84,7 @@ class FASTQ(FASTA):
 
     @property_cached
     def avg_quality(self):
+        &#34;&#34;&#34;Returns a single float.&#34;&#34;&#34;
         mean = average(s for r in self for s in r.letter_annotations[&#34;phred_quality&#34;])
         self.close()
         return mean
@@ -204,13 +209,19 @@ class FASTQ(FASTA):
 <span>(</span><span>path, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A single FASTQ file somewhere in the filesystem.</p></div>
+<div class="desc"><p>A single FASTQ file somewhere in the filesystem.
+It is very similar to a FASTA file object, except we have a few added
+methods and properties for dealing with the quality scores.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FASTQ(FASTA):
-    &#34;&#34;&#34;A single FASTQ file somewhere in the filesystem.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    A single FASTQ file somewhere in the filesystem.
+    It is very similar to a FASTA file object, except we have a few added
+    methods and properties for dealing with the quality scores.
+    &#34;&#34;&#34;
 
     ext    = &#39;fastq&#39;
     format = &#39;fastq&#39;
@@ -232,6 +243,7 @@ class FASTQ(FASTA):
 
     @property_cached
     def avg_quality(self):
+        &#34;&#34;&#34;Returns a single float.&#34;&#34;&#34;
         mean = average(s for r in self for s in r.letter_annotations[&#34;phred_quality&#34;])
         self.close()
         return mean
@@ -363,9 +375,7 @@ class FASTQ(FASTA):
 <dl>
 <dt id="fasta.fastq.FASTQ.avg_quality"><code class="name">var <span class="ident">avg_quality</span></code></dt>
 <dd>
-<div class="desc"><p>If you see the current source code in a seemingly unrelated part of
-an auto-generated documentation, it means the program making the
-documentation was unable to correctly traverse a decorated property.</p></div>
+<div class="desc"><p>Returns a single float.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
