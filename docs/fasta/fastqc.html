@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>fasta.fastqc API documentation</title>
+<meta name="description" content="Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>fasta.fastqc</code></h1>
+</header>
+<section id="section-intro">
+<p>Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+&#34;&#34;&#34;
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+&#34;&#34;&#34;
+
+# Built-in modules #
+import os, shutil, multiprocessing
+
+# First party modules #
+from fasta import FASTQ
+from autopaths.dir_path import DirectoryPath
+from autopaths.tmp_path import new_temp_dir
+from plumbing.cache import property_cached
+from plumbing.check_cmd_found import check_cmd
+from plumbing.apt_pkg import get_apt_packages
+from plumbing.scraping import download_from_url
+
+# Third party modules #
+import sh
+
+###############################################################################
+class FastQC:
+    &#34;&#34;&#34;
+    Takes care of running the FastQC program on a given FASTQ file.
+    See http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+    Expects version 0.11.9.
+    &#34;&#34;&#34;
+
+    def __repr__(self):
+        msg = &#39;&lt;%s object on &#34;%s&#34;&gt;&#39;
+        return msg % (self.__class__.__name__, self.source.path)
+
+    def __init__(self, source, dest=None):
+        # Source and destination #
+        self.source = FASTQ(source)
+        self.dest = DirectoryPath(dest)
+        # Default case #
+        if dest is None:
+            self.dest = DirectoryPath(self.source.prefix_path + &#39;.fastqc&#39;)
+
+    #---------------------------- Installing ---------------------------------#
+    apt_packages = [&#39;default-jre&#39;]
+    zip_url = &#34;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip&#34;
+
+    @classmethod
+    def check_installed(cls, exception=True):
+        &#34;&#34;&#34;
+        Try to determine if the FastQC software is installed and
+        accessible.
+        &#34;&#34;&#34;
+        return check_cmd(&#39;fastqc&#39;, exception, cls.install.__doc__)
+
+    @classmethod
+    def install(cls, prefix=&#34;~/programs/FastQC/&#34;):
+        &#34;&#34;&#34;
+        To automatically download and install the FastQC software on this
+        computer and for the current user, type these commands in python:
+
+            &gt;&gt;&gt; from fasta.fastqc import FastQC
+            &gt;&gt;&gt; FastQC.install()
+        &#34;&#34;&#34;
+        # Start with required apt packages #
+        get_apt_packages(cls.apt_packages, verbose=True)
+        # Make a temporary directory #
+        tmp_dir = new_temp_dir()
+        # Download tarball #
+        zip_loc = download_from_url(cls.zip_url, tmp_dir, stream=True, progress=True)
+        # Uncompress #
+        src_dir = zip_loc.unzip_to(prefix, single=False).sub_directory
+        # Set executable permissions #
+        bin_loc = src_dir + &#39;fastqc&#39;
+        bin_loc.permissions.make_executable()
+        # The directory that contains the executable #
+        bin_dir = src_dir.with_tilda[:-1].replace(&#39;~&#39;, &#39;$HOME&#39;)
+        # Suggest adding to the $PATH #
+        print(&#34;\nFastQC was installed successfully. You should now &#34;
+              &#34;add this line to your .bash_profile: \n\n    &#34;
+              &#34;export PATH=%s:$PATH\n&#34; % bin_dir)
+
+    #---------------------------- Running ------------------------------------#
+    def __call__(self, cpus=None):
+        # Check it is installed #
+        self.check_installed()
+        # Check version #
+        assert &#34;v0.11.9&#34; in sh.fastqc(&#39;-version&#39;)
+        # Number of cores #
+        if cpus is None: cpus = min(multiprocessing.cpu_count(), 32)
+        # Make a temporary directory #
+        self.tmp_dir = new_temp_dir()
+        # Run it #
+        sh.fastqc(self.source, &#39;-o&#39;, self.tmp_dir, &#39;-t&#39;, cpus, &#39;--extract&#39;)
+        # Get location of results #
+        created_name = self.source.prefix.split(&#39;.&#39;)[0] + &#39;_fastqc/&#39;
+        created_dir  = self.tmp_dir + created_name
+        # Move results #
+        if self.dest.exists: shutil.rmtree(self.dest)
+        shutil.move(created_dir, self.dest)
+        self.tmp_dir.remove()
+        # Return #
+        return self.results
+
+    #------------------------------- Results ---------------------------------#
+    def __bool__(self):
+        &#34;&#34;&#34;
+        Return True if the FastQC software was run already and the results are
+        stored on the filesystem. Return False if it was not yet run.
+        &#34;&#34;&#34;
+        return os.path.exists(self.dest + &#39;Images/per_base_quality.png&#39;)
+
+    @property_cached
+    def results(self):
+        # Check it was run #
+        if not self:
+            msg = &#34;You can&#39;t access results from FastQC &#34; \
+                  &#34;before running the tool.&#34;
+            raise Exception(msg)
+        # Return the results #
+        return FastQCResults(self.dest)
+
+###############################################################################
+class FastQCResults(DirectoryPath):
+    &#34;&#34;&#34;A directory with the results from FastQC.&#34;&#34;&#34;
+
+    all_paths = &#34;&#34;&#34;
+                /Images/per_base_quality.png
+                /Images/per_sequence_quality.png
+                &#34;&#34;&#34;
+
+    def __bool__(self): return self.per_base_qual.exists
+
+    @property
+    def per_base_qual(self): return self.p.per_base_quality
+
+    @property
+    def per_seq_qual(self): return self.p.per_sequence_quality</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="fasta.fastqc.FastQC"><code class="flex name class">
+<span>class <span class="ident">FastQC</span></span>
+<span>(</span><span>source, dest=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes care of running the FastQC program on a given FASTQ file.
+See <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">http://www.bioinformatics.babraham.ac.uk/projects/fastqc/</a>
+Expects version 0.11.9.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FastQC:
+    &#34;&#34;&#34;
+    Takes care of running the FastQC program on a given FASTQ file.
+    See http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+    Expects version 0.11.9.
+    &#34;&#34;&#34;
+
+    def __repr__(self):
+        msg = &#39;&lt;%s object on &#34;%s&#34;&gt;&#39;
+        return msg % (self.__class__.__name__, self.source.path)
+
+    def __init__(self, source, dest=None):
+        # Source and destination #
+        self.source = FASTQ(source)
+        self.dest = DirectoryPath(dest)
+        # Default case #
+        if dest is None:
+            self.dest = DirectoryPath(self.source.prefix_path + &#39;.fastqc&#39;)
+
+    #---------------------------- Installing ---------------------------------#
+    apt_packages = [&#39;default-jre&#39;]
+    zip_url = &#34;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip&#34;
+
+    @classmethod
+    def check_installed(cls, exception=True):
+        &#34;&#34;&#34;
+        Try to determine if the FastQC software is installed and
+        accessible.
+        &#34;&#34;&#34;
+        return check_cmd(&#39;fastqc&#39;, exception, cls.install.__doc__)
+
+    @classmethod
+    def install(cls, prefix=&#34;~/programs/FastQC/&#34;):
+        &#34;&#34;&#34;
+        To automatically download and install the FastQC software on this
+        computer and for the current user, type these commands in python:
+
+            &gt;&gt;&gt; from fasta.fastqc import FastQC
+            &gt;&gt;&gt; FastQC.install()
+        &#34;&#34;&#34;
+        # Start with required apt packages #
+        get_apt_packages(cls.apt_packages, verbose=True)
+        # Make a temporary directory #
+        tmp_dir = new_temp_dir()
+        # Download tarball #
+        zip_loc = download_from_url(cls.zip_url, tmp_dir, stream=True, progress=True)
+        # Uncompress #
+        src_dir = zip_loc.unzip_to(prefix, single=False).sub_directory
+        # Set executable permissions #
+        bin_loc = src_dir + &#39;fastqc&#39;
+        bin_loc.permissions.make_executable()
+        # The directory that contains the executable #
+        bin_dir = src_dir.with_tilda[:-1].replace(&#39;~&#39;, &#39;$HOME&#39;)
+        # Suggest adding to the $PATH #
+        print(&#34;\nFastQC was installed successfully. You should now &#34;
+              &#34;add this line to your .bash_profile: \n\n    &#34;
+              &#34;export PATH=%s:$PATH\n&#34; % bin_dir)
+
+    #---------------------------- Running ------------------------------------#
+    def __call__(self, cpus=None):
+        # Check it is installed #
+        self.check_installed()
+        # Check version #
+        assert &#34;v0.11.9&#34; in sh.fastqc(&#39;-version&#39;)
+        # Number of cores #
+        if cpus is None: cpus = min(multiprocessing.cpu_count(), 32)
+        # Make a temporary directory #
+        self.tmp_dir = new_temp_dir()
+        # Run it #
+        sh.fastqc(self.source, &#39;-o&#39;, self.tmp_dir, &#39;-t&#39;, cpus, &#39;--extract&#39;)
+        # Get location of results #
+        created_name = self.source.prefix.split(&#39;.&#39;)[0] + &#39;_fastqc/&#39;
+        created_dir  = self.tmp_dir + created_name
+        # Move results #
+        if self.dest.exists: shutil.rmtree(self.dest)
+        shutil.move(created_dir, self.dest)
+        self.tmp_dir.remove()
+        # Return #
+        return self.results
+
+    #------------------------------- Results ---------------------------------#
+    def __bool__(self):
+        &#34;&#34;&#34;
+        Return True if the FastQC software was run already and the results are
+        stored on the filesystem. Return False if it was not yet run.
+        &#34;&#34;&#34;
+        return os.path.exists(self.dest + &#39;Images/per_base_quality.png&#39;)
+
+    @property_cached
+    def results(self):
+        # Check it was run #
+        if not self:
+            msg = &#34;You can&#39;t access results from FastQC &#34; \
+                  &#34;before running the tool.&#34;
+            raise Exception(msg)
+        # Return the results #
+        return FastQCResults(self.dest)</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="fasta.fastqc.FastQC.apt_packages"><code class="name">var <span class="ident">apt_packages</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="fasta.fastqc.FastQC.zip_url"><code class="name">var <span class="ident">zip_url</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="fasta.fastqc.FastQC.check_installed"><code class="name flex">
+<span>def <span class="ident">check_installed</span></span>(<span>exception=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Try to determine if the FastQC software is installed and
+accessible.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def check_installed(cls, exception=True):
+    &#34;&#34;&#34;
+    Try to determine if the FastQC software is installed and
+    accessible.
+    &#34;&#34;&#34;
+    return check_cmd(&#39;fastqc&#39;, exception, cls.install.__doc__)</code></pre>
+</details>
+</dd>
+<dt id="fasta.fastqc.FastQC.install"><code class="name flex">
+<span>def <span class="ident">install</span></span>(<span>prefix='~/programs/FastQC/')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>To automatically download and install the FastQC software on this
+computer and for the current user, type these commands in python:</p>
+<pre><code>&gt;&gt;&gt; from fasta.fastqc import FastQC
+&gt;&gt;&gt; FastQC.install()
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def install(cls, prefix=&#34;~/programs/FastQC/&#34;):
+    &#34;&#34;&#34;
+    To automatically download and install the FastQC software on this
+    computer and for the current user, type these commands in python:
+
+        &gt;&gt;&gt; from fasta.fastqc import FastQC
+        &gt;&gt;&gt; FastQC.install()
+    &#34;&#34;&#34;
+    # Start with required apt packages #
+    get_apt_packages(cls.apt_packages, verbose=True)
+    # Make a temporary directory #
+    tmp_dir = new_temp_dir()
+    # Download tarball #
+    zip_loc = download_from_url(cls.zip_url, tmp_dir, stream=True, progress=True)
+    # Uncompress #
+    src_dir = zip_loc.unzip_to(prefix, single=False).sub_directory
+    # Set executable permissions #
+    bin_loc = src_dir + &#39;fastqc&#39;
+    bin_loc.permissions.make_executable()
+    # The directory that contains the executable #
+    bin_dir = src_dir.with_tilda[:-1].replace(&#39;~&#39;, &#39;$HOME&#39;)
+    # Suggest adding to the $PATH #
+    print(&#34;\nFastQC was installed successfully. You should now &#34;
+          &#34;add this line to your .bash_profile: \n\n    &#34;
+          &#34;export PATH=%s:$PATH\n&#34; % bin_dir)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="fasta.fastqc.FastQC.results"><code class="name">var <span class="ident">results</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    # If called from a class #
+    if instance is None: return self
+    # Does a cache exist for this instance? #
+    self.check_cache(instance)
+    # Is the answer in the cache? #
+    if self.name in instance.__cache__: return instance.__cache__[self.name]
+    # If not we will compute it #
+    if inspect.isgeneratorfunction(self.func): result = tuple(self.func(instance))
+    else:                                      result = self.func(instance)
+    # Let&#39;s store the answer for later #
+    instance.__cache__[self.name] = result
+    # Return #
+    return result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="fasta.fastqc.FastQCResults"><code class="flex name class">
+<span>class <span class="ident">FastQCResults</span></span>
+<span>(</span><span>path, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A directory with the results from FastQC.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FastQCResults(DirectoryPath):
+    &#34;&#34;&#34;A directory with the results from FastQC.&#34;&#34;&#34;
+
+    all_paths = &#34;&#34;&#34;
+                /Images/per_base_quality.png
+                /Images/per_sequence_quality.png
+                &#34;&#34;&#34;
+
+    def __bool__(self): return self.per_base_qual.exists
+
+    @property
+    def per_base_qual(self): return self.p.per_base_quality
+
+    @property
+    def per_seq_qual(self): return self.p.per_sequence_quality</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>autopaths.dir_path.DirectoryPath</li>
+<li>autopaths.base_path.BasePath</li>
+<li>builtins.str</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="fasta.fastqc.FastQCResults.all_paths"><code class="name">var <span class="ident">all_paths</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="fasta.fastqc.FastQCResults.per_base_qual"><code class="name">var <span class="ident">per_base_qual</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def per_base_qual(self): return self.p.per_base_quality</code></pre>
+</details>
+</dd>
+<dt id="fasta.fastqc.FastQCResults.per_seq_qual"><code class="name">var <span class="ident">per_seq_qual</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def per_seq_qual(self): return self.p.per_sequence_quality</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="fasta" href="index.html">fasta</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="fasta.fastqc.FastQC" href="#fasta.fastqc.FastQC">FastQC</a></code></h4>
+<ul class="">
+<li><code><a title="fasta.fastqc.FastQC.apt_packages" href="#fasta.fastqc.FastQC.apt_packages">apt_packages</a></code></li>
+<li><code><a title="fasta.fastqc.FastQC.check_installed" href="#fasta.fastqc.FastQC.check_installed">check_installed</a></code></li>
+<li><code><a title="fasta.fastqc.FastQC.install" href="#fasta.fastqc.FastQC.install">install</a></code></li>
+<li><code><a title="fasta.fastqc.FastQC.results" href="#fasta.fastqc.FastQC.results">results</a></code></li>
+<li><code><a title="fasta.fastqc.FastQC.zip_url" href="#fasta.fastqc.FastQC.zip_url">zip_url</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="fasta.fastqc.FastQCResults" href="#fasta.fastqc.FastQCResults">FastQCResults</a></code></h4>
+<ul class="">
+<li><code><a title="fasta.fastqc.FastQCResults.all_paths" href="#fasta.fastqc.FastQCResults.all_paths">all_paths</a></code></li>
+<li><code><a title="fasta.fastqc.FastQCResults.per_base_qual" href="#fasta.fastqc.FastQCResults.per_base_qual">per_base_qual</a></code></li>
+<li><code><a title="fasta.fastqc.FastQCResults.per_seq_qual" href="#fasta.fastqc.FastQCResults.per_seq_qual">per_seq_qual</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>

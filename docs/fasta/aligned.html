@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>fasta.aligned API documentation</title>
+<meta name="description" content="Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>fasta.aligned</code></h1>
+</header>
+<section id="section-intro">
+<p>Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+&#34;&#34;&#34;
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+&#34;&#34;&#34;
+
+# Built-in modules #
+import os, multiprocessing
+from collections import OrderedDict
+
+# Internal modules #
+from fasta import FASTA
+from plumbing.cache import property_cached
+from autopaths.file_path import FilePath
+from autopaths.tmp_path  import new_temp_path, new_temp_dir
+
+# Third party modules #
+import sh, shutil
+from Bio import AlignIO
+from Bio.Align import MultipleSeqAlignment
+
+################################################################################
+class AlignedFASTA(FASTA):
+    &#34;&#34;&#34;Also a FASTA file technically, but contains an alignment.&#34;&#34;&#34;
+    ext = &#39;aln&#39;
+
+    def __iter__(self): return iter(self.parse())
+
+    def parse(self):
+        self.open()
+        return AlignIO.read(self.handle, self.format)
+
+    def add_seq(self, seq):
+        self.buffer.append(seq)
+
+    def flush(self):
+        AlignIO.write(MultipleSeqAlignment(self.buffer), self.handle, self.format)
+
+    def write(self, reads):
+        if not self.directory.exists: self.directory.create()
+        self.open(&#39;w&#39;)
+        AlignIO.write(reads, self.handle, self.format)
+        self.close()
+
+    @property_cached
+    def sequences(self):
+        return OrderedDict(((seq.id, seq) for seq in self))
+
+    def gblocks(self,
+                new_path = None,
+                seq_type = &#39;nucl&#39; or &#39;prot&#39;):
+        &#34;&#34;&#34;Apply the gblocks filtering algorithm to the alignment.
+        See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html
+        Need to rename all sequences, because it will complain with long names.&#34;&#34;&#34;
+        # Temporary path #
+        if new_path is None: final = self.__class__(new_temp_path())
+        else:                final = self.__class__(new_path)
+        # Mapping every sequence name with a random name #
+        orig_name_to_temp = {seq.description: &#39;name&#39; + str(i) for i,seq in enumerate(self)}
+        temp_name_to_orig = {v: k for k, v in orig_name_to_temp.items()}
+        # Rename every sequence with a random name #
+        temp_fasta = self.rename_sequences(orig_name_to_temp)
+        # Options #
+        if seq_type == &#39;nucl&#39;: t_option = &#34;-t=d&#34;
+        if seq_type == &#39;prot&#39;: t_option = &#34;-t=p&#34;
+        # Run it #
+        result = sh.gblocks91(temp_fasta.path, t_option, &#39;-p=n&#39;, &#34;-b4=3&#34;, &#34;-b3=20&#34;, &#34;-b5=a&#34;, _ok_code=[0,1])
+        created_file = temp_fasta.path + &#39;-gb&#39;
+        assert os.path.exists(created_file)
+        # Check errors #
+        if &#34;Execution terminated&#34; in result.stdout: raise Exception(&#34;gblocks crashed again.&#34;)
+        # Back #
+        temp_fasta.rename_sequences(temp_name_to_orig, final)
+        # Return #
+        return final
+
+    def build_tree(self, *args, **kwargs):
+        &#34;&#34;&#34;Dispatch a tree build call. Note that you need at least four
+        taxa to express some evolutionary history on an unrooted tree.&#34;&#34;&#34;
+        # Check length #
+        assert len(self) &gt; 3
+        # Default option #
+        algorithm = kwargs.pop(kwargs, None)
+        if algorithm is None: algorithm = &#39;raxml&#39;
+        # Dispatch #
+        if algorithm == &#39;raxml&#39;:    return self.build_tree_raxml(*args, **kwargs)
+        if algorithm == &#39;fasttree&#39;: return self.build_tree_fast(*args, **kwargs)
+
+    def build_tree_raxml(self,
+                   new_path    = None,
+                   seq_type    = &#39;nucl&#39; or &#39;prot&#39;,
+                   num_threads = None,
+                   free_cores  = 2,
+                   keep_dir    = False):
+        &#34;&#34;&#34;Make a tree with RAxML.&#34;&#34;&#34;
+        # Check output #
+        if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+        # What model to choose #
+        if seq_type == &#39;nucl&#39;: model = &#34;GTRGAMMA&#34;
+        if seq_type == &#39;prot&#39;: model = &#34;PROTGAMMAJTTF&#34;
+        # Threads #
+        if num_threads is None: num_threads = multiprocessing.cpu_count() - free_cores
+        else:                   num_threads = int(num_threads) - free_cores
+        num_threads = max(1, num_threads)
+        # Run it #
+        temp_dir = new_temp_dir()
+        sh.raxml811(&#39;-m&#39;, model, &#34;-T&#34;, num_threads, &#39;-p&#39;, 1, &#39;-s&#39;, self.path, &#39;-n&#39;, &#39;tree&#39;, &#39;-w&#39;, temp_dir, &#39;-f&#39;, &#39;a&#39;, &#39;-x&#39;, 1, &#39;-N&#39;, &#39;autoMR&#39;)
+        # Move into place #
+        if keep_dir:
+            shutil.rmtree(new_path)
+            shutil.move(temp_dir, new_path)
+        if not keep_dir:
+            shutil.move(temp_dir + &#39;RAxML_bestTree.tree&#39;, new_path)
+        # Return #
+        return FilePath(new_path)
+
+    def build_tree_fast(self, new_path=None, seq_type=&#39;nucl&#39; or &#39;prot&#39;):
+        &#34;&#34;&#34;Make a tree with FastTree. Names will be truncated however.&#34;&#34;&#34;
+        # Check output #
+        if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+        # Command #
+        command_args = []
+        if seq_type == &#39;nucl&#39;: command_args += [&#39;-nt&#39;]
+        command_args += [&#39;-gamma&#39;]
+        command_args += [&#39;-out&#39;, new_path]
+        command_args += [self.path]
+        # Run it #
+        sh.FastTree(*command_args)
+        # Return #
+        return FilePath(new_path)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="fasta.aligned.AlignedFASTA"><code class="flex name class">
+<span>class <span class="ident">AlignedFASTA</span></span>
+<span>(</span><span>path, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Also a FASTA file technically, but contains an alignment.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AlignedFASTA(FASTA):
+    &#34;&#34;&#34;Also a FASTA file technically, but contains an alignment.&#34;&#34;&#34;
+    ext = &#39;aln&#39;
+
+    def __iter__(self): return iter(self.parse())
+
+    def parse(self):
+        self.open()
+        return AlignIO.read(self.handle, self.format)
+
+    def add_seq(self, seq):
+        self.buffer.append(seq)
+
+    def flush(self):
+        AlignIO.write(MultipleSeqAlignment(self.buffer), self.handle, self.format)
+
+    def write(self, reads):
+        if not self.directory.exists: self.directory.create()
+        self.open(&#39;w&#39;)
+        AlignIO.write(reads, self.handle, self.format)
+        self.close()
+
+    @property_cached
+    def sequences(self):
+        return OrderedDict(((seq.id, seq) for seq in self))
+
+    def gblocks(self,
+                new_path = None,
+                seq_type = &#39;nucl&#39; or &#39;prot&#39;):
+        &#34;&#34;&#34;Apply the gblocks filtering algorithm to the alignment.
+        See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html
+        Need to rename all sequences, because it will complain with long names.&#34;&#34;&#34;
+        # Temporary path #
+        if new_path is None: final = self.__class__(new_temp_path())
+        else:                final = self.__class__(new_path)
+        # Mapping every sequence name with a random name #
+        orig_name_to_temp = {seq.description: &#39;name&#39; + str(i) for i,seq in enumerate(self)}
+        temp_name_to_orig = {v: k for k, v in orig_name_to_temp.items()}
+        # Rename every sequence with a random name #
+        temp_fasta = self.rename_sequences(orig_name_to_temp)
+        # Options #
+        if seq_type == &#39;nucl&#39;: t_option = &#34;-t=d&#34;
+        if seq_type == &#39;prot&#39;: t_option = &#34;-t=p&#34;
+        # Run it #
+        result = sh.gblocks91(temp_fasta.path, t_option, &#39;-p=n&#39;, &#34;-b4=3&#34;, &#34;-b3=20&#34;, &#34;-b5=a&#34;, _ok_code=[0,1])
+        created_file = temp_fasta.path + &#39;-gb&#39;
+        assert os.path.exists(created_file)
+        # Check errors #
+        if &#34;Execution terminated&#34; in result.stdout: raise Exception(&#34;gblocks crashed again.&#34;)
+        # Back #
+        temp_fasta.rename_sequences(temp_name_to_orig, final)
+        # Return #
+        return final
+
+    def build_tree(self, *args, **kwargs):
+        &#34;&#34;&#34;Dispatch a tree build call. Note that you need at least four
+        taxa to express some evolutionary history on an unrooted tree.&#34;&#34;&#34;
+        # Check length #
+        assert len(self) &gt; 3
+        # Default option #
+        algorithm = kwargs.pop(kwargs, None)
+        if algorithm is None: algorithm = &#39;raxml&#39;
+        # Dispatch #
+        if algorithm == &#39;raxml&#39;:    return self.build_tree_raxml(*args, **kwargs)
+        if algorithm == &#39;fasttree&#39;: return self.build_tree_fast(*args, **kwargs)
+
+    def build_tree_raxml(self,
+                   new_path    = None,
+                   seq_type    = &#39;nucl&#39; or &#39;prot&#39;,
+                   num_threads = None,
+                   free_cores  = 2,
+                   keep_dir    = False):
+        &#34;&#34;&#34;Make a tree with RAxML.&#34;&#34;&#34;
+        # Check output #
+        if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+        # What model to choose #
+        if seq_type == &#39;nucl&#39;: model = &#34;GTRGAMMA&#34;
+        if seq_type == &#39;prot&#39;: model = &#34;PROTGAMMAJTTF&#34;
+        # Threads #
+        if num_threads is None: num_threads = multiprocessing.cpu_count() - free_cores
+        else:                   num_threads = int(num_threads) - free_cores
+        num_threads = max(1, num_threads)
+        # Run it #
+        temp_dir = new_temp_dir()
+        sh.raxml811(&#39;-m&#39;, model, &#34;-T&#34;, num_threads, &#39;-p&#39;, 1, &#39;-s&#39;, self.path, &#39;-n&#39;, &#39;tree&#39;, &#39;-w&#39;, temp_dir, &#39;-f&#39;, &#39;a&#39;, &#39;-x&#39;, 1, &#39;-N&#39;, &#39;autoMR&#39;)
+        # Move into place #
+        if keep_dir:
+            shutil.rmtree(new_path)
+            shutil.move(temp_dir, new_path)
+        if not keep_dir:
+            shutil.move(temp_dir + &#39;RAxML_bestTree.tree&#39;, new_path)
+        # Return #
+        return FilePath(new_path)
+
+    def build_tree_fast(self, new_path=None, seq_type=&#39;nucl&#39; or &#39;prot&#39;):
+        &#34;&#34;&#34;Make a tree with FastTree. Names will be truncated however.&#34;&#34;&#34;
+        # Check output #
+        if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+        # Command #
+        command_args = []
+        if seq_type == &#39;nucl&#39;: command_args += [&#39;-nt&#39;]
+        command_args += [&#39;-gamma&#39;]
+        command_args += [&#39;-out&#39;, new_path]
+        command_args += [self.path]
+        # Run it #
+        sh.FastTree(*command_args)
+        # Return #
+        return FilePath(new_path)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="fasta.core.FASTA" href="core.html#fasta.core.FASTA">FASTA</a></li>
+<li>autopaths.file_path.FilePath</li>
+<li>autopaths.base_path.BasePath</li>
+<li>builtins.str</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="fasta.aligned.AlignedFASTA.ext"><code class="name">var <span class="ident">ext</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="fasta.aligned.AlignedFASTA.build_tree"><code class="name flex">
+<span>def <span class="ident">build_tree</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dispatch a tree build call. Note that you need at least four
+taxa to express some evolutionary history on an unrooted tree.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_tree(self, *args, **kwargs):
+    &#34;&#34;&#34;Dispatch a tree build call. Note that you need at least four
+    taxa to express some evolutionary history on an unrooted tree.&#34;&#34;&#34;
+    # Check length #
+    assert len(self) &gt; 3
+    # Default option #
+    algorithm = kwargs.pop(kwargs, None)
+    if algorithm is None: algorithm = &#39;raxml&#39;
+    # Dispatch #
+    if algorithm == &#39;raxml&#39;:    return self.build_tree_raxml(*args, **kwargs)
+    if algorithm == &#39;fasttree&#39;: return self.build_tree_fast(*args, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="fasta.aligned.AlignedFASTA.build_tree_fast"><code class="name flex">
+<span>def <span class="ident">build_tree_fast</span></span>(<span>self, new_path=None, seq_type='nucl')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a tree with FastTree. Names will be truncated however.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_tree_fast(self, new_path=None, seq_type=&#39;nucl&#39; or &#39;prot&#39;):
+    &#34;&#34;&#34;Make a tree with FastTree. Names will be truncated however.&#34;&#34;&#34;
+    # Check output #
+    if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+    # Command #
+    command_args = []
+    if seq_type == &#39;nucl&#39;: command_args += [&#39;-nt&#39;]
+    command_args += [&#39;-gamma&#39;]
+    command_args += [&#39;-out&#39;, new_path]
+    command_args += [self.path]
+    # Run it #
+    sh.FastTree(*command_args)
+    # Return #
+    return FilePath(new_path)</code></pre>
+</details>
+</dd>
+<dt id="fasta.aligned.AlignedFASTA.build_tree_raxml"><code class="name flex">
+<span>def <span class="ident">build_tree_raxml</span></span>(<span>self, new_path=None, seq_type='nucl', num_threads=None, free_cores=2, keep_dir=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a tree with RAxML.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_tree_raxml(self,
+               new_path    = None,
+               seq_type    = &#39;nucl&#39; or &#39;prot&#39;,
+               num_threads = None,
+               free_cores  = 2,
+               keep_dir    = False):
+    &#34;&#34;&#34;Make a tree with RAxML.&#34;&#34;&#34;
+    # Check output #
+    if new_path is None: new_path = self.prefix_path + &#39;.tree&#39;
+    # What model to choose #
+    if seq_type == &#39;nucl&#39;: model = &#34;GTRGAMMA&#34;
+    if seq_type == &#39;prot&#39;: model = &#34;PROTGAMMAJTTF&#34;
+    # Threads #
+    if num_threads is None: num_threads = multiprocessing.cpu_count() - free_cores
+    else:                   num_threads = int(num_threads) - free_cores
+    num_threads = max(1, num_threads)
+    # Run it #
+    temp_dir = new_temp_dir()
+    sh.raxml811(&#39;-m&#39;, model, &#34;-T&#34;, num_threads, &#39;-p&#39;, 1, &#39;-s&#39;, self.path, &#39;-n&#39;, &#39;tree&#39;, &#39;-w&#39;, temp_dir, &#39;-f&#39;, &#39;a&#39;, &#39;-x&#39;, 1, &#39;-N&#39;, &#39;autoMR&#39;)
+    # Move into place #
+    if keep_dir:
+        shutil.rmtree(new_path)
+        shutil.move(temp_dir, new_path)
+    if not keep_dir:
+        shutil.move(temp_dir + &#39;RAxML_bestTree.tree&#39;, new_path)
+    # Return #
+    return FilePath(new_path)</code></pre>
+</details>
+</dd>
+<dt id="fasta.aligned.AlignedFASTA.gblocks"><code class="name flex">
+<span>def <span class="ident">gblocks</span></span>(<span>self, new_path=None, seq_type='nucl')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Apply the gblocks filtering algorithm to the alignment.
+See <a href="http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html">http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html</a>
+Need to rename all sequences, because it will complain with long names.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gblocks(self,
+            new_path = None,
+            seq_type = &#39;nucl&#39; or &#39;prot&#39;):
+    &#34;&#34;&#34;Apply the gblocks filtering algorithm to the alignment.
+    See http://molevol.cmima.csic.es/castresana/Gblocks/Gblocks_documentation.html
+    Need to rename all sequences, because it will complain with long names.&#34;&#34;&#34;
+    # Temporary path #
+    if new_path is None: final = self.__class__(new_temp_path())
+    else:                final = self.__class__(new_path)
+    # Mapping every sequence name with a random name #
+    orig_name_to_temp = {seq.description: &#39;name&#39; + str(i) for i,seq in enumerate(self)}
+    temp_name_to_orig = {v: k for k, v in orig_name_to_temp.items()}
+    # Rename every sequence with a random name #
+    temp_fasta = self.rename_sequences(orig_name_to_temp)
+    # Options #
+    if seq_type == &#39;nucl&#39;: t_option = &#34;-t=d&#34;
+    if seq_type == &#39;prot&#39;: t_option = &#34;-t=p&#34;
+    # Run it #
+    result = sh.gblocks91(temp_fasta.path, t_option, &#39;-p=n&#39;, &#34;-b4=3&#34;, &#34;-b3=20&#34;, &#34;-b5=a&#34;, _ok_code=[0,1])
+    created_file = temp_fasta.path + &#39;-gb&#39;
+    assert os.path.exists(created_file)
+    # Check errors #
+    if &#34;Execution terminated&#34; in result.stdout: raise Exception(&#34;gblocks crashed again.&#34;)
+    # Back #
+    temp_fasta.rename_sequences(temp_name_to_orig, final)
+    # Return #
+    return final</code></pre>
+</details>
+</dd>
+<dt id="fasta.aligned.AlignedFASTA.parse"><code class="name flex">
+<span>def <span class="ident">parse</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse(self):
+    self.open()
+    return AlignIO.read(self.handle, self.format)</code></pre>
+</details>
+</dd>
+<dt id="fasta.aligned.AlignedFASTA.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, reads)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write(self, reads):
+    if not self.directory.exists: self.directory.create()
+    self.open(&#39;w&#39;)
+    AlignIO.write(reads, self.handle, self.format)
+    self.close()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="fasta.core.FASTA" href="core.html#fasta.core.FASTA">FASTA</a></b></code>:
+<ul class="hlist">
+<li><code><a title="fasta.core.FASTA.add" href="core.html#fasta.core.FASTA.add">add</a></code></li>
+<li><code><a title="fasta.core.FASTA.add_fasta" href="core.html#fasta.core.FASTA.add_fasta">add_fasta</a></code></li>
+<li><code><a title="fasta.core.FASTA.add_fastas" href="core.html#fasta.core.FASTA.add_fastas">add_fastas</a></code></li>
+<li><code><a title="fasta.core.FASTA.add_seq" href="core.html#fasta.core.FASTA.add_seq">add_seq</a></code></li>
+<li><code><a title="fasta.core.FASTA.add_str" href="core.html#fasta.core.FASTA.add_str">add_str</a></code></li>
+<li><code><a title="fasta.core.FASTA.align" href="core.html#fasta.core.FASTA.align">align</a></code></li>
+<li><code><a title="fasta.core.FASTA.count" href="core.html#fasta.core.FASTA.count">count</a></code></li>
+<li><code><a title="fasta.core.FASTA.create" href="core.html#fasta.core.FASTA.create">create</a></code></li>
+<li><code><a title="fasta.core.FASTA.extract_length" href="core.html#fasta.core.FASTA.extract_length">extract_length</a></code></li>
+<li><code><a title="fasta.core.FASTA.extract_sequences" href="core.html#fasta.core.FASTA.extract_sequences">extract_sequences</a></code></li>
+<li><code><a title="fasta.core.FASTA.first" href="core.html#fasta.core.FASTA.first">first</a></code></li>
+<li><code><a title="fasta.core.FASTA.flush" href="core.html#fasta.core.FASTA.flush">flush</a></code></li>
+<li><code><a title="fasta.core.FASTA.get_id" href="core.html#fasta.core.FASTA.get_id">get_id</a></code></li>
+<li><code><a title="fasta.core.FASTA.graphs" href="core.html#fasta.core.FASTA.graphs">graphs</a></code></li>
+<li><code><a title="fasta.core.FASTA.ids" href="core.html#fasta.core.FASTA.ids">ids</a></code></li>
+<li><code><a title="fasta.core.FASTA.index_bowtie" href="core.html#fasta.core.FASTA.index_bowtie">index_bowtie</a></code></li>
+<li><code><a title="fasta.core.FASTA.index_samtools" href="core.html#fasta.core.FASTA.index_samtools">index_samtools</a></code></li>
+<li><code><a title="fasta.core.FASTA.length_by_id" href="core.html#fasta.core.FASTA.length_by_id">length_by_id</a></code></li>
+<li><code><a title="fasta.core.FASTA.lengths" href="core.html#fasta.core.FASTA.lengths">lengths</a></code></li>
+<li><code><a title="fasta.core.FASTA.lengths_counter" href="core.html#fasta.core.FASTA.lengths_counter">lengths_counter</a></code></li>
+<li><code><a title="fasta.core.FASTA.progress" href="core.html#fasta.core.FASTA.progress">progress</a></code></li>
+<li><code><a title="fasta.core.FASTA.remove_trailing_stars" href="core.html#fasta.core.FASTA.remove_trailing_stars">remove_trailing_stars</a></code></li>
+<li><code><a title="fasta.core.FASTA.rename_sequences" href="core.html#fasta.core.FASTA.rename_sequences">rename_sequences</a></code></li>
+<li><code><a title="fasta.core.FASTA.rename_with_num" href="core.html#fasta.core.FASTA.rename_with_num">rename_with_num</a></code></li>
+<li><code><a title="fasta.core.FASTA.rename_with_prefix" href="core.html#fasta.core.FASTA.rename_with_prefix">rename_with_prefix</a></code></li>
+<li><code><a title="fasta.core.FASTA.sequences" href="core.html#fasta.core.FASTA.sequences">sequences</a></code></li>
+<li><code><a title="fasta.core.FASTA.sql" href="core.html#fasta.core.FASTA.sql">sql</a></code></li>
+<li><code><a title="fasta.core.FASTA.subsample" href="core.html#fasta.core.FASTA.subsample">subsample</a></code></li>
+<li><code><a title="fasta.core.FASTA.template_align" href="core.html#fasta.core.FASTA.template_align">template_align</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="fasta" href="index.html">fasta</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="fasta.aligned.AlignedFASTA" href="#fasta.aligned.AlignedFASTA">AlignedFASTA</a></code></h4>
+<ul class="two-column">
+<li><code><a title="fasta.aligned.AlignedFASTA.build_tree" href="#fasta.aligned.AlignedFASTA.build_tree">build_tree</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.build_tree_fast" href="#fasta.aligned.AlignedFASTA.build_tree_fast">build_tree_fast</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.build_tree_raxml" href="#fasta.aligned.AlignedFASTA.build_tree_raxml">build_tree_raxml</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.ext" href="#fasta.aligned.AlignedFASTA.ext">ext</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.gblocks" href="#fasta.aligned.AlignedFASTA.gblocks">gblocks</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.parse" href="#fasta.aligned.AlignedFASTA.parse">parse</a></code></li>
+<li><code><a title="fasta.aligned.AlignedFASTA.write" href="#fasta.aligned.AlignedFASTA.write">write</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>
