@@ -14,13 +14,13 @@ To check you have `python3` installed, type the following on your terminal:
 
     $ python3 -V
 
-If you do not have `python3` installed, please refer to the section [getting python](aaa).
+If you do not have `python3` installed, please refer to the section [getting python](docs/installing_tips.md#obtaining-python3).
 
 To check you have `pip3` installed, type the following on your terminal:
 
     $ pip3 -V
 
-If you do not have `pip3` installed, please refer to the section [getting pip](aaa).
+If you do not have `pip3` installed, please refer to the section [getting pip](docs/installing_tips.md#obtaining-pip3).
 
 ## Installing
 
