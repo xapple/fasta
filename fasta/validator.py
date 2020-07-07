@@ -10,6 +10,9 @@ Contact at www.sinclair.bio
 # Built-in modules #
 import sys
 
+# Internal modules #
+from fasta.exceptions import ValidationError
+
 # First party modules #
 from autopaths.tmp_path import new_temp_dir
 from plumbing.apt_pkg   import get_apt_packages, check_apt_exists
@@ -92,15 +95,19 @@ class Validator:
 
     #---------------------------- Running ------------------------------------#
     def __call__(self, exception=True):
+        # Default message #
+        msg = "The fastq file '%s' failed to validate." % self.path
         # Check it is installed #
         self.check_installed()
         # Run software #
-        result = sh.fastQValidator('--file', self.path)
-        # Check result #
-        if "FASTQ_SUCCESS" not in result:
-            msg = "The fastq file '%s' failed to validate."
-            msg = msg % self.path
-            if exception: raise Exception(msg)
+        try:
+            result = sh.fastQValidator('--file', self.path)
+        except sh.ErrorReturnCode as error_msg:
+            if exception: raise ValidationError(msg) from error_msg
             return False
-        # Return #
-        return True
+        # Check result #
+        if "FASTQ_SUCCESS" in result: return True
+        # Default case #
+        msg += "The result:\n\n    %s\n" % result
+        if exception: raise ValidationError(msg)
+        return False

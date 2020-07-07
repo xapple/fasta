@@ -33,18 +33,32 @@ def test_package_import():
     import fasta
     return fasta
 
+# -------------------------------- Counting --------------------------------- #
+def test_count():
+    valid_file = this_dir + "data/seqs.fastq"
+    from fasta import FASTQ
+    fastq = FASTQ(valid_file)
+    assert len(fastq) == 1401
+
 # ------------------------------ Validation --------------------------------- #
 @pytest.mark.skipif(sys.platform != 'linux', reason="Can only run on Linux.")
 class TestValidation:
 
-    def test_validation():
+    def test_validation(self):
         valid_file = this_dir + "data/seqs.fastq"
         from fasta import FASTQ
         fastq = FASTQ(valid_file)
         assert fastq.validator()
 
-    def test_invalid():
+    def test_invalid(self):
         invalid_file = this_dir + "data/invalid.fastq"
         from fasta import FASTQ
         fastq = FASTQ(invalid_file)
-        assert not fastq.validator()
+        from fasta.exceptions import ValidationError
+        with pytest.raises(ValidationError): fastq.validator()
+
+    def test_invalid_silent(self):
+        invalid_file = this_dir + "data/invalid.fastq"
+        from fasta import FASTQ
+        fastq = FASTQ(invalid_file)
+        assert not fastq.validator(False)
