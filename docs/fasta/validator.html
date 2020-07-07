@@ -43,6 +43,9 @@ Contact at www.sinclair.bio
 # Built-in modules #
 import sys
 
+# Internal modules #
+from fasta.exceptions import ValidationError
+
 # First party modules #
 from autopaths.tmp_path import new_temp_dir
 from plumbing.apt_pkg   import get_apt_packages, check_apt_exists
@@ -125,18 +128,22 @@ class Validator:
 
     #---------------------------- Running ------------------------------------#
     def __call__(self, exception=True):
+        # Default message #
+        msg = &#34;The fastq file &#39;%s&#39; failed to validate.&#34; % self.path
         # Check it is installed #
         self.check_installed()
         # Run software #
-        result = sh.fastQValidator(&#39;--file&#39;, self.path)
-        # Check result #
-        if &#34;FASTQ_SUCCESS&#34; not in result:
-            msg = &#34;The fastq file &#39;%s&#39; failed to validate.&#34;
-            msg = msg % self.path
-            if exception: raise Exception(msg)
+        try:
+            result = sh.fastQValidator(&#39;--file&#39;, self.path)
+        except sh.ErrorReturnCode as error_msg:
+            if exception: raise ValidationError(msg) from error_msg
             return False
-        # Return #
-        return True</code></pre>
+        # Check result #
+        if &#34;FASTQ_SUCCESS&#34; in result: return True
+        # Default case #
+        msg += &#34;The result:\n\n    %s\n&#34; % result
+        if exception: raise ValidationError(msg)
+        return False</code></pre>
 </details>
 </section>
 <section>
@@ -234,18 +241,22 @@ Documentation is at:
 
     #---------------------------- Running ------------------------------------#
     def __call__(self, exception=True):
+        # Default message #
+        msg = &#34;The fastq file &#39;%s&#39; failed to validate.&#34; % self.path
         # Check it is installed #
         self.check_installed()
         # Run software #
-        result = sh.fastQValidator(&#39;--file&#39;, self.path)
-        # Check result #
-        if &#34;FASTQ_SUCCESS&#34; not in result:
-            msg = &#34;The fastq file &#39;%s&#39; failed to validate.&#34;
-            msg = msg % self.path
-            if exception: raise Exception(msg)
+        try:
+            result = sh.fastQValidator(&#39;--file&#39;, self.path)
+        except sh.ErrorReturnCode as error_msg:
+            if exception: raise ValidationError(msg) from error_msg
             return False
-        # Return #
-        return True</code></pre>
+        # Check result #
+        if &#34;FASTQ_SUCCESS&#34; in result: return True
+        # Default case #
+        msg += &#34;The result:\n\n    %s\n&#34; % result
+        if exception: raise ValidationError(msg)
+        return False</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>

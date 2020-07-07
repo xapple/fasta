@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.3" />
-<title>fasta API documentation</title>
+<title>fasta.exceptions API documentation</title>
 <meta name="description" content="Written by Lucas Sinclair.
 MIT Licensed.
 Contact at www.sinclair.bio" />
@@ -21,7 +21,7 @@ Contact at www.sinclair.bio" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>fasta</code></h1>
+<h1 class="title">Module <code>fasta.exceptions</code></h1>
 </header>
 <section id="section-intro">
 <p>Written by Lucas Sinclair.
@@ -41,121 +41,50 @@ Contact at www.sinclair.bio
 &#34;&#34;&#34;
 
 # Built-in modules #
-import os, sys
 
-# Constants #
-url         = &#39;http://xapple.github.io/fasta/&#39;
-repo_url    = &#39;http://github.com/xapple/fasta/&#39;
-__version__ = &#39;2.0.2&#39;
+# Internal modules #
 
-# Get paths to module #
-self       = sys.modules[__name__]
-module_dir = os.path.dirname(self.__file__)
-
-# Expose objects for convenience #
-from fasta.core      import FASTA
-from fasta.fastq     import FASTQ
-from fasta.aligned   import AlignedFASTA
-from fasta.paired    import PairedFASTQ, PairedFASTA
-from fasta.sizes     import SizesFASTA
-from fasta.qual      import QualFile
-from fasta.splitable import SplitableFASTA</code></pre>
+###############################################################################
+class ValidationError(Exception):
+    &#34;&#34;&#34;
+    An exception to be used when something fails to validate or is
+    ill-formatted.
+    &#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt><code class="name"><a title="fasta.aligned" href="aligned.html">fasta.aligned</a></code></dt>
+<dt id="fasta.exceptions.ValidationError"><code class="flex name class">
+<span>class <span class="ident">ValidationError</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
 <dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.common" href="common.html">fasta.common</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.core" href="core.html">fasta.core</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.exceptions" href="exceptions.html">fasta.exceptions</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.fastq" href="fastq.html">fasta.fastq</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.fastqc" href="fastqc.html">fasta.fastqc</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.graphs" href="graphs.html">fasta.graphs</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.indexed" href="indexed.html">fasta.indexed</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.paired" href="paired.html">fasta.paired</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.primers" href="primers.html">fasta.primers</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.qual" href="qual.html">fasta.qual</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.sizes" href="sizes.html">fasta.sizes</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.splitable" href="splitable.html">fasta.splitable</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
-</dd>
-<dt><code class="name"><a title="fasta.validator" href="validator.html">fasta.validator</a></code></dt>
-<dd>
-<div class="desc"><p>Written by Lucas Sinclair.
-MIT Licensed.
-Contact at www.sinclair.bio</p></div>
+<div class="desc"><p>An exception to be used when something fails to validate or is
+ill-formatted.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ValidationError(Exception):
+    &#34;&#34;&#34;
+    An exception to be used when something fails to validate or is
+    ill-formatted.
+    &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
 </section>
 </article>
 <nav id="sidebar">
@@ -164,22 +93,16 @@ Contact at www.sinclair.bio</p></div>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="fasta.aligned" href="aligned.html">fasta.aligned</a></code></li>
-<li><code><a title="fasta.common" href="common.html">fasta.common</a></code></li>
-<li><code><a title="fasta.core" href="core.html">fasta.core</a></code></li>
-<li><code><a title="fasta.exceptions" href="exceptions.html">fasta.exceptions</a></code></li>
-<li><code><a title="fasta.fastq" href="fastq.html">fasta.fastq</a></code></li>
-<li><code><a title="fasta.fastqc" href="fastqc.html">fasta.fastqc</a></code></li>
-<li><code><a title="fasta.graphs" href="graphs.html">fasta.graphs</a></code></li>
-<li><code><a title="fasta.indexed" href="indexed.html">fasta.indexed</a></code></li>
-<li><code><a title="fasta.paired" href="paired.html">fasta.paired</a></code></li>
-<li><code><a title="fasta.primers" href="primers.html">fasta.primers</a></code></li>
-<li><code><a title="fasta.qual" href="qual.html">fasta.qual</a></code></li>
-<li><code><a title="fasta.sizes" href="sizes.html">fasta.sizes</a></code></li>
-<li><code><a title="fasta.splitable" href="splitable.html">fasta.splitable</a></code></li>
-<li><code><a title="fasta.validator" href="validator.html">fasta.validator</a></code></li>
+<li><code><a title="fasta" href="index.html">fasta</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="fasta.exceptions.ValidationError" href="#fasta.exceptions.ValidationError">ValidationError</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>
