@@ -20,7 +20,7 @@ from plumbing.apt_pkg import get_apt_packages
 from plumbing.scraping import download_from_url
 
 # Third party modules #
-import pbs3
+import sh
 
 ###############################################################################
 class FastQC:
@@ -86,13 +86,13 @@ class FastQC:
         # Check it is installed #
         self.check_installed()
         # Check version #
-        assert "v0.11.9" in pbs3.fastqc('-version')
+        assert "v0.11.9" in sh.fastqc('-version')
         # Number of cores #
         if cpus is None: cpus = min(multiprocessing.cpu_count(), 32)
         # Make a temporary directory #
         self.tmp_dir = new_temp_dir()
         # Run it #
-        pbs3.fastqc(self.source, '-o', self.tmp_dir, '-t', cpus, '--extract')
+        sh.fastqc(self.source, '-o', self.tmp_dir, '-t', cpus, '--extract')
         # Get location of results #
         created_name = self.source.prefix.split('.')[0] + '_fastqc/'
         created_dir  = self.tmp_dir + created_name

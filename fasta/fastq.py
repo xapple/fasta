@@ -20,7 +20,7 @@ from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
 # Third party modules #
-import pbs3
+import sh
 from Bio import SeqIO
 
 ################################################################################
@@ -32,8 +32,8 @@ class FASTQ(FASTA):
 
     @property_cached
     def count(self):
-        if self.gzipped: return int(pbs3.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
-        return int(pbs3.grep('-c', "^+$", self.path, _ok_code=[0,1]))
+        if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
+        return int(sh.grep('-c', "^+$", self.path, _ok_code=[0,1]))
 
     def to_fasta(self, path):
         with open(path, 'w') as handle:
@@ -146,10 +146,10 @@ class FASTQ(FASTA):
         sed_command = r"""4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/"""
         # Faster with bash utilities #
         if in_place is True:
-            pbs3.sed('-i', sed_command, self.path)
+            sh.sed('-i', sed_command, self.path)
             return self
         # New file #
         if new_path is None: new_fastq = self.__class__(new_temp_path())
         else:                new_fastq = self.__class__(new_path)
-        pbs3.sed(sed_command + " " + new_fastq, self.path)
+        sh.sed(sed_command + " " + new_fastq, self.path)
         return new_fastq

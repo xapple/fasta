@@ -23,7 +23,7 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path
 
 # Third party modules #
-import pbs3
+import sh
 from tqdm import tqdm
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -72,8 +72,8 @@ class FASTA(FilePath):
     @property_cached
     def count(self):
         """Should probably check for file size changes instead of just caching once #TODO"""
-        if self.gzipped: return int(pbs3.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
-        else: return int(pbs3.grep('-c', "^>", self.path, _ok_code=[0,1]))
+        if self.gzipped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
+        else: return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
 
     @property
     def lengths(self):
@@ -323,10 +323,10 @@ class FASTA(FilePath):
         end of sequences.
         """
         # Optional check #
-        if check and int(pbs3.grep('-c', '\*', self.path, _ok_code=[0,1])) == 0: return self
+        if check and int(sh.grep('-c', '\\*', self.path, _ok_code=[0,1])) == 0: return self
         # Faster with bash utilities #
         if in_place is True:
-            pbs3.sed('-i', 's/\*$//g', self.path)
+            sh.sed('-i', 's/\\*$//g', self.path)
             return self
         # Standard way #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
@@ -340,13 +340,13 @@ class FASTA(FilePath):
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle."""
         if out_path is None: out_path = self.prefix_path + '.aln'
-        pbs3.muscle38("-in", self.path, "-out", out_path)
+        sh.muscle38("-in", self.path, "-out", out_path)
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
         """We align the sequences in the fasta file with mothur and a template."""
         # Run it #
-        pbs3.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
+        sh.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
         # Move things #
         shutil.move(self.path[:-6] + '.align',        self.p.aligned)
         shutil.move(self.path[:-6] + '.align.report', self.p.report)
@@ -354,19 +354,19 @@ class FASTA(FilePath):
         # Clean up #
         if os.path.exists('formatdb.log'): os.remove('formatdb.log')
         if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
-        for p in pbs3.glob('mothur.*.logfile'): os.remove(p)
+        for p in sh.glob('mothur.*.logfile'): os.remove(p)
 
     def index_bowtie(self):
         """Create an index on the fasta file compatible with bowtie2."""
         # It returns exit code 1 if the fasta is empty #
         assert self
         # Call the bowtie executable #
-        pbs3.bowtie2_build(self.path, self.path)
+        sh.bowtie2_build(self.path, self.path)
         return FilePath(self.path + '.1.bt2')
 
     def index_samtools(self):
         """Create an index on the fasta file compatible with samtools."""
-        pbs3.samtools('faidx', self.path)
+        sh.samtools('faidx', self.path)
         return FilePath(self.path + '.fai')
 
     #--------------------------------- Graphs --------------------------------#

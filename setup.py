@@ -12,7 +12,7 @@ setup(
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
     packages         = find_packages(),
     install_requires = ['plumbing>=2.8.0', 'autopaths>=1.4.1',
-                        'biopython', 'numpy', 'pbs3'],
+                        'biopython', 'numpy', 'sh'],
     long_description = open('README.md').read(),
     long_description_content_type = 'text/markdown',
     include_package_data = True,

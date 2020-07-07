@@ -18,7 +18,7 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
-import pbs3, shutil
+import sh, shutil
 from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
 
@@ -67,7 +67,7 @@ class AlignedFASTA(FASTA):
         if seq_type == 'nucl': t_option = "-t=d"
         if seq_type == 'prot': t_option = "-t=p"
         # Run it #
-        result = pbs3.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=3", "-b3=20", "-b5=a", _ok_code=[0,1])
+        result = sh.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=3", "-b3=20", "-b5=a", _ok_code=[0,1])
         created_file = temp_fasta.path + '-gb'
         assert os.path.exists(created_file)
         # Check errors #
@@ -107,7 +107,7 @@ class AlignedFASTA(FASTA):
         num_threads = max(1, num_threads)
         # Run it #
         temp_dir = new_temp_dir()
-        pbs3.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
+        sh.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
         if keep_dir:
             shutil.rmtree(new_path)
@@ -128,7 +128,7 @@ class AlignedFASTA(FASTA):
         command_args += ['-out', new_path]
         command_args += [self.path]
         # Run it #
-        pbs3.FastTree(*command_args)
+        sh.FastTree(*command_args)
         # Return #
         return FilePath(new_path)
 

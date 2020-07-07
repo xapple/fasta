@@ -11,7 +11,8 @@ Contact at www.sinclair.bio
 
 # Internal modules #
 from fasta import FASTA
-from plumbing.database import Database, convert_to_sql
+from plumbing.databases import convert_to_sql
+from plumbing.databases.sqlite_database import SQLiteDatabase
 from plumbing.common import GenWithLength
 
 # Third party modules #
@@ -24,7 +25,7 @@ from tqdm import tqdm
 base_keys = ('id', 'description', 'seq')
 
 ###############################################################################
-class DatabaseFASTA(Database):
+class DatabaseFASTA(SQLiteDatabase):
 
     def __init__(self, path=None):
         self.path = path
@@ -45,5 +46,5 @@ def generate_values(path, progress=False):
 ###############################################################################
 def fasta_to_sql(source, dest):
     values = generate_values(source, progress=True)
-    convert_to_sql(source, dest, base_keys, values)
+    convert_to_sql(dest, base_keys, values)
     return DatabaseFASTA(dest)

@@ -17,7 +17,7 @@ from plumbing.scraping  import download_from_url
 from plumbing.check_cmd_found import check_cmd
 
 # Third party modules #
-import pbs3
+import sh
 
 ###############################################################################
 class Validator:
@@ -76,9 +76,9 @@ class Validator:
         # Uncompressed 2 #
         src_dir_2 = src_dir_2.sub_directory
         # Make 1 #
-        pbs3.make('-C', src_dir_1, _out=sys.stdout, _err=sys.stderr)
+        sh.make('-C', src_dir_1, _out=sys.stdout, _err=sys.stderr)
         # Make 2 #
-        pbs3.make('-C', src_dir_2, 'LIB_PATH_FASTQ_VALIDATOR=%s' % src_dir_1,
+        sh.make('-C', src_dir_2, 'LIB_PATH_FASTQ_VALIDATOR=%s' % src_dir_1,
                   _out=sys.stdout, _err=sys.stderr,)
         # Move the executable #
         binary = src_dir_2 + 'bin/fastQValidator'
@@ -95,7 +95,7 @@ class Validator:
         # Check it is installed #
         self.check_installed()
         # Run software #
-        result = pbs3.fastQValidator('--file', self.path)
+        result = sh.fastQValidator('--file', self.path)
         # Check result #
         if "FASTQ_SUCCESS" not in result:
             msg = "The fastq file '%s' failed to validate."
