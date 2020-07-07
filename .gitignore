@@ -11,6 +11,10 @@
 # IDE files #
 /.idea
 
-# Automatic documentation #
-documentation/automatic
-documentation/html
+# Distribution #
+/build/
+/dist/
+/fasta.egg-info/
+
+# Testing #
+/.pytest_cache/

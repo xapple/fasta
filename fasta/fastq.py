@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
+
 # Built-in modules #
 import os, shutil
 
@@ -16,14 +25,14 @@ from Bio import SeqIO
 
 ################################################################################
 class FASTQ(FASTA):
-    """A single FASTQ file somewhere in the filesystem"""
+    """A single FASTQ file somewhere in the filesystem."""
 
     ext    = 'fastq'
     format = 'fastq'
 
     @property_cached
     def count(self):
-        if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
+        if self.gzipped: return int(pbs3.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
         return int(pbs3.grep('-c', "^+$", self.path, _ok_code=[0,1]))
 
     def to_fasta(self, path):
@@ -42,28 +51,31 @@ class FASTQ(FASTA):
         self.close()
         return mean
 
-    #-------------------------------- TOOLS ----------------------------------#
+    #-------------------------------- Tools ----------------------------------#
+    @property_cached
+    def validator(self):
+        from fasta.validator import Validator
+        return Validator(self.path)
+
     @property_cached
     def fastqc(self):
         from fasta.fastqc import FastQC
         return FastQC(self)
 
-    def validate(self):
-        """Call https://github.com/statgen/fastQValidator on this file."""
-        if "FASTQ_SUCCESS" not in sh.fastQValidator('--file', self.path):
-            raise Exception("The fastq file '%s' failed to validate." % self.path)
-
-    #-------------------------------- PHRED FORMAT ---------------------------#
+    #-------------------------------- PHRED Format ---------------------------#
     def guess_phred_format(self):
-        """Guess the PHRED score format. The gold standard is the first one, aka
+        """
+        Guess the PHRED score format. The gold standard is the first one, aka
         the one called "Sanger". Sanger encoding is exactly equivalent to
-        Illumina-1.8 encoding. In other words, they finally gave up with their bullshit."""
+        Illumina-1.8 encoding.
+        In other words, they finally gave up with their alternative standards.
+        """
         # Possibilities #
         self.intervals = {
-            'Sanger':       (33,  74),         # <- This one is the gold standard
-            'Solexa':       (59, 105),
-            'Illumina-1.3': (64, 105),         # <- These were abandoned after they wised up.
-            'Illumina-1.5': (67, 105),         # <- These were abandoned after they wised up.
+            'Sanger':       (33,  74),    # <- This one is the gold standard
+            'Solexa':       (59, 105),    # <- This one is rare
+            'Illumina-1.3': (64, 105),    # <- These were abandoned after they wised up.
+            'Illumina-1.5': (67, 105),    # <- These were abandoned after they wised up.
         }
         # Initialize variables #
         glob_min  = 9999
@@ -109,6 +121,7 @@ class FASTQ(FASTA):
         values = [ord(char) for char in phred_string]
         return min(values), max(values)
 
+    #------------------------- Conversion methods ----------------------------#
     def phred_13_to_18(self, new_path=None, in_place=True):
         """Illumina-1.3 format conversion to Illumina-1.8 format via BioPython."""
         # New file #
@@ -133,10 +146,10 @@ class FASTQ(FASTA):
         sed_command = r"""4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/"""
         # Faster with bash utilities #
         if in_place is True:
-            sh.sed('-i', sed_command, self.path)
+            pbs3.sed('-i', sed_command, self.path)
             return self
         # New file #
         if new_path is None: new_fastq = self.__class__(new_temp_path())
         else:                new_fastq = self.__class__(new_path)
-        sh.sed(sed_command + " " + new_fastq, self.path)
+        pbs3.sed(sed_command + " " + new_fastq, self.path)
         return new_fastq

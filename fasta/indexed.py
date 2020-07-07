@@ -1,5 +1,11 @@
-# Futures #
-from __future__ import division
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
 
 # Built-in modules #
 
@@ -31,11 +37,12 @@ class DatabaseFASTA(Database):
 def generate_values(path, progress=False):
     seqs = SeqIO.parse(path, 'fasta')
     if not progress:
-        for seq in seqs: yield (seq.id, seq.description, str(seq.seq))
+        for seq in seqs: yield seq.id, seq.description, str(seq.seq)
     if progress:
         for seq in tqdm(GenWithLength(seqs, len(FASTA(path)))):
-            yield (seq.id, seq.description, str(seq.seq))
+            yield seq.id, seq.description, str(seq.seq)
 
+###############################################################################
 def fasta_to_sql(source, dest):
     values = generate_values(source, progress=True)
     convert_to_sql(source, dest, base_keys, values)

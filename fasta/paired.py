@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
+
 # Built-in modules #
 from six.moves import zip as izip
 
@@ -10,13 +19,14 @@ from plumbing.cache import property_cached
 from tqdm import tqdm
 
 ###############################################################################
-class PairedFASTA(object):
-    """Read and write FASTA file pairs without using too much RAM"""
+class PairedFASTA:
+    """Read and write FASTA file pairs without using too much RAM."""
+
     format = 'fasta'
 
     def __len__(self):     return self.count
     def __iter__(self):    return self.parse()
-    def __nonzero__(self): return bool(self.fwd) and bool(self.rev)
+    def __bool__(self): return bool(self.fwd) and bool(self.rev)
     def __repr__(self): return '<%s object on "%s" and "%s">' % \
                         (self.__class__.__name__, self.fwd.path, self.rev.path)
 
@@ -76,13 +86,13 @@ class PairedFASTA(object):
         assert down_to < len(self)
         # Make new pair of files #
         if dest_pair is None:
-            dest_fwd_path = self.fwd_path.new_name_insert("subsampled")
-            dest_rev_path = self.rev_path.new_name_insert("subsampled")
+            dest_fwd_path = self.fwd.path.new_name_insert("subsampled")
+            dest_rev_path = self.rev.path.new_name_insert("subsampled")
             dest_pair = self.__class__(dest_fwd_path, dest_rev_path)
         # Do it #
         dest_pair.create()
         for pair in isubsample(self, down_to): dest_pair.add_pair(pair)
-        self.subsampled.close()
+        dest_pair.close()
         # Did it work #
         assert len(dest_pair) == down_to
 
@@ -95,7 +105,7 @@ class PairedFASTA(object):
 
 ###############################################################################
 class PairedFASTQ(PairedFASTA):
-    """Read and write FASTQ file pairs without using too much RAM"""
+    """Read and write FASTQ file pairs without using too much RAM."""
     format = 'fastq'
 
     def __init__(self, fwd, rev, parent=None):
@@ -107,6 +117,6 @@ class PairedFASTQ(PairedFASTA):
         self.parent = parent
 
     def validate(self):
-        """Call https://github.com/statgen/fastQValidator on these files."""
-        self.fwd.validate()
-        self.rev.validate()
+        """Call fastQValidator on these files."""
+        self.fwd.validator()
+        self.rev.validator()

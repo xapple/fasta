@@ -1,5 +1,11 @@
-# Futures #
-from __future__ import division
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
 
 # Built-in modules #
 import re
@@ -14,7 +20,7 @@ from Bio.Seq import Seq
 
 ###############################################################################
 class SizesFASTA(FASTA):
-    """A FASTA file with size annotation affecting the count"""
+    """A FASTA file with size annotation affecting the count."""
 
     @property_cached
     def count(self):
@@ -22,6 +28,6 @@ class SizesFASTA(FASTA):
         sizes = (get_size(r.description) for r in self)
         return sum(sizes)
 
-    def add_str(self, seq, name=None, size=1, description=""):
+    def add_str(self, seq, name=None, size=1, desc=""):
         """Use this method to add a sequence as a string to this fasta."""
-        self.add_seq(SeqRecord(Seq(seq), id=name + ';size=%i;' % size, description=description))
+        self.add_seq(SeqRecord(Seq(seq), id=name + ';size=%i;' % size, description=desc))

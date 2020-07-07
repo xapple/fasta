@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
+
 # Built-in modules #
 import os, multiprocessing
 from collections import OrderedDict
@@ -9,13 +18,13 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
-import sh, shutil
+import pbs3, shutil
 from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
 
 ################################################################################
 class AlignedFASTA(FASTA):
-    """Also a FASTA file technically, but contains an alignment"""
+    """Also a FASTA file technically, but contains an alignment."""
     ext = 'aln'
 
     def __iter__(self): return iter(self.parse())
@@ -58,7 +67,7 @@ class AlignedFASTA(FASTA):
         if seq_type == 'nucl': t_option = "-t=d"
         if seq_type == 'prot': t_option = "-t=p"
         # Run it #
-        result = sh.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=3", "-b3=20", "-b5=a", _ok_code=[0,1])
+        result = pbs3.gblocks91(temp_fasta.path, t_option, '-p=n', "-b4=3", "-b3=20", "-b5=a", _ok_code=[0,1])
         created_file = temp_fasta.path + '-gb'
         assert os.path.exists(created_file)
         # Check errors #
@@ -98,7 +107,7 @@ class AlignedFASTA(FASTA):
         num_threads = max(1, num_threads)
         # Run it #
         temp_dir = new_temp_dir()
-        sh.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
+        pbs3.raxml811('-m', model, "-T", num_threads, '-p', 1, '-s', self.path, '-n', 'tree', '-w', temp_dir, '-f', 'a', '-x', 1, '-N', 'autoMR')
         # Move into place #
         if keep_dir:
             shutil.rmtree(new_path)
@@ -119,7 +128,7 @@ class AlignedFASTA(FASTA):
         command_args += ['-out', new_path]
         command_args += [self.path]
         # Run it #
-        sh.FastTree(*command_args)
+        pbs3.FastTree(*command_args)
         # Return #
         return FilePath(new_path)
 

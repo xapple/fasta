@@ -1,5 +1,11 @@
-# Futures #
-from __future__ import division
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
 
 # Built-in modules #
 import os, sys, math, shutil
@@ -11,9 +17,11 @@ from fasta import FASTA
 
 ###############################################################################
 class SplitableFASTA(FASTA):
-    """A FASTA file which you can split into chunks. Either you give the number
+    """
+    A FASTA file which you can split into chunks. Either you give the number
     of parts you want to generate, or you can give a target size in bytes for
-    each part."""
+    each part.
+    """
 
     def __init__(self, path, num_parts=None, part_size=None, base_dir=None):
         # Basic #
@@ -37,13 +45,13 @@ class SplitableFASTA(FASTA):
 
     @property
     def status(self):
-        """Has the splitting been done already ?"""
-        if all(os.path.exists(p.path) for p in self.parts): return 'splitted'
+        """Has the splitting been done already?"""
+        if all(os.path.exists(p.path) for p in self.parts): return True
         return False
 
-    def split(self):
+    def run(self):
         # Clean up #
-        for i in xrange(1, sys.maxint):
+        for i in range(1, sys.maxsize):
             dir_path = self.base_dir + "%03d/" % i
             if os.path.exists(dir_path): shutil.rmtree(dir_path)
             else: break
@@ -59,7 +67,9 @@ class SplitableFASTA(FASTA):
         # Do the job #
         seqs = self.parse()
         for part in self.parts:
-            for i in xrange(self.seqs_per_part): part.add_seq(seqs.next())
+            for i in range(self.seqs_per_part):
+                part.add_seq(seqs.next())
+        # The final sequences go to the last part #
         for seq in seqs: part.add_seq(seq)
         # Clean up #
         for part in self.parts: part.close()

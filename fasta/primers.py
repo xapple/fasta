@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
+
 # Built-in modules #
 import re
 
@@ -10,37 +19,40 @@ from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 
 # Constants #
-iupac = {'A':'A', 'G':'G', 'T':'T', 'C':'C', 'M':'AC', 'R':'AG', 'W':'AT', 'S':'CG', 'Y':'CT', 'K':'GT', 'V':'ACG', 'H':'ACT', 'D':'AGT', 'B':'CGT', 'X':'ACGT', 'N':'ACGT'}
+iupac = {'A':'A',    'G':'G',   'T':'T',   'C':'C',
+         'M':'AC',   'R':'AG',  'W':'AT',  'S':'CG',   'Y':'CT',   'K':'GT',
+         'V':'ACG',  'H':'ACT', 'D':'AGT', 'B':'CGT',
+         'X':'ACGT', 'N':'ACGT'}
 
 # Function #
 iupac_pattern = lambda seq: ''.join(['[' + iupac[char] + ']' for char in seq])
 
 ################################################################################
-def parse_primers(self, primers=None, mismatches=0, revcompl=False):
+def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
     """
-    This functions starts with self because it's
-    meant as an extension to the FASTA class.
+    This functions takes a FASTA instance as first parameter.
+    The primers will be loaded from that FASTA if not specified.
     """
     # Default primers #
-    if primers is None: primers = self.primers
+    if primers is None: primers = fasta.primers
     # Special module #
     import regex
     # Case straight #
     if not revcompl:
         fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern, mismatches))
         rev_regex = regex.compile("(%s){s<=%i}" % (primers.rev_pattern, mismatches))
-        generator = (ReadWithPrimers(r, fwd_regex, rev_regex) for r in self.parse())
+        generator = (ReadWithPrimers(r, fwd_regex, rev_regex) for r in fasta.parse())
     # Case revcompl #
     if revcompl:
         fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern,          mismatches))
         rev_regex = regex.compile("(%s){s<=%i}" % (primers.rev_pattern_revcompl, mismatches))
-        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in self.parse())
+        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in fasta.parse())
     # Return #
-    return GenWithLength(generator, len(self))
+    return GenWithLength(generator, len(fasta))
 
 ###############################################################################
-class TwoPrimers(object):
-    """A container for the two primers of a sample"""
+class TwoPrimers:
+    """A container for the two primers of a sample."""
 
     def __len__(self): return 2
 
@@ -68,7 +80,7 @@ class TwoPrimers(object):
         self.rev_regex_uracil = re.compile(self.rev_pattern.replace('T', 'U'))
 
 ###############################################################################
-class ReadWithPrimers(object):
+class ReadWithPrimers:
     def __init__(self, read, fwd_regex, rev_regex):
         self.read          = read
         self.fwd_match     = fwd_regex.search(str(read.seq))
@@ -108,7 +120,7 @@ class ReadWithPrimers(object):
                    seq[reve:]     + '\n'
 
 ###############################################################################
-class ReadWithPrimersRevCompl(object):
+class ReadWithPrimersRevCompl:
     """Here the reverse primer start and end values will be negative."""
 
     def __init__(self, read, fwd_regex, rev_regex):

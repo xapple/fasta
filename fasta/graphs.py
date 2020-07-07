@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Written by Lucas Sinclair.
+MIT Licensed.
+Contact at www.sinclair.bio
+"""
+
 # Internal modules #
 from plumbing.graphs import Graph
 from autopaths.file_path import FilePath
@@ -12,6 +21,7 @@ __all__ = ['LengthDist', 'LengthHist']
 ################################################################################
 class LengthDist(Graph):
     """The length distribution of the sequences with a bar plot."""
+
     short_name = 'length_dist'
     sep        = 'y'
     x_grid     = True
@@ -41,6 +51,7 @@ class LengthDist(Graph):
 ################################################################################
 class LengthHist(Graph):
     """The length distribution of the sequences with a histogram."""
+
     short_name = 'length_hist'
     sep        = 'y'
     x_grid     = True
