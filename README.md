@@ -10,7 +10,7 @@ The FASTA file format is a standard for storing several short or long DNA sequen
 
 Since `fasta` is written in python it is compatible with all operating systems: Linux, macOS and Windows. The only prerequisite is `python3` (which is often installed by default) along with the `pip3` package manager.
 
-To check you have `python3` installed, type the following on your terminal:
+To check if you have `python3` installed, type the following on your terminal:
 
     $ python3 -V
 
