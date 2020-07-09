@@ -89,7 +89,7 @@ class Validator:
         # The directory that contains the executable #
         bin_dir = path.directory.with_tilda[:-1].replace('~', '$HOME')
         # Suggest adding to the $PATH #
-        print("\nfastQValidator was installed successfully. You should now "
+        print("\n fastQValidator was installed successfully. You should now "
               "add this line to your .bash_profile: \n\n    "
               "export PATH=%s:$PATH\n" % bin_dir)
 

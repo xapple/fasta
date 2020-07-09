@@ -17,4 +17,4 @@ class ValidationError(Exception):
     An exception to be used when something fails to validate or is
     ill-formatted.
     """
-
+    pass

@@ -22,9 +22,12 @@ __all__ = ['LengthDist', 'LengthHist']
 class LengthDist(Graph):
     """The length distribution of the sequences with a bar plot."""
 
-    short_name = 'length_dist'
-    sep        = 'y'
-    x_grid     = True
+    short_name   = 'length_dist'
+    sep          = 'y'
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -52,9 +55,12 @@ class LengthDist(Graph):
 class LengthHist(Graph):
     """The length distribution of the sequences with a histogram."""
 
-    short_name = 'length_hist'
-    sep        = 'y'
-    x_grid     = True
+    short_name   = 'length_hist'
+    sep          = 'y'
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -62,7 +68,7 @@ class LengthHist(Graph):
 
     def plot(self, bins=80, **kwargs):
         # Data #
-        counts = self.parent.lengths
+        counts = list(self.parent.lengths)
         # Linear bins in logarithmic space #
         if 'log' in kwargs.get('x_scale', ''):
             start, stop = numpy.log10(1), numpy.log10(max(counts))

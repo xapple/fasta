@@ -49,9 +49,14 @@ class FASTQ(FASTA):
             for r in self: SeqIO.write(r, handle, 'qual')
         return FilePath(path)
 
+    #----------------------------- Properties --------------------------------#
     @property_cached
     def avg_quality(self):
-        """Returns a single float."""
+        """
+        Returns a single float.
+        Quite slow and inefficient computationally.
+        Think of a better implementation?
+        """
         mean = average(s for r in self for s in r.letter_annotations["phred_quality"])
         self.close()
         return mean

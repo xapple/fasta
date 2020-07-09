@@ -12,7 +12,7 @@ setup(
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
     packages         = find_packages(),
     install_requires = ['plumbing>=2.8.1', 'autopaths>=1.4.2',
-                        'biopython', 'numpy', 'sh', 'tqdm'],
+                        'biopython', 'numpy', 'sh', 'tqdm', 'matplotlib'],
     long_description = open('README.md').read(),
     long_description_content_type = 'text/markdown',
     include_package_data = True,

@@ -384,12 +384,6 @@ class FASTA(FilePath):
             setattr(result, cls.short_name, cls(self))
         return result
 
-    @property_cached
-    def length_dist(self):
-        graph = self.graphs.length_dist
-        if not graph: graph.plot()
-        return graph
-
     #------------------------------- Extensions ------------------------------#
     def parse_primers(self, *args, **kwargs):
         return primers.parse_primers(self, *args, **kwargs)

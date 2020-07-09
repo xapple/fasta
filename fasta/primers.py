@@ -15,6 +15,7 @@ from plumbing.common import GenWithLength
 from plumbing.color  import Color
 
 # Third party modules #
+import Bio
 from Bio.Seq import Seq
 
 # Constants #
@@ -23,31 +24,8 @@ iupac = {'A':'A',    'G':'G',   'T':'T',   'C':'C',
          'V':'ACG',  'H':'ACT', 'D':'AGT', 'B':'CGT',
          'X':'ACGT', 'N':'ACGT'}
 
-# Function #
+# Function to create a regex pattern from a sequence #
 iupac_pattern = lambda seq: ''.join(['[' + iupac[char] + ']' for char in seq])
-
-################################################################################
-def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
-    """
-    This functions takes a FASTA instance as first parameter.
-    The primers will be loaded from that FASTA if not specified.
-    """
-    # Default primers #
-    if primers is None: primers = fasta.primers
-    # Special module #
-    import regex
-    # Case straight #
-    if not revcompl:
-        fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern, mismatches))
-        rev_regex = regex.compile("(%s){s<=%i}" % (primers.rev_pattern, mismatches))
-        generator = (ReadWithPrimers(r, fwd_regex, rev_regex) for r in fasta.parse())
-    # Case revcompl #
-    if revcompl:
-        fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern,          mismatches))
-        rev_regex = regex.compile("(%s){s<=%i}" % (primers.rev_pattern_revcompl, mismatches))
-        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in fasta.parse())
-    # Return #
-    return GenWithLength(generator, len(fasta))
 
 ###############################################################################
 class TwoPrimers:
@@ -56,27 +34,31 @@ class TwoPrimers:
     def __len__(self): return 2
 
     def __init__(self, fwd_str, rev_str):
-        # Strings #
+        # Original strings #
         self.fwd_str = fwd_str
         self.rev_str = rev_str
-        # Lengths #
+        # Lengths in base pairs #
         self.fwd_len = len(self.fwd_str)
         self.rev_len = len(self.rev_str)
-        # Sequences #
-        self.fwd_seq = Seq(self.fwd_str)
-        self.rev_seq = Seq(self.rev_str)
-        # Search patterns #
-        self.fwd_pattern = iupac_pattern(self.fwd_seq)
-        self.rev_pattern = iupac_pattern(self.rev_seq) # Don't add reverse complement here, use option instead
-        # Search patterns reverse complemented #
-        self.fwd_pattern_revcompl = iupac_pattern(self.fwd_seq.reverse_complement())
-        self.rev_pattern_revcompl = iupac_pattern(self.rev_seq.reverse_complement())
-        # Search expression without mismatches #
-        self.fwd_regex = re.compile(self.fwd_pattern)
-        self.rev_regex = re.compile(self.rev_pattern)
+        # Sequences as biopython objects #
+        self.fwd_seq = Bio.Seq.Seq(self.fwd_str)
+        self.rev_seq = Bio.Seq.Seq(self.rev_str)
+        # Create search patterns in regex syntax #
+        self.fwd_pat = iupac_pattern(self.fwd_seq)
+        # Don't add reverse complement here, use the provided option instead #
+        self.rev_pat = iupac_pattern(self.rev_seq)
+        # Reverse complemented sequences #
+        self.fwd_revcomp = self.fwd_seq.reverse_complement()
+        self.rev_revcomp = self.rev_seq.reverse_complement()
+        # Search patterns when reverse complemented #
+        self.fwd_pat_revcomp = iupac_pattern(self.fwd_revcomp)
+        self.rev_pat_revcomp = iupac_pattern(self.rev_revcomp)
+        # Simple search expression (without mismatches authorized yet) #
+        self.fwd_regex = re.compile(self.fwd_pat)
+        self.rev_regex = re.compile(self.rev_pat)
         # Uracil instead of thymine #
-        self.fwd_regex_uracil = re.compile(self.fwd_pattern.replace('T', 'U'))
-        self.rev_regex_uracil = re.compile(self.rev_pattern.replace('T', 'U'))
+        self.fwd_regex_uracil = re.compile(self.fwd_pat.replace('T', 'U'))
+        self.rev_regex_uracil = re.compile(self.rev_pat.replace('T', 'U'))
 
 ###############################################################################
 class ReadWithPrimers:
@@ -130,3 +112,33 @@ class ReadWithPrimersRevCompl:
         self.rev_start_pos = self.rev_match.end() - len(read)   if self.rev_match else None
         self.fwd_end_pos   = self.fwd_match.end()               if self.fwd_match else None
         self.rev_end_pos   = self.rev_match.start() - len(read) if self.rev_match else None
+
+################################################################################
+def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
+    """
+    This functions takes a FASTA instance as first parameter,
+    in a similar fashion to methods of the FASTA object itself.
+    The primers will be loaded from that FASTA if not specified.
+    """
+    # Pass the primers, or we take them from the FASTA instance #
+    if primers is None: primers = fasta.primers
+    # Special module #
+    import regex
+    # Case straight #
+    if not revcompl:
+        fwd_regex = "(%s){s<=%i}" % (primers.fwd_pat, mismatches)
+        rev_regex = "(%s){s<=%i}" % (primers.rev_pat, mismatches)
+        fwd_regex = regex.compile(fwd_regex)
+        rev_regex = regex.compile(rev_regex)
+        # Generate a new object for every read #
+        read_with_primers = lambda r: ReadWithPrimers(r, fwd_regex, rev_regex)
+        generator = (read_with_primers(r) for r in fasta.parse())
+    # Case revcompl #
+    if revcompl:
+        fwd_regex = "(%s){s<=%i}" % (primers.fwd_pat, mismatches)
+        rev_regex = "(%s){s<=%i}" % (primers.rev_pat, mismatches)
+        fwd_regex = regex.compile("(%s){s<=%i}" % (primers.fwd_pattern,          mismatches))
+        rev_regex = regex.compile("(%s){s<=%i}" % (primers.rev_pattern_revcompl, mismatches))
+        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in fasta.parse())
+    # Return #
+    return GenWithLength(generator, len(fasta))
