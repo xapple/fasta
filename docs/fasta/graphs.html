@@ -55,9 +55,12 @@ __all__ = [&#39;LengthDist&#39;, &#39;LengthHist&#39;]
 class LengthDist(Graph):
     &#34;&#34;&#34;The length distribution of the sequences with a bar plot.&#34;&#34;&#34;
 
-    short_name = &#39;length_dist&#39;
-    sep        = &#39;y&#39;
-    x_grid     = True
+    short_name   = &#39;length_dist&#39;
+    sep          = &#39;y&#39;
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -85,9 +88,12 @@ class LengthDist(Graph):
 class LengthHist(Graph):
     &#34;&#34;&#34;The length distribution of the sequences with a histogram.&#34;&#34;&#34;
 
-    short_name = &#39;length_hist&#39;
-    sep        = &#39;y&#39;
-    x_grid     = True
+    short_name   = &#39;length_hist&#39;
+    sep          = &#39;y&#39;
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -95,7 +101,7 @@ class LengthHist(Graph):
 
     def plot(self, bins=80, **kwargs):
         # Data #
-        counts = self.parent.lengths
+        counts = list(self.parent.lengths)
         # Linear bins in logarithmic space #
         if &#39;log&#39; in kwargs.get(&#39;x_scale&#39;, &#39;&#39;):
             start, stop = numpy.log10(1), numpy.log10(max(counts))
@@ -141,9 +147,12 @@ class LengthHist(Graph):
 <pre><code class="python">class LengthDist(Graph):
     &#34;&#34;&#34;The length distribution of the sequences with a bar plot.&#34;&#34;&#34;
 
-    short_name = &#39;length_dist&#39;
-    sep        = &#39;y&#39;
-    x_grid     = True
+    short_name   = &#39;length_dist&#39;
+    sep          = &#39;y&#39;
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -173,6 +182,14 @@ class LengthHist(Graph):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="fasta.graphs.LengthDist.height"><code class="name">var <span class="ident">height</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="fasta.graphs.LengthDist.remove_frame"><code class="name">var <span class="ident">remove_frame</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="fasta.graphs.LengthDist.sep"><code class="name">var <span class="ident">sep</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -181,7 +198,11 @@ class LengthHist(Graph):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="fasta.graphs.LengthDist.x_grid"><code class="name">var <span class="ident">x_grid</span></code></dt>
+<dt id="fasta.graphs.LengthDist.width"><code class="name">var <span class="ident">width</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="fasta.graphs.LengthDist.y_grid"><code class="name">var <span class="ident">y_grid</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -231,9 +252,12 @@ class LengthHist(Graph):
 <pre><code class="python">class LengthHist(Graph):
     &#34;&#34;&#34;The length distribution of the sequences with a histogram.&#34;&#34;&#34;
 
-    short_name = &#39;length_hist&#39;
-    sep        = &#39;y&#39;
-    x_grid     = True
+    short_name   = &#39;length_hist&#39;
+    sep          = &#39;y&#39;
+    y_grid       = True
+    width        = 10
+    height       = 6
+    remove_frame = True
 
     def __init__(self, parent):
         self.parent = parent
@@ -241,7 +265,7 @@ class LengthHist(Graph):
 
     def plot(self, bins=80, **kwargs):
         # Data #
-        counts = self.parent.lengths
+        counts = list(self.parent.lengths)
         # Linear bins in logarithmic space #
         if &#39;log&#39; in kwargs.get(&#39;x_scale&#39;, &#39;&#39;):
             start, stop = numpy.log10(1), numpy.log10(max(counts))
@@ -270,6 +294,14 @@ class LengthHist(Graph):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="fasta.graphs.LengthHist.height"><code class="name">var <span class="ident">height</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="fasta.graphs.LengthHist.remove_frame"><code class="name">var <span class="ident">remove_frame</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="fasta.graphs.LengthHist.sep"><code class="name">var <span class="ident">sep</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -278,7 +310,11 @@ class LengthHist(Graph):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="fasta.graphs.LengthHist.x_grid"><code class="name">var <span class="ident">x_grid</span></code></dt>
+<dt id="fasta.graphs.LengthHist.width"><code class="name">var <span class="ident">width</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="fasta.graphs.LengthHist.y_grid"><code class="name">var <span class="ident">y_grid</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -296,7 +332,7 @@ class LengthHist(Graph):
 </summary>
 <pre><code class="python">def plot(self, bins=80, **kwargs):
     # Data #
-    counts = self.parent.lengths
+    counts = list(self.parent.lengths)
     # Linear bins in logarithmic space #
     if &#39;log&#39; in kwargs.get(&#39;x_scale&#39;, &#39;&#39;):
         start, stop = numpy.log10(1), numpy.log10(max(counts))
@@ -340,20 +376,26 @@ class LengthHist(Graph):
 <ul>
 <li>
 <h4><code><a title="fasta.graphs.LengthDist" href="#fasta.graphs.LengthDist">LengthDist</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="fasta.graphs.LengthDist.height" href="#fasta.graphs.LengthDist.height">height</a></code></li>
 <li><code><a title="fasta.graphs.LengthDist.plot" href="#fasta.graphs.LengthDist.plot">plot</a></code></li>
+<li><code><a title="fasta.graphs.LengthDist.remove_frame" href="#fasta.graphs.LengthDist.remove_frame">remove_frame</a></code></li>
 <li><code><a title="fasta.graphs.LengthDist.sep" href="#fasta.graphs.LengthDist.sep">sep</a></code></li>
 <li><code><a title="fasta.graphs.LengthDist.short_name" href="#fasta.graphs.LengthDist.short_name">short_name</a></code></li>
-<li><code><a title="fasta.graphs.LengthDist.x_grid" href="#fasta.graphs.LengthDist.x_grid">x_grid</a></code></li>
+<li><code><a title="fasta.graphs.LengthDist.width" href="#fasta.graphs.LengthDist.width">width</a></code></li>
+<li><code><a title="fasta.graphs.LengthDist.y_grid" href="#fasta.graphs.LengthDist.y_grid">y_grid</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="fasta.graphs.LengthHist" href="#fasta.graphs.LengthHist">LengthHist</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="fasta.graphs.LengthHist.height" href="#fasta.graphs.LengthHist.height">height</a></code></li>
 <li><code><a title="fasta.graphs.LengthHist.plot" href="#fasta.graphs.LengthHist.plot">plot</a></code></li>
+<li><code><a title="fasta.graphs.LengthHist.remove_frame" href="#fasta.graphs.LengthHist.remove_frame">remove_frame</a></code></li>
 <li><code><a title="fasta.graphs.LengthHist.sep" href="#fasta.graphs.LengthHist.sep">sep</a></code></li>
 <li><code><a title="fasta.graphs.LengthHist.short_name" href="#fasta.graphs.LengthHist.short_name">short_name</a></code></li>
-<li><code><a title="fasta.graphs.LengthHist.x_grid" href="#fasta.graphs.LengthHist.x_grid">x_grid</a></code></li>
+<li><code><a title="fasta.graphs.LengthHist.width" href="#fasta.graphs.LengthHist.width">width</a></code></li>
+<li><code><a title="fasta.graphs.LengthHist.y_grid" href="#fasta.graphs.LengthHist.y_grid">y_grid</a></code></li>
 </ul>
 </li>
 </ul>
