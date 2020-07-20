@@ -34,22 +34,12 @@ class FASTQ(FASTA):
     ext    = 'fastq'
     format = 'fastq'
 
+    #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
         if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
         return int(sh.grep('-c', "^+$", self.path, _ok_code=[0,1]))
 
-    def to_fasta(self, path):
-        with open(path, 'w') as handle:
-            for r in self: SeqIO.write(r, handle, 'fasta')
-        return FASTA(path)
-
-    def to_qual(self, path):
-        with open(path, 'w') as handle:
-            for r in self: SeqIO.write(r, handle, 'qual')
-        return FilePath(path)
-
-    #----------------------------- Properties --------------------------------#
     @property_cached
     def avg_quality(self):
         """
@@ -60,6 +50,27 @@ class FASTQ(FASTA):
         mean = average(s for r in self for s in r.letter_annotations["phred_quality"])
         self.close()
         return mean
+
+    #----------------------------- Conversion --------------------------------#
+    def to_fasta(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, 'w') as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, 'fasta')
+        # Return #
+        return FASTA(path)
+
+    def to_qual(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, 'w') as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, 'qual')
+        # Return #
+        return FilePath(path)
 
     #-------------------------------- Tools ----------------------------------#
     @property_cached

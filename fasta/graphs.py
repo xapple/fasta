@@ -23,7 +23,7 @@ class LengthDist(Graph):
     """The length distribution of the sequences with a bar plot."""
 
     short_name   = 'length_dist'
-    sep          = 'y'
+    sep          = ('x', 'y')
     y_grid       = True
     width        = 10
     height       = 6
@@ -56,7 +56,7 @@ class LengthHist(Graph):
     """The length distribution of the sequences with a histogram."""
 
     short_name   = 'length_hist'
-    sep          = 'y'
+    sep          = ('x', 'y')
     y_grid       = True
     width        = 10
     height       = 6

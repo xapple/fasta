@@ -12,12 +12,12 @@ import os, shutil, multiprocessing
 
 # First party modules #
 from fasta import FASTQ
-from autopaths.dir_path import DirectoryPath
-from autopaths.tmp_path import new_temp_dir
-from plumbing.cache import property_cached
+from autopaths.dir_path       import DirectoryPath
+from autopaths.tmp_path       import new_temp_dir
+from plumbing.cache           import property_cached
 from plumbing.check_cmd_found import check_cmd
-from plumbing.apt_pkg import get_apt_packages
-from plumbing.scraping import download_from_url
+from plumbing.apt_pkg         import get_apt_packages
+from plumbing.scraping        import download_from_url
 
 # Third party modules #
 import sh
@@ -44,7 +44,8 @@ class FastQC:
 
     #---------------------------- Installing ---------------------------------#
     apt_packages = ['default-jre']
-    zip_url = "http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip"
+    zip_url = "http://www.bioinformatics.babraham.ac.uk/projects/" \
+              "fastqc/fastqc_v0.11.9.zip"
 
     @classmethod
     def check_installed(cls, exception=True):
@@ -68,7 +69,8 @@ class FastQC:
         # Make a temporary directory #
         tmp_dir = new_temp_dir()
         # Download tarball #
-        zip_loc = download_from_url(cls.zip_url, tmp_dir, stream=True, progress=True)
+        zip_loc = download_from_url(cls.zip_url, tmp_dir, stream=True,
+                                    progress=True)
         # Uncompress #
         src_dir = zip_loc.unzip_to(prefix, single=False).sub_directory
         # Set executable permissions #

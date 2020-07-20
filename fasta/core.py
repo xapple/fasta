@@ -13,7 +13,7 @@ from collections import Counter, OrderedDict
 from six import string_types
 
 # Internal modules #
-from fasta import graphs, primers
+from fasta import graphs
 
 # First party modules #
 from plumbing.common     import isubsample
@@ -33,8 +33,8 @@ from Bio.Seq import Seq
 class FASTA(FilePath):
     """
     A single FASTA file somewhere in the filesystem. You can read from it in
-    several convenient ways. You can write to it in a automatically buffered way.
-    There are several other things you can do with a FASTA file. Look at the class.
+    several convenient ways. You can write to it in a automatically buffered
+    way. There are several other things you can do with a FASTA file.
     """
 
     format      = 'fasta'
@@ -42,10 +42,14 @@ class FASTA(FilePath):
     buffer_size = 1000
 
     def __len__(self): return self.count
-    def __repr__(self): return '<%s object on "%s">' % (self.__class__.__name__, self.path)
+
+    def __repr__(self):
+        return '<%s object on "%s">' % (self.__class__.__name__, self.path)
+
     def __contains__(self, other): return other in self.ids
 
     def __enter__(self): return self.create()
+
     def __exit__(self, exc_type, exc_value, traceback): self.close()
 
     def __iter__(self):
@@ -55,7 +59,8 @@ class FASTA(FilePath):
     def __getitem__(self, key):
         if   isinstance(key, string_types): return self.sequences[key]
         elif isinstance(key, int):          return self.sequences.items()[key]
-        elif isinstance(key, slice):        return itertools.islice(self, key.start, key.stop, key.step)
+        elif isinstance(key, slice):
+            return itertools.islice(self, key.start, key.stop, key.step)
 
     #----------------------------- Properties --------------------------------#
     @property
@@ -63,7 +68,7 @@ class FASTA(FilePath):
 
     @property
     def first(self):
-        """Just the first sequence"""
+        """Just the first sequence."""
         self.open()
         seq = SeqIO.parse(self.handle, self.format).next()
         self.close()
@@ -71,9 +76,14 @@ class FASTA(FilePath):
 
     @property_cached
     def count(self):
-        """Should probably check for file size changes instead of just caching once #TODO"""
-        if self.gzipped: return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
-        else: return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
+        """
+        Should probably check for file size changes instead of just
+        caching once TODO.
+        """
+        if self.gzipped:
+            return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
+        else:
+            return int(sh.grep('-c', "^>", self.path, _ok_code=[0,1]))
 
     @property
     def lengths(self):
@@ -150,6 +160,7 @@ class FASTA(FilePath):
         self.open('w')
         SeqIO.write(reads, self.handle, self.format)
         self.close()
+        return self
 
     #------------------------- When IDs are important ------------------------#
     @property_cached
@@ -162,7 +173,8 @@ class FASTA(FilePath):
 
     def get_id(self, id_num):
         """
-        Extract one sequence from the file based on its ID. This is highly ineffective.
+        Extract one sequence from the file based on its ID.
+        This is highly ineffective.
         Consider using the SQLite API instead or memory map the file.
         """
         for seq in self:
@@ -192,7 +204,8 @@ class FASTA(FilePath):
     def length_by_id(self):
         """
         In some use cases you just need the sequence lengths in an indexed
-        fashion. If you access this attribute, we will make a hash map in memory.
+        fashion. If you access this attribute, we will make a hash map in
+        memory.
         """
         hash_map = dict((seq.id, len(seq)) for seq in self)
         tmp = hash_map.copy()
@@ -241,7 +254,8 @@ class FASTA(FilePath):
             shutil.move(numbered, self.path)
         return numbered
 
-    def rename_with_prefix(self, prefix="", new_path=None, in_place=True, remove_desc=True):
+    def rename_with_prefix(self, prefix="", new_path=None, in_place=True,
+                           remove_desc=True):
         """Rename every sequence based on a prefix."""
         # Temporary path #
         if new_path is None: prefixed = self.__class__(new_temp_path())
@@ -283,7 +297,8 @@ class FASTA(FilePath):
             return self
         else: return new_fasta
 
-    def extract_length(self, lower_bound=None, upper_bound=None, new_path=None):
+    def extract_length(self, lower_bound=None, upper_bound=None,
+                       new_path=None):
         """Extract a certain length fraction and place them in a new file."""
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())
@@ -301,7 +316,7 @@ class FASTA(FilePath):
         fraction.close()
         return fraction
 
-    def extract_sequences(self, ids, new_path=None):
+    def extract_sequences(self, ids, new_path=None, verbose=False):
         """
         Will take all the sequences from the current file who's id appears in
         the ids given and place them in the new file path given.
@@ -310,12 +325,15 @@ class FASTA(FilePath):
         if new_path is None: new_fasta = self.__class__(new_temp_path())
         elif isinstance(new_path, FASTA): new_fasta = new_path
         else:                new_fasta = self.__class__(new_path)
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Function #
+        def generator(reads):
+            for r in wrapper(reads):
+                if r.id in ids: yield r
         # Do it #
-        new_fasta.create()
-        for seq in self:
-            if seq.id in ids: new_fasta.add_seq(seq)
-        new_fasta.close()
-        return new_fasta
+        return new_fasta.write(generator(self))
 
     def remove_trailing_stars(self, new_path=None, in_place=True, check=False):
         """
@@ -323,7 +341,8 @@ class FASTA(FilePath):
         end of sequences.
         """
         # Optional check #
-        if check and int(sh.grep('-c', '\\*', self.path, _ok_code=[0,1])) == 0: return self
+        if check and int(sh.grep('-c', '\\*', self.path, _ok_code=[0,1])) == 0:
+            return self
         # Faster with bash utilities #
         if in_place is True:
             sh.sed('-i', 's/\\*$//g', self.path)
@@ -346,15 +365,20 @@ class FASTA(FilePath):
     def template_align(self, ref_path):
         """We align the sequences in the fasta file with mothur and a template."""
         # Run it #
-        sh.mothur("#align.seqs(candidate=%s, template=%s, search=blast, flip=false, processors=8);" % (self.path, ref_path))
+        msg = "#align.seqs(candidate=%s, template=%s, search=blast," \
+              "flip=false, processors=8);"
+        sh.mothur(msg % (self.path, ref_path))
         # Move things #
         shutil.move(self.path[:-6] + '.align',        self.p.aligned)
         shutil.move(self.path[:-6] + '.align.report', self.p.report)
         shutil.move(self.path[:-6] + '.flip.accnos',  self.p.accnos)
         # Clean up #
-        if os.path.exists('formatdb.log'): os.remove('formatdb.log')
-        if os.path.exists('error.log') and os.path.getsize('error.log') == 0: os.remove('error.log')
-        for p in sh.glob('mothur.*.logfile'): os.remove(p)
+        if os.path.exists('formatdb.log'):
+            os.remove('formatdb.log')
+        if os.path.exists('error.log') and os.path.getsize('error.log') == 0:
+            os.remove('error.log')
+        for path in sh.glob('mothur.*.logfile'):
+            os.remove(path)
 
     def index_bowtie(self):
         """Create an index on the fasta file compatible with bowtie2."""
@@ -374,8 +398,8 @@ class FASTA(FilePath):
     def graphs(self):
         """
         Sorry for the black magic. The result is an object whose attributes
-        are all the graphs found in graphs.py initialized with this instance as
-        only argument.
+        are all the graphs found in `./graphs.py` initialized with this instance
+        as only argument.
         """
         class Dummy: pass
         result = Dummy()
@@ -384,6 +408,26 @@ class FASTA(FilePath):
             setattr(result, cls.short_name, cls(self))
         return result
 
-    #------------------------------- Extensions ------------------------------#
-    def parse_primers(self, *args, **kwargs):
-        return primers.parse_primers(self, *args, **kwargs)
+    #-------------------------------- Primers -------------------------------#
+    def parse_primers(self, primers, mismatches=None):
+        """
+        Takes care of identifying primers inside every sequence.
+        Instead of yielding Seq objects now we yield ReadWithPrimers objects.
+        These have extra properties that show the start and end positions
+        of all primers found.
+        """
+        # Default is zero #
+        if mismatches is None: mismatches = 0
+        # Get the search expressions with mismatches #
+        from fasta.primers import PrimersRegexes
+        regexes = PrimersRegexes(primers, mismatches)
+        # Generate a new special object for every read #
+        from fasta.primers import ReadWithPrimers
+        read_with_primer = lambda read: ReadWithPrimers(read, regexes)
+        generator = (read_with_primer(r) for r in self.parse())
+        # Add the length to the generator #
+        from plumbing.common import GenWithLength
+        generator = GenWithLength(generator, len(self))
+        # Return #
+        return generator
+
