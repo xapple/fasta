@@ -44,11 +44,10 @@ Contact at www.sinclair.bio
 import re
 
 # Internal modules #
-from plumbing.common import GenWithLength
 from plumbing.color  import Color
 
 # Third party modules #
-import Bio
+import Bio, regex
 from Bio.Seq import Seq
 
 # Constants #
@@ -62,7 +61,10 @@ iupac_pattern = lambda seq: &#39;&#39;.join([&#39;[&#39; + iupac[char] + &#39;]&
 
 ###############################################################################
 class TwoPrimers:
-    &#34;&#34;&#34;A container for the two primers of a sample.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    A container for the two primers of a sample.
+    Has methods for generating regexes to search for these primers.
+    &#34;&#34;&#34;
 
     def __len__(self): return 2
 
@@ -78,7 +80,6 @@ class TwoPrimers:
         self.rev_seq = Bio.Seq.Seq(self.rev_str)
         # Create search patterns in regex syntax #
         self.fwd_pat = iupac_pattern(self.fwd_seq)
-        # Don&#39;t add reverse complement here, use the provided option instead #
         self.rev_pat = iupac_pattern(self.rev_seq)
         # Reverse complemented sequences #
         self.fwd_revcomp = self.fwd_seq.reverse_complement()
@@ -86,95 +87,114 @@ class TwoPrimers:
         # Search patterns when reverse complemented #
         self.fwd_pat_revcomp = iupac_pattern(self.fwd_revcomp)
         self.rev_pat_revcomp = iupac_pattern(self.rev_revcomp)
-        # Simple search expression (without mismatches authorized yet) #
-        self.fwd_regex = re.compile(self.fwd_pat)
-        self.rev_regex = re.compile(self.rev_pat)
-        # Uracil instead of thymine #
-        self.fwd_regex_uracil = re.compile(self.fwd_pat.replace(&#39;T&#39;, &#39;U&#39;))
-        self.rev_regex_uracil = re.compile(self.rev_pat.replace(&#39;T&#39;, &#39;U&#39;))
+        # Simple search expression (without any mismatches authorized yet) #
+        self.fwd_search = re.compile(self.fwd_pat)
+        self.rev_search = re.compile(self.rev_pat)
+
+    def make_regex(self, pat, mismatches):
+        &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+        return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))
+
+    def make_fwd_regex(self, mismatches):
+        return self.make_regex(self.fwd_pat, mismatches)
+
+    def make_rev_regex(self, mismatches):
+        return self.make_regex(self.rev_pat, mismatches)
+
+    def make_fwd_revcompl_regex(self, mismatches):
+        return self.make_regex(self.fwd_pat_revcomp, mismatches)
+
+    def make_rev_revcompl_regex(self, mismatches):
+        return self.make_regex(self.rev_pat_revcomp, mismatches)
+
+###############################################################################
+class PrimersRegexes:
+    &#34;&#34;&#34;
+    A container for the regular expression search patterns
+    that enable us to find primers inside a sequence.
+    These regexes depend on the number of mismatches authorized.
+    &#34;&#34;&#34;
+
+    def __init__(self, primers, mismatches):
+        &#34;&#34;&#34;
+        We need to know the primers and the number of mismatches tolerated
+        in the search.
+        &#34;&#34;&#34;
+        # Base attributes #
+        self.primers    = primers
+        self.mismatches = mismatches
+        # Search patterns #
+        self.fwd    = primers.make_fwd_regex(mismatches)
+        self.rev    = primers.make_rev_regex(mismatches)
+        # Search patterns reverse complemented #
+        self.fwd_rc = primers.make_fwd_revcompl_regex(mismatches)
+        self.rev_rc = primers.make_rev_revcompl_regex(mismatches)
 
 ###############################################################################
 class ReadWithPrimers:
-    def __init__(self, read, fwd_regex, rev_regex):
-        self.read          = read
-        self.fwd_match     = fwd_regex.search(str(read.seq))
-        self.rev_match     = rev_regex.search(str(read.seq))
-        self.fwd_start_pos = self.fwd_match.start() if self.fwd_match else None
-        self.rev_start_pos = self.rev_match.start() if self.rev_match else None
-        self.fwd_end_pos   = self.fwd_match.end()   if self.fwd_match else None
-        self.rev_end_pos   = self.rev_match.end()   if self.rev_match else None
+    def __init__(self, read, regexes):
+        &#34;&#34;&#34;
+        Uses regex patterns to search the given read.
+        Records the start and end positions of primers if they are found.
+        Both the forward and reverse primers are searched for.
+        Both the original sequences and their reverse complements are
+        searched for, in case the read is in the opposite direction.
+        &#34;&#34;&#34;
+        # The read itself #
+        self.read = read
+        # The sequence as a string #
+        self.seq = str(read.seq)
+        # Searches #
+        self.fwd    = regexes.fwd.search(self.seq)
+        self.rev    = regexes.rev.search(self.seq)
+        self.fwd_rc = regexes.fwd_rc.search(self.seq)
+        self.rev_rc = regexes.rev_rc.search(self.seq)
+        # Positions found in standard search #
+        self.fwd_srt = self.fwd.start() if self.fwd else None
+        self.fwd_end = self.fwd.end()   if self.fwd else None
+        self.rev_srt = self.rev.start() if self.rev else None
+        self.rev_end = self.rev.end()   if self.rev else None
+        # Positions found in reverse complement search #
+        self.fwd_rc_srt = self.fwd_rc.start() if self.fwd_rc else None
+        self.fwd_rc_end = self.fwd_rc.end()   if self.fwd_rc else None
+        self.rev_rc_srt = self.rev_rc.start() if self.rev_rc else None
+        self.rev_rc_end = self.rev_rc.end()   if self.rev_rc else None
 
     @property
-    def pretty(self):
-        # The string #
-        seq  = self.read.seq._data
-        fwds = self.fwd_start_pos
-        fwde = self.fwd_end_pos
-        revs = self.rev_start_pos
-        reve = self.rev_end_pos
-        # No matches #
-        if not self.fwd_match and not self.rev_match:
-            return seq + &#39;\n&#39;
-        # One matches #
-        if self.fwd_match and not self.rev_match:
-            return seq[0:fwds]    + Color.red + \
-                   seq[fwds:fwde] + Color.end + \
-                   seq[fwde:]     + &#39;\n&#39;
-        # One matches #
-        if not self.fwd_match and self.rev_match:
-            return seq[0:revs]    + Color.red + \
-                   seq[revs:reve] + Color.end + \
-                   seq[reve:]     + &#39;\n&#39;
-        # Two matches #
-        if self.fwd_match and self.rev_match:
-            return seq[0:fwds]    + Color.red + \
-                   seq[fwds:fwde] + Color.end + \
-                   seq[fwde:revs] + Color.red + \
-                   seq[revs:reve] + Color.end + \
-                   seq[reve:]     + &#39;\n&#39;
-
-###############################################################################
-class ReadWithPrimersRevCompl:
-    &#34;&#34;&#34;Here the reverse primer start and end values will be negative.&#34;&#34;&#34;
-
-    def __init__(self, read, fwd_regex, rev_regex):
-        self.read          = read
-        self.fwd_match     = fwd_regex.search(str(read.seq))
-        self.rev_match     = rev_regex.search(str(read.seq))
-        self.fwd_start_pos = self.fwd_match.start()             if self.fwd_match else None
-        self.rev_start_pos = self.rev_match.end() - len(read)   if self.rev_match else None
-        self.fwd_end_pos   = self.fwd_match.end()               if self.fwd_match else None
-        self.rev_end_pos   = self.rev_match.start() - len(read) if self.rev_match else None
-
-################################################################################
-def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
-    &#34;&#34;&#34;
-    This functions takes a FASTA instance as first parameter,
-    in a similar fashion to methods of the FASTA object itself.
-    The primers will be loaded from that FASTA if not specified.
-    &#34;&#34;&#34;
-    # Pass the primers, or we take them from the FASTA instance #
-    if primers is None: primers = fasta.primers
-    # Special module #
-    import regex
-    # Case straight #
-    if not revcompl:
-        fwd_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pat, mismatches)
-        rev_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.rev_pat, mismatches)
-        fwd_regex = regex.compile(fwd_regex)
-        rev_regex = regex.compile(rev_regex)
-        # Generate a new object for every read #
-        read_with_primers = lambda r: ReadWithPrimers(r, fwd_regex, rev_regex)
-        generator = (read_with_primers(r) for r in fasta.parse())
-    # Case revcompl #
-    if revcompl:
-        fwd_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pat, mismatches)
-        rev_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.rev_pat, mismatches)
-        fwd_regex = regex.compile(&#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pattern,          mismatches))
-        rev_regex = regex.compile(&#34;(%s){s&lt;=%i}&#34; % (primers.rev_pattern_revcompl, mismatches))
-        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in fasta.parse())
-    # Return #
-    return GenWithLength(generator, len(fasta))</code></pre>
+    def pretty_visualization(self):
+        &#34;&#34;&#34;
+        This property is useful for debugging.
+        It will return a nicely formatted string showing the original read
+        with all primers found highlighted with bash color codes.
+        &#34;&#34;&#34;
+        # Make a copy of the read for convenience #
+        seq = self.seq
+        # Initialize output #
+        out = &#34;&#34;
+        # Iterate over every position in the original sequence #
+        for i, nuc in enumerate(seq):
+            if i == self.fwd_srt:    out += Color.b_grn
+            if i == self.rev_srt:    out += Color.grn
+            if i == self.fwd_rc_srt: out += Color.red
+            if i == self.rev_rc_srt: out += Color.b_red
+            if i == self.fwd_end:    out += Color.end
+            if i == self.rev_end:    out += Color.end
+            if i == self.fwd_rc_end: out += Color.end
+            if i == self.rev_rc_end: out += Color.end
+            out += nuc
+        # Summary of found positions #
+        summary = f&#34;&#34;&#34;
+        Forward start:           {self.fwd_srt}
+        Forward end:             {self.fwd_end}
+        Reverse start:           {self.rev_srt}
+        Reverse end:             {self.rev_end}
+        Forward revcompl start:  {self.fwd_rc_srt}
+        Forward revcompl end:    {self.fwd_rc_end}
+        Reverse revcompl start:  {self.rev_rc_srt}
+        Reverse revcompl end:    {self.rev_rc_end}
+        &#34;&#34;&#34;
+        # Return #
+        return summary + out + &#39;\n&#39;</code></pre>
 </details>
 </section>
 <section>
@@ -196,177 +216,193 @@ def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
 <pre><code class="python">iupac_pattern = lambda seq: &#39;&#39;.join([&#39;[&#39; + iupac[char] + &#39;]&#39; for char in seq])</code></pre>
 </details>
 </dd>
-<dt id="fasta.primers.parse_primers"><code class="name flex">
-<span>def <span class="ident">parse_primers</span></span>(<span>fasta, primers=None, mismatches=0, revcompl=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>This functions takes a FASTA instance as first parameter,
-in a similar fashion to methods of the FASTA object itself.
-The primers will be loaded from that FASTA if not specified.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse_primers(fasta, primers=None, mismatches=0, revcompl=False):
-    &#34;&#34;&#34;
-    This functions takes a FASTA instance as first parameter,
-    in a similar fashion to methods of the FASTA object itself.
-    The primers will be loaded from that FASTA if not specified.
-    &#34;&#34;&#34;
-    # Pass the primers, or we take them from the FASTA instance #
-    if primers is None: primers = fasta.primers
-    # Special module #
-    import regex
-    # Case straight #
-    if not revcompl:
-        fwd_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pat, mismatches)
-        rev_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.rev_pat, mismatches)
-        fwd_regex = regex.compile(fwd_regex)
-        rev_regex = regex.compile(rev_regex)
-        # Generate a new object for every read #
-        read_with_primers = lambda r: ReadWithPrimers(r, fwd_regex, rev_regex)
-        generator = (read_with_primers(r) for r in fasta.parse())
-    # Case revcompl #
-    if revcompl:
-        fwd_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pat, mismatches)
-        rev_regex = &#34;(%s){s&lt;=%i}&#34; % (primers.rev_pat, mismatches)
-        fwd_regex = regex.compile(&#34;(%s){s&lt;=%i}&#34; % (primers.fwd_pattern,          mismatches))
-        rev_regex = regex.compile(&#34;(%s){s&lt;=%i}&#34; % (primers.rev_pattern_revcompl, mismatches))
-        generator = (ReadWithPrimersRevCompl(r, fwd_regex, rev_regex) for r in fasta.parse())
-    # Return #
-    return GenWithLength(generator, len(fasta))</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="fasta.primers.ReadWithPrimers"><code class="flex name class">
-<span>class <span class="ident">ReadWithPrimers</span></span>
-<span>(</span><span>read, fwd_regex, rev_regex)</span>
+<dt id="fasta.primers.PrimersRegexes"><code class="flex name class">
+<span>class <span class="ident">PrimersRegexes</span></span>
+<span>(</span><span>primers, mismatches)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A container for the regular expression search patterns
+that enable us to find primers inside a sequence.
+These regexes depend on the number of mismatches authorized.</p>
+<p>We need to know the primers and the number of mismatches tolerated
+in the search.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PrimersRegexes:
+    &#34;&#34;&#34;
+    A container for the regular expression search patterns
+    that enable us to find primers inside a sequence.
+    These regexes depend on the number of mismatches authorized.
+    &#34;&#34;&#34;
+
+    def __init__(self, primers, mismatches):
+        &#34;&#34;&#34;
+        We need to know the primers and the number of mismatches tolerated
+        in the search.
+        &#34;&#34;&#34;
+        # Base attributes #
+        self.primers    = primers
+        self.mismatches = mismatches
+        # Search patterns #
+        self.fwd    = primers.make_fwd_regex(mismatches)
+        self.rev    = primers.make_rev_regex(mismatches)
+        # Search patterns reverse complemented #
+        self.fwd_rc = primers.make_fwd_revcompl_regex(mismatches)
+        self.rev_rc = primers.make_rev_revcompl_regex(mismatches)</code></pre>
+</details>
+</dd>
+<dt id="fasta.primers.ReadWithPrimers"><code class="flex name class">
+<span>class <span class="ident">ReadWithPrimers</span></span>
+<span>(</span><span>read, regexes)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Uses regex patterns to search the given read.
+Records the start and end positions of primers if they are found.
+Both the forward and reverse primers are searched for.
+Both the original sequences and their reverse complements are
+searched for, in case the read is in the opposite direction.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ReadWithPrimers:
-    def __init__(self, read, fwd_regex, rev_regex):
-        self.read          = read
-        self.fwd_match     = fwd_regex.search(str(read.seq))
-        self.rev_match     = rev_regex.search(str(read.seq))
-        self.fwd_start_pos = self.fwd_match.start() if self.fwd_match else None
-        self.rev_start_pos = self.rev_match.start() if self.rev_match else None
-        self.fwd_end_pos   = self.fwd_match.end()   if self.fwd_match else None
-        self.rev_end_pos   = self.rev_match.end()   if self.rev_match else None
+    def __init__(self, read, regexes):
+        &#34;&#34;&#34;
+        Uses regex patterns to search the given read.
+        Records the start and end positions of primers if they are found.
+        Both the forward and reverse primers are searched for.
+        Both the original sequences and their reverse complements are
+        searched for, in case the read is in the opposite direction.
+        &#34;&#34;&#34;
+        # The read itself #
+        self.read = read
+        # The sequence as a string #
+        self.seq = str(read.seq)
+        # Searches #
+        self.fwd    = regexes.fwd.search(self.seq)
+        self.rev    = regexes.rev.search(self.seq)
+        self.fwd_rc = regexes.fwd_rc.search(self.seq)
+        self.rev_rc = regexes.rev_rc.search(self.seq)
+        # Positions found in standard search #
+        self.fwd_srt = self.fwd.start() if self.fwd else None
+        self.fwd_end = self.fwd.end()   if self.fwd else None
+        self.rev_srt = self.rev.start() if self.rev else None
+        self.rev_end = self.rev.end()   if self.rev else None
+        # Positions found in reverse complement search #
+        self.fwd_rc_srt = self.fwd_rc.start() if self.fwd_rc else None
+        self.fwd_rc_end = self.fwd_rc.end()   if self.fwd_rc else None
+        self.rev_rc_srt = self.rev_rc.start() if self.rev_rc else None
+        self.rev_rc_end = self.rev_rc.end()   if self.rev_rc else None
 
     @property
-    def pretty(self):
-        # The string #
-        seq  = self.read.seq._data
-        fwds = self.fwd_start_pos
-        fwde = self.fwd_end_pos
-        revs = self.rev_start_pos
-        reve = self.rev_end_pos
-        # No matches #
-        if not self.fwd_match and not self.rev_match:
-            return seq + &#39;\n&#39;
-        # One matches #
-        if self.fwd_match and not self.rev_match:
-            return seq[0:fwds]    + Color.red + \
-                   seq[fwds:fwde] + Color.end + \
-                   seq[fwde:]     + &#39;\n&#39;
-        # One matches #
-        if not self.fwd_match and self.rev_match:
-            return seq[0:revs]    + Color.red + \
-                   seq[revs:reve] + Color.end + \
-                   seq[reve:]     + &#39;\n&#39;
-        # Two matches #
-        if self.fwd_match and self.rev_match:
-            return seq[0:fwds]    + Color.red + \
-                   seq[fwds:fwde] + Color.end + \
-                   seq[fwde:revs] + Color.red + \
-                   seq[revs:reve] + Color.end + \
-                   seq[reve:]     + &#39;\n&#39;</code></pre>
+    def pretty_visualization(self):
+        &#34;&#34;&#34;
+        This property is useful for debugging.
+        It will return a nicely formatted string showing the original read
+        with all primers found highlighted with bash color codes.
+        &#34;&#34;&#34;
+        # Make a copy of the read for convenience #
+        seq = self.seq
+        # Initialize output #
+        out = &#34;&#34;
+        # Iterate over every position in the original sequence #
+        for i, nuc in enumerate(seq):
+            if i == self.fwd_srt:    out += Color.b_grn
+            if i == self.rev_srt:    out += Color.grn
+            if i == self.fwd_rc_srt: out += Color.red
+            if i == self.rev_rc_srt: out += Color.b_red
+            if i == self.fwd_end:    out += Color.end
+            if i == self.rev_end:    out += Color.end
+            if i == self.fwd_rc_end: out += Color.end
+            if i == self.rev_rc_end: out += Color.end
+            out += nuc
+        # Summary of found positions #
+        summary = f&#34;&#34;&#34;
+        Forward start:           {self.fwd_srt}
+        Forward end:             {self.fwd_end}
+        Reverse start:           {self.rev_srt}
+        Reverse end:             {self.rev_end}
+        Forward revcompl start:  {self.fwd_rc_srt}
+        Forward revcompl end:    {self.fwd_rc_end}
+        Reverse revcompl start:  {self.rev_rc_srt}
+        Reverse revcompl end:    {self.rev_rc_end}
+        &#34;&#34;&#34;
+        # Return #
+        return summary + out + &#39;\n&#39;</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="fasta.primers.ReadWithPrimers.pretty"><code class="name">var <span class="ident">pretty</span></code></dt>
+<dt id="fasta.primers.ReadWithPrimers.pretty_visualization"><code class="name">var <span class="ident">pretty_visualization</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This property is useful for debugging.
+It will return a nicely formatted string showing the original read
+with all primers found highlighted with bash color codes.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def pretty(self):
-    # The string #
-    seq  = self.read.seq._data
-    fwds = self.fwd_start_pos
-    fwde = self.fwd_end_pos
-    revs = self.rev_start_pos
-    reve = self.rev_end_pos
-    # No matches #
-    if not self.fwd_match and not self.rev_match:
-        return seq + &#39;\n&#39;
-    # One matches #
-    if self.fwd_match and not self.rev_match:
-        return seq[0:fwds]    + Color.red + \
-               seq[fwds:fwde] + Color.end + \
-               seq[fwde:]     + &#39;\n&#39;
-    # One matches #
-    if not self.fwd_match and self.rev_match:
-        return seq[0:revs]    + Color.red + \
-               seq[revs:reve] + Color.end + \
-               seq[reve:]     + &#39;\n&#39;
-    # Two matches #
-    if self.fwd_match and self.rev_match:
-        return seq[0:fwds]    + Color.red + \
-               seq[fwds:fwde] + Color.end + \
-               seq[fwde:revs] + Color.red + \
-               seq[revs:reve] + Color.end + \
-               seq[reve:]     + &#39;\n&#39;</code></pre>
+def pretty_visualization(self):
+    &#34;&#34;&#34;
+    This property is useful for debugging.
+    It will return a nicely formatted string showing the original read
+    with all primers found highlighted with bash color codes.
+    &#34;&#34;&#34;
+    # Make a copy of the read for convenience #
+    seq = self.seq
+    # Initialize output #
+    out = &#34;&#34;
+    # Iterate over every position in the original sequence #
+    for i, nuc in enumerate(seq):
+        if i == self.fwd_srt:    out += Color.b_grn
+        if i == self.rev_srt:    out += Color.grn
+        if i == self.fwd_rc_srt: out += Color.red
+        if i == self.rev_rc_srt: out += Color.b_red
+        if i == self.fwd_end:    out += Color.end
+        if i == self.rev_end:    out += Color.end
+        if i == self.fwd_rc_end: out += Color.end
+        if i == self.rev_rc_end: out += Color.end
+        out += nuc
+    # Summary of found positions #
+    summary = f&#34;&#34;&#34;
+    Forward start:           {self.fwd_srt}
+    Forward end:             {self.fwd_end}
+    Reverse start:           {self.rev_srt}
+    Reverse end:             {self.rev_end}
+    Forward revcompl start:  {self.fwd_rc_srt}
+    Forward revcompl end:    {self.fwd_rc_end}
+    Reverse revcompl start:  {self.rev_rc_srt}
+    Reverse revcompl end:    {self.rev_rc_end}
+    &#34;&#34;&#34;
+    # Return #
+    return summary + out + &#39;\n&#39;</code></pre>
 </details>
 </dd>
 </dl>
-</dd>
-<dt id="fasta.primers.ReadWithPrimersRevCompl"><code class="flex name class">
-<span>class <span class="ident">ReadWithPrimersRevCompl</span></span>
-<span>(</span><span>read, fwd_regex, rev_regex)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Here the reverse primer start and end values will be negative.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ReadWithPrimersRevCompl:
-    &#34;&#34;&#34;Here the reverse primer start and end values will be negative.&#34;&#34;&#34;
-
-    def __init__(self, read, fwd_regex, rev_regex):
-        self.read          = read
-        self.fwd_match     = fwd_regex.search(str(read.seq))
-        self.rev_match     = rev_regex.search(str(read.seq))
-        self.fwd_start_pos = self.fwd_match.start()             if self.fwd_match else None
-        self.rev_start_pos = self.rev_match.end() - len(read)   if self.rev_match else None
-        self.fwd_end_pos   = self.fwd_match.end()               if self.fwd_match else None
-        self.rev_end_pos   = self.rev_match.start() - len(read) if self.rev_match else None</code></pre>
-</details>
 </dd>
 <dt id="fasta.primers.TwoPrimers"><code class="flex name class">
 <span>class <span class="ident">TwoPrimers</span></span>
 <span>(</span><span>fwd_str, rev_str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A container for the two primers of a sample.</p></div>
+<div class="desc"><p>A container for the two primers of a sample.
+Has methods for generating regexes to search for these primers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TwoPrimers:
-    &#34;&#34;&#34;A container for the two primers of a sample.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    A container for the two primers of a sample.
+    Has methods for generating regexes to search for these primers.
+    &#34;&#34;&#34;
 
     def __len__(self): return 2
 
@@ -382,7 +418,6 @@ def pretty(self):
         self.rev_seq = Bio.Seq.Seq(self.rev_str)
         # Create search patterns in regex syntax #
         self.fwd_pat = iupac_pattern(self.fwd_seq)
-        # Don&#39;t add reverse complement here, use the provided option instead #
         self.rev_pat = iupac_pattern(self.rev_seq)
         # Reverse complemented sequences #
         self.fwd_revcomp = self.fwd_seq.reverse_complement()
@@ -390,13 +425,95 @@ def pretty(self):
         # Search patterns when reverse complemented #
         self.fwd_pat_revcomp = iupac_pattern(self.fwd_revcomp)
         self.rev_pat_revcomp = iupac_pattern(self.rev_revcomp)
-        # Simple search expression (without mismatches authorized yet) #
-        self.fwd_regex = re.compile(self.fwd_pat)
-        self.rev_regex = re.compile(self.rev_pat)
-        # Uracil instead of thymine #
-        self.fwd_regex_uracil = re.compile(self.fwd_pat.replace(&#39;T&#39;, &#39;U&#39;))
-        self.rev_regex_uracil = re.compile(self.rev_pat.replace(&#39;T&#39;, &#39;U&#39;))</code></pre>
+        # Simple search expression (without any mismatches authorized yet) #
+        self.fwd_search = re.compile(self.fwd_pat)
+        self.rev_search = re.compile(self.rev_pat)
+
+    def make_regex(self, pat, mismatches):
+        &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+        return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))
+
+    def make_fwd_regex(self, mismatches):
+        return self.make_regex(self.fwd_pat, mismatches)
+
+    def make_rev_regex(self, mismatches):
+        return self.make_regex(self.rev_pat, mismatches)
+
+    def make_fwd_revcompl_regex(self, mismatches):
+        return self.make_regex(self.fwd_pat_revcomp, mismatches)
+
+    def make_rev_revcompl_regex(self, mismatches):
+        return self.make_regex(self.rev_pat_revcomp, mismatches)</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="fasta.primers.TwoPrimers.make_fwd_regex"><code class="name flex">
+<span>def <span class="ident">make_fwd_regex</span></span>(<span>self, mismatches)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_fwd_regex(self, mismatches):
+    return self.make_regex(self.fwd_pat, mismatches)</code></pre>
+</details>
+</dd>
+<dt id="fasta.primers.TwoPrimers.make_fwd_revcompl_regex"><code class="name flex">
+<span>def <span class="ident">make_fwd_revcompl_regex</span></span>(<span>self, mismatches)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_fwd_revcompl_regex(self, mismatches):
+    return self.make_regex(self.fwd_pat_revcomp, mismatches)</code></pre>
+</details>
+</dd>
+<dt id="fasta.primers.TwoPrimers.make_regex"><code class="name flex">
+<span>def <span class="ident">make_regex</span></span>(<span>self, pat, mismatches)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Complex search expression with mismatches this time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_regex(self, pat, mismatches):
+    &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+    return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))</code></pre>
+</details>
+</dd>
+<dt id="fasta.primers.TwoPrimers.make_rev_regex"><code class="name flex">
+<span>def <span class="ident">make_rev_regex</span></span>(<span>self, mismatches)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_rev_regex(self, mismatches):
+    return self.make_regex(self.rev_pat, mismatches)</code></pre>
+</details>
+</dd>
+<dt id="fasta.primers.TwoPrimers.make_rev_revcompl_regex"><code class="name flex">
+<span>def <span class="ident">make_rev_revcompl_regex</span></span>(<span>self, mismatches)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_rev_revcompl_regex(self, mismatches):
+    return self.make_regex(self.rev_pat_revcomp, mismatches)</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -415,22 +532,28 @@ def pretty(self):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="fasta.primers.iupac_pattern" href="#fasta.primers.iupac_pattern">iupac_pattern</a></code></li>
-<li><code><a title="fasta.primers.parse_primers" href="#fasta.primers.parse_primers">parse_primers</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="fasta.primers.PrimersRegexes" href="#fasta.primers.PrimersRegexes">PrimersRegexes</a></code></h4>
+</li>
+<li>
 <h4><code><a title="fasta.primers.ReadWithPrimers" href="#fasta.primers.ReadWithPrimers">ReadWithPrimers</a></code></h4>
 <ul class="">
-<li><code><a title="fasta.primers.ReadWithPrimers.pretty" href="#fasta.primers.ReadWithPrimers.pretty">pretty</a></code></li>
+<li><code><a title="fasta.primers.ReadWithPrimers.pretty_visualization" href="#fasta.primers.ReadWithPrimers.pretty_visualization">pretty_visualization</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="fasta.primers.ReadWithPrimersRevCompl" href="#fasta.primers.ReadWithPrimersRevCompl">ReadWithPrimersRevCompl</a></code></h4>
-</li>
-<li>
 <h4><code><a title="fasta.primers.TwoPrimers" href="#fasta.primers.TwoPrimers">TwoPrimers</a></code></h4>
+<ul class="">
+<li><code><a title="fasta.primers.TwoPrimers.make_fwd_regex" href="#fasta.primers.TwoPrimers.make_fwd_regex">make_fwd_regex</a></code></li>
+<li><code><a title="fasta.primers.TwoPrimers.make_fwd_revcompl_regex" href="#fasta.primers.TwoPrimers.make_fwd_revcompl_regex">make_fwd_revcompl_regex</a></code></li>
+<li><code><a title="fasta.primers.TwoPrimers.make_regex" href="#fasta.primers.TwoPrimers.make_regex">make_regex</a></code></li>
+<li><code><a title="fasta.primers.TwoPrimers.make_rev_regex" href="#fasta.primers.TwoPrimers.make_rev_regex">make_rev_regex</a></code></li>
+<li><code><a title="fasta.primers.TwoPrimers.make_rev_revcompl_regex" href="#fasta.primers.TwoPrimers.make_rev_revcompl_regex">make_rev_revcompl_regex</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

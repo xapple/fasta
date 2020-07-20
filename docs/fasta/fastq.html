@@ -67,22 +67,12 @@ class FASTQ(FASTA):
     ext    = &#39;fastq&#39;
     format = &#39;fastq&#39;
 
+    #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
         if self.gzipped: return int(sh.zgrep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
         return int(sh.grep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
 
-    def to_fasta(self, path):
-        with open(path, &#39;w&#39;) as handle:
-            for r in self: SeqIO.write(r, handle, &#39;fasta&#39;)
-        return FASTA(path)
-
-    def to_qual(self, path):
-        with open(path, &#39;w&#39;) as handle:
-            for r in self: SeqIO.write(r, handle, &#39;qual&#39;)
-        return FilePath(path)
-
-    #----------------------------- Properties --------------------------------#
     @property_cached
     def avg_quality(self):
         &#34;&#34;&#34;
@@ -93,6 +83,27 @@ class FASTQ(FASTA):
         mean = average(s for r in self for s in r.letter_annotations[&#34;phred_quality&#34;])
         self.close()
         return mean
+
+    #----------------------------- Conversion --------------------------------#
+    def to_fasta(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, &#39;w&#39;) as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, &#39;fasta&#39;)
+        # Return #
+        return FASTA(path)
+
+    def to_qual(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, &#39;w&#39;) as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, &#39;qual&#39;)
+        # Return #
+        return FilePath(path)
 
     #-------------------------------- Tools ----------------------------------#
     @property_cached
@@ -231,22 +242,12 @@ methods and properties for dealing with the quality scores.</p></div>
     ext    = &#39;fastq&#39;
     format = &#39;fastq&#39;
 
+    #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
         if self.gzipped: return int(sh.zgrep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
         return int(sh.grep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
 
-    def to_fasta(self, path):
-        with open(path, &#39;w&#39;) as handle:
-            for r in self: SeqIO.write(r, handle, &#39;fasta&#39;)
-        return FASTA(path)
-
-    def to_qual(self, path):
-        with open(path, &#39;w&#39;) as handle:
-            for r in self: SeqIO.write(r, handle, &#39;qual&#39;)
-        return FilePath(path)
-
-    #----------------------------- Properties --------------------------------#
     @property_cached
     def avg_quality(self):
         &#34;&#34;&#34;
@@ -257,6 +258,27 @@ methods and properties for dealing with the quality scores.</p></div>
         mean = average(s for r in self for s in r.letter_annotations[&#34;phred_quality&#34;])
         self.close()
         return mean
+
+    #----------------------------- Conversion --------------------------------#
+    def to_fasta(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, &#39;w&#39;) as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, &#39;fasta&#39;)
+        # Return #
+        return FASTA(path)
+
+    def to_qual(self, path, verbose=False):
+        # Select verbosity #
+        import tqdm
+        wrapper = tqdm.tqdm if verbose else lambda x: x
+        # Do it #
+        with open(path, &#39;w&#39;) as handle:
+            for r in wrapper(self): SeqIO.write(r, handle, &#39;qual&#39;)
+        # Return #
+        return FilePath(path)
 
     #-------------------------------- Tools ----------------------------------#
     @property_cached
@@ -638,7 +660,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
 </details>
 </dd>
 <dt id="fasta.fastq.FASTQ.to_fasta"><code class="name flex">
-<span>def <span class="ident">to_fasta</span></span>(<span>self, path)</span>
+<span>def <span class="ident">to_fasta</span></span>(<span>self, path, verbose=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -646,14 +668,19 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_fasta(self, path):
+<pre><code class="python">def to_fasta(self, path, verbose=False):
+    # Select verbosity #
+    import tqdm
+    wrapper = tqdm.tqdm if verbose else lambda x: x
+    # Do it #
     with open(path, &#39;w&#39;) as handle:
-        for r in self: SeqIO.write(r, handle, &#39;fasta&#39;)
+        for r in wrapper(self): SeqIO.write(r, handle, &#39;fasta&#39;)
+    # Return #
     return FASTA(path)</code></pre>
 </details>
 </dd>
 <dt id="fasta.fastq.FASTQ.to_qual"><code class="name flex">
-<span>def <span class="ident">to_qual</span></span>(<span>self, path)</span>
+<span>def <span class="ident">to_qual</span></span>(<span>self, path, verbose=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -661,9 +688,14 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_qual(self, path):
+<pre><code class="python">def to_qual(self, path, verbose=False):
+    # Select verbosity #
+    import tqdm
+    wrapper = tqdm.tqdm if verbose else lambda x: x
+    # Do it #
     with open(path, &#39;w&#39;) as handle:
-        for r in self: SeqIO.write(r, handle, &#39;qual&#39;)
+        for r in wrapper(self): SeqIO.write(r, handle, &#39;qual&#39;)
+    # Return #
     return FilePath(path)</code></pre>
 </details>
 </dd>
@@ -691,6 +723,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <li><code><a title="fasta.core.FASTA.length_by_id" href="core.html#fasta.core.FASTA.length_by_id">length_by_id</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths" href="core.html#fasta.core.FASTA.lengths">lengths</a></code></li>
 <li><code><a title="fasta.core.FASTA.lengths_counter" href="core.html#fasta.core.FASTA.lengths_counter">lengths_counter</a></code></li>
+<li><code><a title="fasta.core.FASTA.parse_primers" href="core.html#fasta.core.FASTA.parse_primers">parse_primers</a></code></li>
 <li><code><a title="fasta.core.FASTA.progress" href="core.html#fasta.core.FASTA.progress">progress</a></code></li>
 <li><code><a title="fasta.core.FASTA.remove_trailing_stars" href="core.html#fasta.core.FASTA.remove_trailing_stars">remove_trailing_stars</a></code></li>
 <li><code><a title="fasta.core.FASTA.rename_sequences" href="core.html#fasta.core.FASTA.rename_sequences">rename_sequences</a></code></li>
