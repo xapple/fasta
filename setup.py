@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'fasta',
-    version          = '2.0.8',
+    version          = '2.0.9',
     description      = 'The fasta python package enables you to deal with '
                        'biological sequence files easily.',
     license          = 'MIT',
