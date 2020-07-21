@@ -11,7 +11,7 @@ setup(
     author_email     = 'lucas.sinclair@me.com',
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
     packages         = find_packages(),
-    install_requires = ['plumbing>=2.8.1', 'autopaths>=1.4.2', 'biopython',
+    install_requires = ['plumbing>=2.8.5', 'autopaths>=1.4.4', 'biopython',
                         'numpy', 'sh', 'tqdm', 'matplotlib', 'regex'],
     long_description = open('README.md').read(),
     long_description_content_type = 'text/markdown',
