@@ -80,6 +80,9 @@ class FASTA(FilePath):
         Should probably check for file size changes instead of just
         caching once TODO.
         """
+        # For debugging purposes #
+        if False: print("-> counting reads in `%s`" % self.path)
+        # If we are gzipped we can just use zgrep #
         if self.gzipped:
             return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
         else:
