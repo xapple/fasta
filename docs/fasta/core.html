@@ -41,7 +41,7 @@ Contact at www.sinclair.bio
 &#34;&#34;&#34;
 
 # Built-in modules #
-import os, sys, gzip, shutil, itertools
+import os, sys, io, gzip, shutil, itertools
 from collections import Counter, OrderedDict
 from six import string_types
 
@@ -134,8 +134,11 @@ class FASTA(FilePath):
     #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode=&#39;r&#39;):
         # Two cases #
-        if self.gzipped: self.handle = gzip.open(self.path, mode)
-        else:            self.handle =      open(self.path, mode)
+        if self.gzipped:
+            self.handle = gzip.open(self.path, mode)
+            self.handle = io.TextIOWrapper(self.handle, encoding=&#39;utf8&#39;)
+        else:
+            self.handle = open(self.path, mode)
         # For convenience #
         return self.handle
 
@@ -609,8 +612,11 @@ way. There are several other things you can do with a FASTA file.</p></div>
     #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode=&#39;r&#39;):
         # Two cases #
-        if self.gzipped: self.handle = gzip.open(self.path, mode)
-        else:            self.handle =      open(self.path, mode)
+        if self.gzipped:
+            self.handle = gzip.open(self.path, mode)
+            self.handle = io.TextIOWrapper(self.handle, encoding=&#39;utf8&#39;)
+        else:
+            self.handle = open(self.path, mode)
         # For convenience #
         return self.handle
 
@@ -1621,8 +1627,11 @@ Consider using the SQLite API instead or memory map the file.</p></div>
 </summary>
 <pre><code class="python">def open(self, mode=&#39;r&#39;):
     # Two cases #
-    if self.gzipped: self.handle = gzip.open(self.path, mode)
-    else:            self.handle =      open(self.path, mode)
+    if self.gzipped:
+        self.handle = gzip.open(self.path, mode)
+        self.handle = io.TextIOWrapper(self.handle, encoding=&#39;utf8&#39;)
+    else:
+        self.handle = open(self.path, mode)
     # For convenience #
     return self.handle</code></pre>
 </details>
