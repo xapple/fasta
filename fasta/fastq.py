@@ -37,8 +37,8 @@ class FASTQ(FASTA):
     #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
-        if self.gzipped: return int(sh.zgrep('-c', "^+$", self.path, _ok_code=[0,1]))
-        return int(sh.grep('-c', "^+$", self.path, _ok_code=[0,1]))
+        from shell_command import shell_output
+        return int(int(shell_output("zcat %s | wc -l" % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):

@@ -149,7 +149,7 @@ class FASTA(FilePath):
         self.add(path)
 
     def add_fastas(self, paths):
-        """Use this method to add bunch of fastas to this fasta."""
+        """Use this method to add a bunch of fastas to this fasta."""
         for p in paths: self.add_fasta(p)
 
     def flush(self):
@@ -164,6 +164,37 @@ class FASTA(FilePath):
         SeqIO.write(reads, self.handle, self.format)
         self.close()
         return self
+
+    #-------------------------- Compressing the data -------------------------#
+    def compress(self, new_path=None, remove_orig=False, method='slow'):
+        """Turn this FASTA file into a gzipped FASTA file."""
+        # Check we are not compressed already #
+        if self.gzipped:
+            msg = "The fasta file '%s' is already compressed."
+            raise Exception(msg % self.path)
+        # Pick the new path #
+        if new_path is None: new_path = self.path + '.gz'
+        # Do it the fast way or the slow way #
+        if method == 'fast': self.compress_fast(new_path)
+        else:                self.compress_slow(new_path)
+        # Optionally remove the original uncompressed file #
+        if remove_orig: self.remove()
+        # Update the internal path #
+        self.path = new_path
+        # Return #
+        return self
+
+    def compress_slow(self, new_path):
+        """Do the compression internally via python."""
+        with gzip.open(new_path, 'wb') as handle:
+            shutil.copyfileobj(self.open('rb'), handle)
+
+    def compress_fast(self, new_path):
+        """Do the compression with an external shell command call."""
+        # We don't want python to be buffering the text for speed #
+        from shell_command import shell_output
+        cmd = 'gzip --stdout %s > %s' % (self.path, new_path)
+        return shell_output(cmd)
 
     #------------------------- When IDs are important ------------------------#
     @property_cached
@@ -216,24 +247,35 @@ class FASTA(FilePath):
         return hash_map
 
     #----------------- Ways of interacting with the data --------------------#
-    def subsample(self, down_to=1, new_path=None):
-        """Pick a number of sequences from the file pseudo-randomly."""
-        # Auto path #
-        if new_path is None: subsampled = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): subsampled = new_path
-        else:                subsampled = self.__class__(new_path)
+    def subsample(self, down_to=1, new_path=None, verbose=True):
+        """Pick a given number of sequences from the file pseudo-randomly."""
+        # Pick the destination path #
+        if new_path is None:
+            subsampled = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA):
+            subsampled = new_path
+        else:
+            subsampled = self.__class__(new_path)
         # Check size #
         if down_to > len(self):
             message = "Can't subsample %s down to %i. Only down to %i."
             print(Color.ylw + message % (self, down_to, len(self)) + Color.end)
             self.copy(new_path)
             return
+        # Select verbosity #
+        import tqdm
+        if verbose: wrapper = lambda x: tqdm.tqdm(x, total=self.count)
+        else: wrapper = lambda x: x
+        # Generator #
+        def iterator():
+            for read in wrapper(isubsample(self, down_to)):
+                yield read
         # Do it #
-        subsampled.create()
-        for seq in isubsample(self, down_to): subsampled.add_seq(seq)
+        subsampled.write(iterator())
         subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
+        # Return #
         return subsampled
 
     def rename_with_num(self, prefix="", new_path=None, remove_desc=True):
@@ -255,6 +297,7 @@ class FASTA(FilePath):
         if new_path is None:
             os.remove(self.path)
             shutil.move(numbered, self.path)
+        # Return #
         return numbered
 
     def rename_with_prefix(self, prefix="", new_path=None, in_place=True,
@@ -276,6 +319,7 @@ class FASTA(FilePath):
         if in_place:
             os.remove(self.path)
             shutil.move(prefixed, self.path)
+        # Return #
         return prefixed
 
     def rename_sequences(self, mapping, new_path=None, in_place=False):
@@ -317,6 +361,7 @@ class FASTA(FilePath):
         # Do it #
         fraction.write(fraction_iterator())
         fraction.close()
+        # Return #
         return fraction
 
     def extract_sequences(self, ids, new_path=None, verbose=False):
@@ -356,6 +401,7 @@ class FASTA(FilePath):
         new_fasta.create()
         for seq in self: new_fasta.add_str(str(seq.seq).rstrip('*'), seq.id)
         new_fasta.close()
+        # Return #
         return new_fasta
 
     #---------------------------- Third party programs -----------------------#
@@ -363,6 +409,7 @@ class FASTA(FilePath):
         """We align the sequences in the fasta file with muscle."""
         if out_path is None: out_path = self.prefix_path + '.aln'
         sh.muscle38("-in", self.path, "-out", out_path)
+        from fasta.aligned import AlignedFASTA
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
@@ -382,6 +429,8 @@ class FASTA(FilePath):
             os.remove('error.log')
         for path in sh.glob('mothur.*.logfile'):
             os.remove(path)
+        # Return #
+        return self.p.aligned
 
     def index_bowtie(self):
         """Create an index on the fasta file compatible with bowtie2."""
