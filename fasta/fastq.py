@@ -43,7 +43,7 @@ class FASTQ(FASTA):
         if self.gzipped:
             return int(int(shell_output("zcat %s | wc -l" % self.path)) / 4)
         else:
-            return int(int(shell_output("wc -l  %s" % self.path)) / 4)
+            return int(int(shell_output("cat %s | wc -l" % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):
