@@ -113,6 +113,9 @@ class FASTA(FilePath):
         Should probably check for file size changes instead of just
         caching once TODO.
         &#34;&#34;&#34;
+        # For debugging purposes #
+        if False: print(&#34;-&gt; counting reads in `%s`&#34; % self.path)
+        # If we are gzipped we can just use zgrep #
         if self.gzipped:
             return int(sh.zgrep(&#39;-c&#39;, &#34;^&gt;&#34;, self.path, _ok_code=[0,1]))
         else:
@@ -179,7 +182,7 @@ class FASTA(FilePath):
         self.add(path)
 
     def add_fastas(self, paths):
-        &#34;&#34;&#34;Use this method to add bunch of fastas to this fasta.&#34;&#34;&#34;
+        &#34;&#34;&#34;Use this method to add a bunch of fastas to this fasta.&#34;&#34;&#34;
         for p in paths: self.add_fasta(p)
 
     def flush(self):
@@ -194,6 +197,37 @@ class FASTA(FilePath):
         SeqIO.write(reads, self.handle, self.format)
         self.close()
         return self
+
+    #-------------------------- Compressing the data -------------------------#
+    def compress(self, new_path=None, remove_orig=False, method=&#39;slow&#39;):
+        &#34;&#34;&#34;Turn this FASTA file into a gzipped FASTA file.&#34;&#34;&#34;
+        # Check we are not compressed already #
+        if self.gzipped:
+            msg = &#34;The fasta file &#39;%s&#39; is already compressed.&#34;
+            raise Exception(msg % self.path)
+        # Pick the new path #
+        if new_path is None: new_path = self.path + &#39;.gz&#39;
+        # Do it the fast way or the slow way #
+        if method == &#39;fast&#39;: self.compress_fast(new_path)
+        else:                self.compress_slow(new_path)
+        # Optionally remove the original uncompressed file #
+        if remove_orig: self.remove()
+        # Update the internal path #
+        self.path = new_path
+        # Return #
+        return self
+
+    def compress_slow(self, new_path):
+        &#34;&#34;&#34;Do the compression internally via python.&#34;&#34;&#34;
+        with gzip.open(new_path, &#39;wb&#39;) as handle:
+            shutil.copyfileobj(self.open(&#39;rb&#39;), handle)
+
+    def compress_fast(self, new_path):
+        &#34;&#34;&#34;Do the compression with an external shell command call.&#34;&#34;&#34;
+        # We don&#39;t want python to be buffering the text for speed #
+        from shell_command import shell_output
+        cmd = &#39;gzip --stdout %s &gt; %s&#39; % (self.path, new_path)
+        return shell_output(cmd)
 
     #------------------------- When IDs are important ------------------------#
     @property_cached
@@ -246,24 +280,35 @@ class FASTA(FilePath):
         return hash_map
 
     #----------------- Ways of interacting with the data --------------------#
-    def subsample(self, down_to=1, new_path=None):
-        &#34;&#34;&#34;Pick a number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
-        # Auto path #
-        if new_path is None: subsampled = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): subsampled = new_path
-        else:                subsampled = self.__class__(new_path)
+    def subsample(self, down_to=1, new_path=None, verbose=True):
+        &#34;&#34;&#34;Pick a given number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
+        # Pick the destination path #
+        if new_path is None:
+            subsampled = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA):
+            subsampled = new_path
+        else:
+            subsampled = self.__class__(new_path)
         # Check size #
         if down_to &gt; len(self):
             message = &#34;Can&#39;t subsample %s down to %i. Only down to %i.&#34;
             print(Color.ylw + message % (self, down_to, len(self)) + Color.end)
             self.copy(new_path)
             return
+        # Select verbosity #
+        import tqdm
+        if verbose: wrapper = lambda x: tqdm.tqdm(x, total=self.count)
+        else: wrapper = lambda x: x
+        # Generator #
+        def iterator():
+            for read in wrapper(isubsample(self, down_to)):
+                yield read
         # Do it #
-        subsampled.create()
-        for seq in isubsample(self, down_to): subsampled.add_seq(seq)
+        subsampled.write(iterator())
         subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
+        # Return #
         return subsampled
 
     def rename_with_num(self, prefix=&#34;&#34;, new_path=None, remove_desc=True):
@@ -285,6 +330,7 @@ class FASTA(FilePath):
         if new_path is None:
             os.remove(self.path)
             shutil.move(numbered, self.path)
+        # Return #
         return numbered
 
     def rename_with_prefix(self, prefix=&#34;&#34;, new_path=None, in_place=True,
@@ -306,6 +352,7 @@ class FASTA(FilePath):
         if in_place:
             os.remove(self.path)
             shutil.move(prefixed, self.path)
+        # Return #
         return prefixed
 
     def rename_sequences(self, mapping, new_path=None, in_place=False):
@@ -347,6 +394,7 @@ class FASTA(FilePath):
         # Do it #
         fraction.write(fraction_iterator())
         fraction.close()
+        # Return #
         return fraction
 
     def extract_sequences(self, ids, new_path=None, verbose=False):
@@ -386,6 +434,7 @@ class FASTA(FilePath):
         new_fasta.create()
         for seq in self: new_fasta.add_str(str(seq.seq).rstrip(&#39;*&#39;), seq.id)
         new_fasta.close()
+        # Return #
         return new_fasta
 
     #---------------------------- Third party programs -----------------------#
@@ -393,6 +442,7 @@ class FASTA(FilePath):
         &#34;&#34;&#34;We align the sequences in the fasta file with muscle.&#34;&#34;&#34;
         if out_path is None: out_path = self.prefix_path + &#39;.aln&#39;
         sh.muscle38(&#34;-in&#34;, self.path, &#34;-out&#34;, out_path)
+        from fasta.aligned import AlignedFASTA
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
@@ -412,6 +462,8 @@ class FASTA(FilePath):
             os.remove(&#39;error.log&#39;)
         for path in sh.glob(&#39;mothur.*.logfile&#39;):
             os.remove(path)
+        # Return #
+        return self.p.aligned
 
     def index_bowtie(self):
         &#34;&#34;&#34;Create an index on the fasta file compatible with bowtie2.&#34;&#34;&#34;
@@ -536,6 +588,9 @@ way. There are several other things you can do with a FASTA file.</p></div>
         Should probably check for file size changes instead of just
         caching once TODO.
         &#34;&#34;&#34;
+        # For debugging purposes #
+        if False: print(&#34;-&gt; counting reads in `%s`&#34; % self.path)
+        # If we are gzipped we can just use zgrep #
         if self.gzipped:
             return int(sh.zgrep(&#39;-c&#39;, &#34;^&gt;&#34;, self.path, _ok_code=[0,1]))
         else:
@@ -602,7 +657,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         self.add(path)
 
     def add_fastas(self, paths):
-        &#34;&#34;&#34;Use this method to add bunch of fastas to this fasta.&#34;&#34;&#34;
+        &#34;&#34;&#34;Use this method to add a bunch of fastas to this fasta.&#34;&#34;&#34;
         for p in paths: self.add_fasta(p)
 
     def flush(self):
@@ -617,6 +672,37 @@ way. There are several other things you can do with a FASTA file.</p></div>
         SeqIO.write(reads, self.handle, self.format)
         self.close()
         return self
+
+    #-------------------------- Compressing the data -------------------------#
+    def compress(self, new_path=None, remove_orig=False, method=&#39;slow&#39;):
+        &#34;&#34;&#34;Turn this FASTA file into a gzipped FASTA file.&#34;&#34;&#34;
+        # Check we are not compressed already #
+        if self.gzipped:
+            msg = &#34;The fasta file &#39;%s&#39; is already compressed.&#34;
+            raise Exception(msg % self.path)
+        # Pick the new path #
+        if new_path is None: new_path = self.path + &#39;.gz&#39;
+        # Do it the fast way or the slow way #
+        if method == &#39;fast&#39;: self.compress_fast(new_path)
+        else:                self.compress_slow(new_path)
+        # Optionally remove the original uncompressed file #
+        if remove_orig: self.remove()
+        # Update the internal path #
+        self.path = new_path
+        # Return #
+        return self
+
+    def compress_slow(self, new_path):
+        &#34;&#34;&#34;Do the compression internally via python.&#34;&#34;&#34;
+        with gzip.open(new_path, &#39;wb&#39;) as handle:
+            shutil.copyfileobj(self.open(&#39;rb&#39;), handle)
+
+    def compress_fast(self, new_path):
+        &#34;&#34;&#34;Do the compression with an external shell command call.&#34;&#34;&#34;
+        # We don&#39;t want python to be buffering the text for speed #
+        from shell_command import shell_output
+        cmd = &#39;gzip --stdout %s &gt; %s&#39; % (self.path, new_path)
+        return shell_output(cmd)
 
     #------------------------- When IDs are important ------------------------#
     @property_cached
@@ -669,24 +755,35 @@ way. There are several other things you can do with a FASTA file.</p></div>
         return hash_map
 
     #----------------- Ways of interacting with the data --------------------#
-    def subsample(self, down_to=1, new_path=None):
-        &#34;&#34;&#34;Pick a number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
-        # Auto path #
-        if new_path is None: subsampled = self.__class__(new_temp_path())
-        elif isinstance(new_path, FASTA): subsampled = new_path
-        else:                subsampled = self.__class__(new_path)
+    def subsample(self, down_to=1, new_path=None, verbose=True):
+        &#34;&#34;&#34;Pick a given number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
+        # Pick the destination path #
+        if new_path is None:
+            subsampled = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA):
+            subsampled = new_path
+        else:
+            subsampled = self.__class__(new_path)
         # Check size #
         if down_to &gt; len(self):
             message = &#34;Can&#39;t subsample %s down to %i. Only down to %i.&#34;
             print(Color.ylw + message % (self, down_to, len(self)) + Color.end)
             self.copy(new_path)
             return
+        # Select verbosity #
+        import tqdm
+        if verbose: wrapper = lambda x: tqdm.tqdm(x, total=self.count)
+        else: wrapper = lambda x: x
+        # Generator #
+        def iterator():
+            for read in wrapper(isubsample(self, down_to)):
+                yield read
         # Do it #
-        subsampled.create()
-        for seq in isubsample(self, down_to): subsampled.add_seq(seq)
+        subsampled.write(iterator())
         subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
+        # Return #
         return subsampled
 
     def rename_with_num(self, prefix=&#34;&#34;, new_path=None, remove_desc=True):
@@ -708,6 +805,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         if new_path is None:
             os.remove(self.path)
             shutil.move(numbered, self.path)
+        # Return #
         return numbered
 
     def rename_with_prefix(self, prefix=&#34;&#34;, new_path=None, in_place=True,
@@ -729,6 +827,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         if in_place:
             os.remove(self.path)
             shutil.move(prefixed, self.path)
+        # Return #
         return prefixed
 
     def rename_sequences(self, mapping, new_path=None, in_place=False):
@@ -770,6 +869,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         # Do it #
         fraction.write(fraction_iterator())
         fraction.close()
+        # Return #
         return fraction
 
     def extract_sequences(self, ids, new_path=None, verbose=False):
@@ -809,6 +909,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         new_fasta.create()
         for seq in self: new_fasta.add_str(str(seq.seq).rstrip(&#39;*&#39;), seq.id)
         new_fasta.close()
+        # Return #
         return new_fasta
 
     #---------------------------- Third party programs -----------------------#
@@ -816,6 +917,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         &#34;&#34;&#34;We align the sequences in the fasta file with muscle.&#34;&#34;&#34;
         if out_path is None: out_path = self.prefix_path + &#39;.aln&#39;
         sh.muscle38(&#34;-in&#34;, self.path, &#34;-out&#34;, out_path)
+        from fasta.aligned import AlignedFASTA
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
@@ -835,6 +937,8 @@ way. There are several other things you can do with a FASTA file.</p></div>
             os.remove(&#39;error.log&#39;)
         for path in sh.glob(&#39;mothur.*.logfile&#39;):
             os.remove(path)
+        # Return #
+        return self.p.aligned
 
     def index_bowtie(self):
         &#34;&#34;&#34;Create an index on the fasta file compatible with bowtie2.&#34;&#34;&#34;
@@ -932,6 +1036,8 @@ caching once TODO.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -978,6 +1084,8 @@ as only argument.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1017,6 +1125,8 @@ def gzipped(self): return True if self.path.endswith(&#39;gz&#39;) else False</c
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1047,6 +1157,8 @@ memory.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1088,6 +1200,8 @@ def lengths(self):
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1130,6 +1244,8 @@ Consider using the SQLite API instead.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1160,6 +1276,8 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -1211,13 +1329,13 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
 <span>def <span class="ident">add_fastas</span></span>(<span>self, paths)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Use this method to add bunch of fastas to this fasta.</p></div>
+<div class="desc"><p>Use this method to add a bunch of fastas to this fasta.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def add_fastas(self, paths):
-    &#34;&#34;&#34;Use this method to add bunch of fastas to this fasta.&#34;&#34;&#34;
+    &#34;&#34;&#34;Use this method to add a bunch of fastas to this fasta.&#34;&#34;&#34;
     for p in paths: self.add_fasta(p)</code></pre>
 </details>
 </dd>
@@ -1264,6 +1382,7 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
     &#34;&#34;&#34;We align the sequences in the fasta file with muscle.&#34;&#34;&#34;
     if out_path is None: out_path = self.prefix_path + &#39;.aln&#39;
     sh.muscle38(&#34;-in&#34;, self.path, &#34;-out&#34;, out_path)
+    from fasta.aligned import AlignedFASTA
     return AlignedFASTA(out_path)</code></pre>
 </details>
 </dd>
@@ -1281,6 +1400,66 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
         self.flush()
         del self.buffer
     self.handle.close()</code></pre>
+</details>
+</dd>
+<dt id="fasta.core.FASTA.compress"><code class="name flex">
+<span>def <span class="ident">compress</span></span>(<span>self, new_path=None, remove_orig=False, method='slow')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Turn this FASTA file into a gzipped FASTA file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compress(self, new_path=None, remove_orig=False, method=&#39;slow&#39;):
+    &#34;&#34;&#34;Turn this FASTA file into a gzipped FASTA file.&#34;&#34;&#34;
+    # Check we are not compressed already #
+    if self.gzipped:
+        msg = &#34;The fasta file &#39;%s&#39; is already compressed.&#34;
+        raise Exception(msg % self.path)
+    # Pick the new path #
+    if new_path is None: new_path = self.path + &#39;.gz&#39;
+    # Do it the fast way or the slow way #
+    if method == &#39;fast&#39;: self.compress_fast(new_path)
+    else:                self.compress_slow(new_path)
+    # Optionally remove the original uncompressed file #
+    if remove_orig: self.remove()
+    # Update the internal path #
+    self.path = new_path
+    # Return #
+    return self</code></pre>
+</details>
+</dd>
+<dt id="fasta.core.FASTA.compress_fast"><code class="name flex">
+<span>def <span class="ident">compress_fast</span></span>(<span>self, new_path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Do the compression with an external shell command call.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compress_fast(self, new_path):
+    &#34;&#34;&#34;Do the compression with an external shell command call.&#34;&#34;&#34;
+    # We don&#39;t want python to be buffering the text for speed #
+    from shell_command import shell_output
+    cmd = &#39;gzip --stdout %s &gt; %s&#39; % (self.path, new_path)
+    return shell_output(cmd)</code></pre>
+</details>
+</dd>
+<dt id="fasta.core.FASTA.compress_slow"><code class="name flex">
+<span>def <span class="ident">compress_slow</span></span>(<span>self, new_path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Do the compression internally via python.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compress_slow(self, new_path):
+    &#34;&#34;&#34;Do the compression internally via python.&#34;&#34;&#34;
+    with gzip.open(new_path, &#39;wb&#39;) as handle:
+        shutil.copyfileobj(self.open(&#39;rb&#39;), handle)</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.create"><code class="name flex">
@@ -1327,6 +1506,7 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
     # Do it #
     fraction.write(fraction_iterator())
     fraction.close()
+    # Return #
     return fraction</code></pre>
 </details>
 </dd>
@@ -1524,6 +1704,7 @@ end of sequences.</p></div>
     new_fasta.create()
     for seq in self: new_fasta.add_str(str(seq.seq).rstrip(&#39;*&#39;), seq.id)
     new_fasta.close()
+    # Return #
     return new_fasta</code></pre>
 </details>
 </dd>
@@ -1588,6 +1769,7 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
     if new_path is None:
         os.remove(self.path)
         shutil.move(numbered, self.path)
+    # Return #
     return numbered</code></pre>
 </details>
 </dd>
@@ -1619,36 +1801,48 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
     if in_place:
         os.remove(self.path)
         shutil.move(prefixed, self.path)
+    # Return #
     return prefixed</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.subsample"><code class="name flex">
-<span>def <span class="ident">subsample</span></span>(<span>self, down_to=1, new_path=None)</span>
+<span>def <span class="ident">subsample</span></span>(<span>self, down_to=1, new_path=None, verbose=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Pick a number of sequences from the file pseudo-randomly.</p></div>
+<div class="desc"><p>Pick a given number of sequences from the file pseudo-randomly.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def subsample(self, down_to=1, new_path=None):
-    &#34;&#34;&#34;Pick a number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
-    # Auto path #
-    if new_path is None: subsampled = self.__class__(new_temp_path())
-    elif isinstance(new_path, FASTA): subsampled = new_path
-    else:                subsampled = self.__class__(new_path)
+<pre><code class="python">def subsample(self, down_to=1, new_path=None, verbose=True):
+    &#34;&#34;&#34;Pick a given number of sequences from the file pseudo-randomly.&#34;&#34;&#34;
+    # Pick the destination path #
+    if new_path is None:
+        subsampled = self.__class__(new_temp_path())
+    elif isinstance(new_path, FASTA):
+        subsampled = new_path
+    else:
+        subsampled = self.__class__(new_path)
     # Check size #
     if down_to &gt; len(self):
         message = &#34;Can&#39;t subsample %s down to %i. Only down to %i.&#34;
         print(Color.ylw + message % (self, down_to, len(self)) + Color.end)
         self.copy(new_path)
         return
+    # Select verbosity #
+    import tqdm
+    if verbose: wrapper = lambda x: tqdm.tqdm(x, total=self.count)
+    else: wrapper = lambda x: x
+    # Generator #
+    def iterator():
+        for read in wrapper(isubsample(self, down_to)):
+            yield read
     # Do it #
-    subsampled.create()
-    for seq in isubsample(self, down_to): subsampled.add_seq(seq)
+    subsampled.write(iterator())
     subsampled.close()
     # Did it work #
     assert len(subsampled) == down_to
+    # Return #
     return subsampled</code></pre>
 </details>
 </dd>
@@ -1677,7 +1871,9 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
     if os.path.exists(&#39;error.log&#39;) and os.path.getsize(&#39;error.log&#39;) == 0:
         os.remove(&#39;error.log&#39;)
     for path in sh.glob(&#39;mothur.*.logfile&#39;):
-        os.remove(path)</code></pre>
+        os.remove(path)
+    # Return #
+    return self.p.aligned</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.write"><code class="name flex">
@@ -1726,6 +1922,9 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
 <li><code><a title="fasta.core.FASTA.align" href="#fasta.core.FASTA.align">align</a></code></li>
 <li><code><a title="fasta.core.FASTA.buffer_size" href="#fasta.core.FASTA.buffer_size">buffer_size</a></code></li>
 <li><code><a title="fasta.core.FASTA.close" href="#fasta.core.FASTA.close">close</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress" href="#fasta.core.FASTA.compress">compress</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress_fast" href="#fasta.core.FASTA.compress_fast">compress_fast</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress_slow" href="#fasta.core.FASTA.compress_slow">compress_slow</a></code></li>
 <li><code><a title="fasta.core.FASTA.count" href="#fasta.core.FASTA.count">count</a></code></li>
 <li><code><a title="fasta.core.FASTA.create" href="#fasta.core.FASTA.create">create</a></code></li>
 <li><code><a title="fasta.core.FASTA.ext" href="#fasta.core.FASTA.ext">ext</a></code></li>

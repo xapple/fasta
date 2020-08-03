@@ -70,8 +70,8 @@ class FASTQ(FASTA):
     #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
-        if self.gzipped: return int(sh.zgrep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
-        return int(sh.grep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
+        from shell_command import shell_output
+        return int(int(shell_output(&#34;zcat %s | wc -l&#34; % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):
@@ -245,8 +245,8 @@ methods and properties for dealing with the quality scores.</p></div>
     #----------------------------- Properties --------------------------------#
     @property_cached
     def count(self):
-        if self.gzipped: return int(sh.zgrep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
-        return int(sh.grep(&#39;-c&#39;, &#34;^+$&#34;, self.path, _ok_code=[0,1]))
+        from shell_command import shell_output
+        return int(int(shell_output(&#34;zcat %s | wc -l&#34; % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):
@@ -420,6 +420,8 @@ Think of a better implementation?</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -450,6 +452,8 @@ documentation was unable to correctly traverse a decorated property.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -478,6 +482,8 @@ documentation was unable to correctly traverse a decorated property.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -506,6 +512,8 @@ documentation was unable to correctly traverse a decorated property.</p></div>
     an auto-generated documentation, it means the program making the
     documentation was unable to correctly traverse a decorated property.
     &#34;&#34;&#34;
+    # For debugging purposes #
+    if False: print(&#34;-&gt; property cached `%s`&#34; % instance)
     # If called from a class #
     if instance is None: return self
     # Does a cache exist for this instance? #
@@ -710,6 +718,9 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <li><code><a title="fasta.core.FASTA.add_seq" href="core.html#fasta.core.FASTA.add_seq">add_seq</a></code></li>
 <li><code><a title="fasta.core.FASTA.add_str" href="core.html#fasta.core.FASTA.add_str">add_str</a></code></li>
 <li><code><a title="fasta.core.FASTA.align" href="core.html#fasta.core.FASTA.align">align</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress" href="core.html#fasta.core.FASTA.compress">compress</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress_fast" href="core.html#fasta.core.FASTA.compress_fast">compress_fast</a></code></li>
+<li><code><a title="fasta.core.FASTA.compress_slow" href="core.html#fasta.core.FASTA.compress_slow">compress_slow</a></code></li>
 <li><code><a title="fasta.core.FASTA.create" href="core.html#fasta.core.FASTA.create">create</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_length" href="core.html#fasta.core.FASTA.extract_length">extract_length</a></code></li>
 <li><code><a title="fasta.core.FASTA.extract_sequences" href="core.html#fasta.core.FASTA.extract_sequences">extract_sequences</a></code></li>
