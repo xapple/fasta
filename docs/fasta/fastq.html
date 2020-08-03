@@ -76,7 +76,7 @@ class FASTQ(FASTA):
         if self.gzipped:
             return int(int(shell_output(&#34;zcat %s | wc -l&#34; % self.path)) / 4)
         else:
-            return int(int(shell_output(&#34;wc -l  %s&#34; % self.path)) / 4)
+            return int(int(shell_output(&#34;cat %s | wc -l&#34; % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):
@@ -256,7 +256,7 @@ methods and properties for dealing with the quality scores.</p></div>
         if self.gzipped:
             return int(int(shell_output(&#34;zcat %s | wc -l&#34; % self.path)) / 4)
         else:
-            return int(int(shell_output(&#34;wc -l  %s&#34; % self.path)) / 4)
+            return int(int(shell_output(&#34;cat %s | wc -l&#34; % self.path)) / 4)
 
     @property_cached
     def avg_quality(self):
