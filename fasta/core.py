@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, sys, gzip, shutil, itertools
+import os, sys, io, gzip, shutil, itertools
 from collections import Counter, OrderedDict
 from six import string_types
 
@@ -101,8 +101,11 @@ class FASTA(FilePath):
     #-------------------------- Basic IO methods -----------------------------#
     def open(self, mode='r'):
         # Two cases #
-        if self.gzipped: self.handle = gzip.open(self.path, mode)
-        else:            self.handle =      open(self.path, mode)
+        if self.gzipped:
+            self.handle = gzip.open(self.path, mode)
+            self.handle = io.TextIOWrapper(self.handle, encoding='utf8')
+        else:
+            self.handle = open(self.path, mode)
         # For convenience #
         return self.handle
 

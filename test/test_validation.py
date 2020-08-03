@@ -28,18 +28,6 @@ this_file = Path((inspect.stack()[0])[1])
 this_dir  = this_file.directory
 
 ###############################################################################
-# --------------------------------- Import ---------------------------------- #
-def test_package_import():
-    import fasta
-    return fasta
-
-# -------------------------------- Counting --------------------------------- #
-def test_count():
-    valid_file = this_dir + "data/seqs.fastq"
-    from fasta import FASTQ
-    fastq = FASTQ(valid_file)
-    assert len(fastq) == 1401
-
 # ------------------------------ Validation --------------------------------- #
 @pytest.mark.skipif(sys.platform != 'linux', reason="Can only run on Linux.")
 class TestValidation:

@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, shutil
+import os, sys, shutil
 
 # Internal modules #
 from fasta import FASTA
@@ -39,11 +39,13 @@ class FASTQ(FASTA):
     def count(self):
         # Import module #
         from shell_command import shell_output
-        # If we are gzipped we can just use zcat #
-        if self.gzipped:
-            return int(int(shell_output("zcat %s | wc -l" % self.path)) / 4)
-        else:
+        # Case when we are not compressed #
+        if not self.gzipped:
             return int(int(shell_output("cat %s | wc -l" % self.path)) / 4)
+        # If we are gzipped we can just use zcat or gzcat on macOS #
+        program = 'gzcat' if sys.platform != 'linux' else 'zcat'
+        command = "%s %s | wc -l" % (program, self.path)
+        return int(int(shell_output(command)) / 4)
 
     @property_cached
     def avg_quality(self):
