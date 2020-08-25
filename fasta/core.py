@@ -70,7 +70,7 @@ class FASTA(FilePath):
     def first(self):
         """Just the first sequence."""
         self.open()
-        seq = SeqIO.parse(self.handle, self.format).next()
+        seq = next(SeqIO.parse(self.handle, self.format))
         self.close()
         return seq
 
