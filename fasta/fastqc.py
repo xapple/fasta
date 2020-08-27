@@ -96,7 +96,12 @@ class FastQC:
         # Run it #
         sh.fastqc(self.source, '-o', self.tmp_dir, '-t', cpus, '--extract')
         # Get location of results #
-        created_name = self.source.prefix.split('.')[0] + '_fastqc/'
+        components = self.source.prefix.split('.')
+        if components[-1] == 'gz':    components.pop()
+        if components[-1] == 'fastq': components.pop()
+        # Reassemble the components #
+        created_name = '.'.join(components) + '_fastqc/'
+        # This will be the name of the directory that fastqc created #
         created_dir  = self.tmp_dir + created_name
         # Move results #
         if self.dest.exists: shutil.rmtree(self.dest)
