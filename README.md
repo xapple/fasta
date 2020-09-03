@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/fasta.svg)](https://badge.fury.io/py/fasta)
 
-# `fasta` version 2.2.0
+# `fasta` version 2.2.1
 
 This python package enables you to deal with biological sequence files easily.
 
