@@ -29,6 +29,9 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 
+# Constants #
+class Dummy: pass
+
 ################################################################################
 class FASTA(FilePath):
     """
@@ -91,7 +94,7 @@ class FASTA(FilePath):
     @property
     def lengths(self):
         """All the lengths, one by one, in a list."""
-        return map(len, self.parse())
+        return map(len, self)
 
     @property_cached
     def lengths_counter(self):
@@ -110,10 +113,14 @@ class FASTA(FilePath):
         return self.handle
 
     def close(self):
+        # Case we were writing to the file #
         if hasattr(self, 'buffer'):
             self.flush()
             del self.buffer
+        # Standard case #
         self.handle.close()
+        # For pickling purposes (can't use dill on gzip handles) #
+        del self.handle
 
     def parse(self):
         self.open()
@@ -275,7 +282,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         subsampled.write(iterator())
-        subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
         # Return #
@@ -295,7 +301,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         numbered.write(numbered_iterator())
-        numbered.close()
         # Replace it #
         if new_path is None:
             os.remove(self.path)
@@ -317,7 +322,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         prefixed.write(prefixed_iterator())
-        prefixed.close()
         # Replace it #
         if in_place:
             os.remove(self.path)
@@ -363,7 +367,6 @@ class FASTA(FilePath):
                     yield read
         # Do it #
         fraction.write(fraction_iterator())
-        fraction.close()
         # Return #
         return fraction
 
@@ -456,11 +459,13 @@ class FASTA(FilePath):
         are all the graphs found in `./graphs.py` initialized with this instance
         as only argument.
         """
-        class Dummy: pass
+        # Make a dummy object #
         result = Dummy()
+        # Loop over graphs #
         for graph in graphs.__all__:
             cls = getattr(graphs, graph)
             setattr(result, cls.short_name, cls(self))
+        # Return #
         return result
 
     #-------------------------------- Primers -------------------------------#
