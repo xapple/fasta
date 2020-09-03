@@ -62,6 +62,9 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 
+# Constants #
+class Dummy: pass
+
 ################################################################################
 class FASTA(FilePath):
     &#34;&#34;&#34;
@@ -124,7 +127,7 @@ class FASTA(FilePath):
     @property
     def lengths(self):
         &#34;&#34;&#34;All the lengths, one by one, in a list.&#34;&#34;&#34;
-        return map(len, self.parse())
+        return map(len, self)
 
     @property_cached
     def lengths_counter(self):
@@ -143,10 +146,14 @@ class FASTA(FilePath):
         return self.handle
 
     def close(self):
+        # Case we were writing to the file #
         if hasattr(self, &#39;buffer&#39;):
             self.flush()
             del self.buffer
+        # Standard case #
         self.handle.close()
+        # For pickling purposes (can&#39;t use dill on gzip handles) #
+        del self.handle
 
     def parse(self):
         self.open()
@@ -308,7 +315,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         subsampled.write(iterator())
-        subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
         # Return #
@@ -328,7 +334,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         numbered.write(numbered_iterator())
-        numbered.close()
         # Replace it #
         if new_path is None:
             os.remove(self.path)
@@ -350,7 +355,6 @@ class FASTA(FilePath):
                 yield read
         # Do it #
         prefixed.write(prefixed_iterator())
-        prefixed.close()
         # Replace it #
         if in_place:
             os.remove(self.path)
@@ -396,7 +400,6 @@ class FASTA(FilePath):
                     yield read
         # Do it #
         fraction.write(fraction_iterator())
-        fraction.close()
         # Return #
         return fraction
 
@@ -489,11 +492,13 @@ class FASTA(FilePath):
         are all the graphs found in `./graphs.py` initialized with this instance
         as only argument.
         &#34;&#34;&#34;
-        class Dummy: pass
+        # Make a dummy object #
         result = Dummy()
+        # Loop over graphs #
         for graph in graphs.__all__:
             cls = getattr(graphs, graph)
             setattr(result, cls.short_name, cls(self))
+        # Return #
         return result
 
     #-------------------------------- Primers -------------------------------#
@@ -529,6 +534,18 @@ class FASTA(FilePath):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="fasta.core.Dummy"><code class="flex name class">
+<span>class <span class="ident">Dummy</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Dummy: pass</code></pre>
+</details>
+</dd>
 <dt id="fasta.core.FASTA"><code class="flex name class">
 <span>class <span class="ident">FASTA</span></span>
 <span>(</span><span>path, *args, **kwargs)</span>
@@ -602,7 +619,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
     @property
     def lengths(self):
         &#34;&#34;&#34;All the lengths, one by one, in a list.&#34;&#34;&#34;
-        return map(len, self.parse())
+        return map(len, self)
 
     @property_cached
     def lengths_counter(self):
@@ -621,10 +638,14 @@ way. There are several other things you can do with a FASTA file.</p></div>
         return self.handle
 
     def close(self):
+        # Case we were writing to the file #
         if hasattr(self, &#39;buffer&#39;):
             self.flush()
             del self.buffer
+        # Standard case #
         self.handle.close()
+        # For pickling purposes (can&#39;t use dill on gzip handles) #
+        del self.handle
 
     def parse(self):
         self.open()
@@ -786,7 +807,6 @@ way. There are several other things you can do with a FASTA file.</p></div>
                 yield read
         # Do it #
         subsampled.write(iterator())
-        subsampled.close()
         # Did it work #
         assert len(subsampled) == down_to
         # Return #
@@ -806,7 +826,6 @@ way. There are several other things you can do with a FASTA file.</p></div>
                 yield read
         # Do it #
         numbered.write(numbered_iterator())
-        numbered.close()
         # Replace it #
         if new_path is None:
             os.remove(self.path)
@@ -828,7 +847,6 @@ way. There are several other things you can do with a FASTA file.</p></div>
                 yield read
         # Do it #
         prefixed.write(prefixed_iterator())
-        prefixed.close()
         # Replace it #
         if in_place:
             os.remove(self.path)
@@ -874,7 +892,6 @@ way. There are several other things you can do with a FASTA file.</p></div>
                     yield read
         # Do it #
         fraction.write(fraction_iterator())
-        fraction.close()
         # Return #
         return fraction
 
@@ -967,11 +984,13 @@ way. There are several other things you can do with a FASTA file.</p></div>
         are all the graphs found in `./graphs.py` initialized with this instance
         as only argument.
         &#34;&#34;&#34;
-        class Dummy: pass
+        # Make a dummy object #
         result = Dummy()
+        # Loop over graphs #
         for graph in graphs.__all__:
             cls = getattr(graphs, graph)
             setattr(result, cls.short_name, cls(self))
+        # Return #
         return result
 
     #-------------------------------- Primers -------------------------------#
@@ -1190,7 +1209,7 @@ memory.</p></div>
 <pre><code class="python">@property
 def lengths(self):
     &#34;&#34;&#34;All the lengths, one by one, in a list.&#34;&#34;&#34;
-    return map(len, self.parse())</code></pre>
+    return map(len, self)</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.lengths_counter"><code class="name">var <span class="ident">lengths_counter</span></code></dt>
@@ -1402,10 +1421,14 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def close(self):
+    # Case we were writing to the file #
     if hasattr(self, &#39;buffer&#39;):
         self.flush()
         del self.buffer
-    self.handle.close()</code></pre>
+    # Standard case #
+    self.handle.close()
+    # For pickling purposes (can&#39;t use dill on gzip handles) #
+    del self.handle</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.compress"><code class="name flex">
@@ -1511,7 +1534,6 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
                 yield read
     # Do it #
     fraction.write(fraction_iterator())
-    fraction.close()
     # Return #
     return fraction</code></pre>
 </details>
@@ -1773,7 +1795,6 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
             yield read
     # Do it #
     numbered.write(numbered_iterator())
-    numbered.close()
     # Replace it #
     if new_path is None:
         os.remove(self.path)
@@ -1805,7 +1826,6 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
             yield read
     # Do it #
     prefixed.write(prefixed_iterator())
-    prefixed.close()
     # Replace it #
     if in_place:
         os.remove(self.path)
@@ -1848,7 +1868,6 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
             yield read
     # Do it #
     subsampled.write(iterator())
-    subsampled.close()
     # Did it work #
     assert len(subsampled) == down_to
     # Return #
@@ -1920,6 +1939,9 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="fasta.core.Dummy" href="#fasta.core.Dummy">Dummy</a></code></h4>
+</li>
 <li>
 <h4><code><a title="fasta.core.FASTA" href="#fasta.core.FASTA">FASTA</a></code></h4>
 <ul class="">
