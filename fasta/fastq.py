@@ -54,8 +54,8 @@ class FASTQ(FASTA):
         Quite slow and inefficient computationally.
         Think of a better implementation?
         """
-        mean = average(s for r in self for s in r.letter_annotations["phred_quality"])
-        self.close()
+        mean = average(s for r in self for s in
+                       r.letter_annotations["phred_quality"])
         return mean
 
     #----------------------------- Conversion --------------------------------#
