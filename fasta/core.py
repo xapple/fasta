@@ -192,7 +192,7 @@ class FASTA(FilePath):
         # Update the internal path #
         self.path = new_path
         # Return #
-        return self
+        return self.path
 
     def compress_slow(self, new_path):
         """Do the compression internally via python."""
