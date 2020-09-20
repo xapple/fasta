@@ -351,8 +351,9 @@ class FASTA(FilePath):
             return self
         else: return new_fasta
 
-    def extract_length(self, lower_bound=None, upper_bound=None,
-                       new_path=None):
+    def extract_length(self, lower_bound=None,
+                             upper_bound=None,
+                             new_path=None):
         """Extract a certain length fraction and place them in a new file."""
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())
@@ -370,10 +371,19 @@ class FASTA(FilePath):
         # Return #
         return fraction
 
-    def extract_sequences(self, ids, new_path=None, verbose=False):
+    def extract_sequences(self, ids,
+                          new_path = None,
+                          in_place = False,
+                          verbose  = False):
         """
         Will take all the sequences from the current file who's id appears in
-        the ids given and place them in the new file path given.
+        the ids given and place them in a new file.
+        If no path is given, a new temporary path is created and returned.
+        If `in_place` is set to True, the original file is removed and replaced
+        with the result of the extraction.
+        Optionally, the argument `ids` can be a function which has to take
+        one string as only input and return True for keeping the sequence and
+        False for discarding the sequence.
         """
         # Temporary path #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
@@ -382,12 +392,25 @@ class FASTA(FilePath):
         # Select verbosity #
         import tqdm
         wrapper = tqdm.tqdm if verbose else lambda x: x
-        # Function #
-        def generator(reads):
+        # Simple generator #
+        def simple_match(reads):
             for r in wrapper(reads):
                 if r.id in ids: yield r
+        # Generator with function #
+        def function_match(reads):
+            for r in wrapper(reads):
+                if ids(r.id): yield r
         # Do it #
-        return new_fasta.write(generator(self))
+        if callable(ids):
+            new_fasta.write(function_match(self))
+        else:
+            new_fasta.write(simple_match(self))
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
 
     def remove_trailing_stars(self, new_path=None, in_place=True, check=False):
         """
