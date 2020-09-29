@@ -225,7 +225,7 @@ class FASTA(FilePath):
         # Update the internal path #
         self.path = new_path
         # Return #
-        return self
+        return self.path
 
     def compress_slow(self, new_path):
         &#34;&#34;&#34;Do the compression internally via python.&#34;&#34;&#34;
@@ -384,8 +384,9 @@ class FASTA(FilePath):
             return self
         else: return new_fasta
 
-    def extract_length(self, lower_bound=None, upper_bound=None,
-                       new_path=None):
+    def extract_length(self, lower_bound=None,
+                             upper_bound=None,
+                             new_path=None):
         &#34;&#34;&#34;Extract a certain length fraction and place them in a new file.&#34;&#34;&#34;
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())
@@ -403,10 +404,19 @@ class FASTA(FilePath):
         # Return #
         return fraction
 
-    def extract_sequences(self, ids, new_path=None, verbose=False):
+    def extract_sequences(self, ids,
+                          new_path = None,
+                          in_place = False,
+                          verbose  = False):
         &#34;&#34;&#34;
         Will take all the sequences from the current file who&#39;s id appears in
-        the ids given and place them in the new file path given.
+        the ids given and place them in a new file.
+        If no path is given, a new temporary path is created and returned.
+        If `in_place` is set to True, the original file is removed and replaced
+        with the result of the extraction.
+        Optionally, the argument `ids` can be a function which has to take
+        one string as only input and return True for keeping the sequence and
+        False for discarding the sequence.
         &#34;&#34;&#34;
         # Temporary path #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
@@ -415,12 +425,25 @@ class FASTA(FilePath):
         # Select verbosity #
         import tqdm
         wrapper = tqdm.tqdm if verbose else lambda x: x
-        # Function #
-        def generator(reads):
+        # Simple generator #
+        def simple_match(reads):
             for r in wrapper(reads):
                 if r.id in ids: yield r
+        # Generator with function #
+        def function_match(reads):
+            for r in wrapper(reads):
+                if ids(r.id): yield r
         # Do it #
-        return new_fasta.write(generator(self))
+        if callable(ids):
+            new_fasta.write(function_match(self))
+        else:
+            new_fasta.write(simple_match(self))
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
 
     def remove_trailing_stars(self, new_path=None, in_place=True, check=False):
         &#34;&#34;&#34;
@@ -717,7 +740,7 @@ way. There are several other things you can do with a FASTA file.</p></div>
         # Update the internal path #
         self.path = new_path
         # Return #
-        return self
+        return self.path
 
     def compress_slow(self, new_path):
         &#34;&#34;&#34;Do the compression internally via python.&#34;&#34;&#34;
@@ -876,8 +899,9 @@ way. There are several other things you can do with a FASTA file.</p></div>
             return self
         else: return new_fasta
 
-    def extract_length(self, lower_bound=None, upper_bound=None,
-                       new_path=None):
+    def extract_length(self, lower_bound=None,
+                             upper_bound=None,
+                             new_path=None):
         &#34;&#34;&#34;Extract a certain length fraction and place them in a new file.&#34;&#34;&#34;
         # Temporary path #
         if new_path is None: fraction = self.__class__(new_temp_path())
@@ -895,10 +919,19 @@ way. There are several other things you can do with a FASTA file.</p></div>
         # Return #
         return fraction
 
-    def extract_sequences(self, ids, new_path=None, verbose=False):
+    def extract_sequences(self, ids,
+                          new_path = None,
+                          in_place = False,
+                          verbose  = False):
         &#34;&#34;&#34;
         Will take all the sequences from the current file who&#39;s id appears in
-        the ids given and place them in the new file path given.
+        the ids given and place them in a new file.
+        If no path is given, a new temporary path is created and returned.
+        If `in_place` is set to True, the original file is removed and replaced
+        with the result of the extraction.
+        Optionally, the argument `ids` can be a function which has to take
+        one string as only input and return True for keeping the sequence and
+        False for discarding the sequence.
         &#34;&#34;&#34;
         # Temporary path #
         if new_path is None: new_fasta = self.__class__(new_temp_path())
@@ -907,12 +940,25 @@ way. There are several other things you can do with a FASTA file.</p></div>
         # Select verbosity #
         import tqdm
         wrapper = tqdm.tqdm if verbose else lambda x: x
-        # Function #
-        def generator(reads):
+        # Simple generator #
+        def simple_match(reads):
             for r in wrapper(reads):
                 if r.id in ids: yield r
+        # Generator with function #
+        def function_match(reads):
+            for r in wrapper(reads):
+                if ids(r.id): yield r
         # Do it #
-        return new_fasta.write(generator(self))
+        if callable(ids):
+            new_fasta.write(function_match(self))
+        else:
+            new_fasta.write(simple_match(self))
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
 
     def remove_trailing_stars(self, new_path=None, in_place=True, check=False):
         &#34;&#34;&#34;
@@ -1456,7 +1502,7 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
     # Update the internal path #
     self.path = new_path
     # Return #
-    return self</code></pre>
+    return self.path</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.compress_fast"><code class="name flex">
@@ -1518,8 +1564,9 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_length(self, lower_bound=None, upper_bound=None,
-                   new_path=None):
+<pre><code class="python">def extract_length(self, lower_bound=None,
+                         upper_bound=None,
+                         new_path=None):
     &#34;&#34;&#34;Extract a certain length fraction and place them in a new file.&#34;&#34;&#34;
     # Temporary path #
     if new_path is None: fraction = self.__class__(new_temp_path())
@@ -1539,19 +1586,34 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.extract_sequences"><code class="name flex">
-<span>def <span class="ident">extract_sequences</span></span>(<span>self, ids, new_path=None, verbose=False)</span>
+<span>def <span class="ident">extract_sequences</span></span>(<span>self, ids, new_path=None, in_place=False, verbose=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Will take all the sequences from the current file who's id appears in
-the ids given and place them in the new file path given.</p></div>
+the ids given and place them in a new file.
+If no path is given, a new temporary path is created and returned.
+If <code>in_place</code> is set to True, the original file is removed and replaced
+with the result of the extraction.
+Optionally, the argument <code>ids</code> can be a function which has to take
+one string as only input and return True for keeping the sequence and
+False for discarding the sequence.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_sequences(self, ids, new_path=None, verbose=False):
+<pre><code class="python">def extract_sequences(self, ids,
+                      new_path = None,
+                      in_place = False,
+                      verbose  = False):
     &#34;&#34;&#34;
     Will take all the sequences from the current file who&#39;s id appears in
-    the ids given and place them in the new file path given.
+    the ids given and place them in a new file.
+    If no path is given, a new temporary path is created and returned.
+    If `in_place` is set to True, the original file is removed and replaced
+    with the result of the extraction.
+    Optionally, the argument `ids` can be a function which has to take
+    one string as only input and return True for keeping the sequence and
+    False for discarding the sequence.
     &#34;&#34;&#34;
     # Temporary path #
     if new_path is None: new_fasta = self.__class__(new_temp_path())
@@ -1560,12 +1622,25 @@ the ids given and place them in the new file path given.</p></div>
     # Select verbosity #
     import tqdm
     wrapper = tqdm.tqdm if verbose else lambda x: x
-    # Function #
-    def generator(reads):
+    # Simple generator #
+    def simple_match(reads):
         for r in wrapper(reads):
             if r.id in ids: yield r
+    # Generator with function #
+    def function_match(reads):
+        for r in wrapper(reads):
+            if ids(r.id): yield r
     # Do it #
-    return new_fasta.write(generator(self))</code></pre>
+    if callable(ids):
+        new_fasta.write(function_match(self))
+    else:
+        new_fasta.write(simple_match(self))
+    # Return #
+    if in_place:
+        os.remove(self.path)
+        shutil.move(new_fasta, self.path)
+        return self
+    else: return new_fasta</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.flush"><code class="name flex">
