@@ -63,6 +63,8 @@ class FastQC:
 
             >>> from fasta.fastqc import FastQC
             >>> FastQC.install()
+
+        If you are on macOS you can just type: "brew install fastqc"
         """
         # Start with required apt packages #
         get_apt_packages(cls.apt_packages, verbose=True)
