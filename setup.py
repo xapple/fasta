@@ -27,7 +27,7 @@ setup(
     author           = 'Lucas Sinclair',
     author_email     = 'lucas.sinclair@me.com',
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
-    packages         = find_packages(),
+    packages         = find_namespace_packages(),
     install_requires = ['plumbing>=2.8.5', 'autopaths>=1.4.4', 'biopython',
                         'numpy', 'sh', 'tqdm', 'matplotlib', 'regex'],
     python_requires  = ">=3.6",
