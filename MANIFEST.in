@@ -1,3 +1,4 @@
-include README.md
-include LICENSE.txt
-include pytest.ini
+global-include pytest.ini
+global-include *.fasta
+global-include *.fastq
+global-include *.fastq.gz
