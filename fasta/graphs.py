@@ -13,7 +13,6 @@ from autopaths.file_path import FilePath
 
 # Third party modules #
 import numpy
-from matplotlib import pyplot
 
 # Constants #
 __all__ = ['LengthDist', 'LengthHist']
@@ -37,8 +36,10 @@ class LengthDist(Graph):
         # Data #
         counts = self.parent.lengths_counter
         # Plot #
+        from matplotlib import pyplot
         fig = pyplot.figure()
-        pyplot.bar(counts.keys(), counts.values(), 1.0, color='gray', align='center')
+        pyplot.bar(counts.keys(), counts.values(), 1.0,
+                   color='gray', align='center')
         axes = pyplot.gca()
         # Information #
         title = 'Distribution of sequence lengths'
@@ -75,6 +76,7 @@ class LengthHist(Graph):
             bins = list(numpy.logspace(start=start, stop=stop, num=bins))
             bins.insert(0, 0)
         # Plot #
+        from matplotlib import pyplot
         fig = pyplot.figure()
         pyplot.hist(counts, bins=bins, color='gray')
         axes = pyplot.gca()

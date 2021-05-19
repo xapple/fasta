@@ -39,7 +39,8 @@ class SplitableFASTA(FASTA):
             self.num_parts = int(math.ceil(self.count_bytes / self.bytes_target))
         # Make parts #
         self.make_name = lambda i: self.base_dir + "%03d/part.fasta" % i
-        self.parts = [FASTA(self.make_name(i)) for i in range(1, self.num_parts+1)]
+        self.parts = [FASTA(self.make_name(i))
+                      for i in range(1, self.num_parts+1)]
         # Give a number to each part #
         for i, part in enumerate(self.parts): part.num = i
 

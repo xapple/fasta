@@ -442,7 +442,9 @@ class FASTA(FilePath):
         return AlignedFASTA(out_path)
 
     def template_align(self, ref_path):
-        """We align the sequences in the fasta file with mothur and a template."""
+        """
+        We align the sequences in the fasta file with mothur and a template.
+        """
         # Run it #
         msg = "#align.seqs(candidate=%s, template=%s, search=blast," \
               "flip=false, processors=8);"
@@ -479,8 +481,8 @@ class FASTA(FilePath):
     def graphs(self):
         """
         Sorry for the black magic. The result is an object whose attributes
-        are all the graphs found in `./graphs.py` initialized with this instance
-        as only argument.
+        are all the graphs found in `./graphs.py` initialized with this
+        instance as only argument.
         """
         # Make a dummy object #
         result = Dummy()

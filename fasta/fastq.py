@@ -114,7 +114,7 @@ class FASTQ(FASTA):
         # Stop after #
         max_sequences_to_consider = 2000000
         # Error message #
-        message = "Multiple PHRED encodings possible for '%s'.\n"
+        msg = "Multiple PHRED encodings possible for '%s'.\n"
         # Loop #
         self.open()
         for i, line in enumerate(self.handle):
@@ -128,20 +128,21 @@ class FASTQ(FASTA):
             if current_min < glob_min or current_max > glob_max:
                 glob_min = min(current_min, glob_min)
                 glob_max = max(current_max, glob_max)
-                valid_encodings = [e for e, r in self.intervals.items() if glob_min >= r[0] and glob_max <= r[1]]
+                valid_encodings = [e for e, r in self.intervals.items()
+                                   if glob_min >= r[0] and glob_max <= r[1]]
                 if len(valid_encodings) == 0:
-                    message = "Illegal PHRED encoding for '%s'.\n"
+                    msg = "Illegal PHRED encoding for '%s'.\n"
                     break
                 if len(valid_encodings) == 1:
                     return valid_encodings[0]
             # Stop condition #
             if i >= max_sequences_to_consider: break
         # It didn't work #
-        message += "Maximum detected value is: %s.\n"
-        message += "Minimum detected value is: %s.\n"
-        message += "Possibilities are: %s."
-        message  = message % (self, glob_max, glob_min, ' or '.join(valid_encodings))
-        raise Exception(message)
+        msg += "Maximum detected value is: %s.\n"
+        msg += "Minimum detected value is: %s.\n"
+        msg += "Possibilities are: %s."
+        msg  = msg % (self, glob_max, glob_min, ' or '.join(valid_encodings))
+        raise Exception(msg)
 
     def get_qual_range(self, phred_string):
         """
@@ -155,8 +156,10 @@ class FASTQ(FASTA):
     def phred_13_to_18(self, new_path=None, in_place=True):
         """Illumina-1.3 format conversion to Illumina-1.8 format via BioPython."""
         # New file #
-        if new_path is None: new_fastq = self.__class__(new_temp_path(suffix=self.extension))
-        else:                new_fastq = self.__class__(new_path)
+        if new_path is None:
+            new_fastq = self.__class__(new_temp_path(suffix=self.extension))
+        else:
+            new_fastq = self.__class__(new_path)
         # Do it #
         self.format = 'fastq-illumina'
         new_fastq.open('w')

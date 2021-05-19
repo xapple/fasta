@@ -24,8 +24,8 @@ class PairedFASTA:
 
     format = 'fasta'
 
-    def __len__(self):     return self.count
-    def __iter__(self):    return self.parse()
+    def __len__(self):  return self.count
+    def __iter__(self): return self.parse()
     def __bool__(self): return bool(self.fwd) and bool(self.rev)
     def __repr__(self): return '<%s object on "%s" and "%s">' % \
                         (self.__class__.__name__, self.fwd.path, self.rev.path)
@@ -107,6 +107,7 @@ class PairedFASTA:
 ###############################################################################
 class PairedFASTQ(PairedFASTA):
     """Read and write FASTQ file pairs without using too much RAM."""
+    
     format = 'fastq'
 
     def __init__(self, fwd, rev, parent=None):
