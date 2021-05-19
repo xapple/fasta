@@ -13,7 +13,7 @@ import os, sys
 # Constants #
 url         = 'http://xapple.github.io/fasta/'
 repo_url    = 'http://github.com/xapple/fasta/'
-__version__ = '2.2.7'
+__version__ = '2.2.8'
 
 # Get paths to module #
 self       = sys.modules[__name__]
