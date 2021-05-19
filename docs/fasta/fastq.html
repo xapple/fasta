@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>fasta.fastq API documentation</title>
 <meta name="description" content="Written by Lucas Sinclair.
 MIT Licensed.
@@ -147,7 +147,7 @@ class FASTQ(FASTA):
         # Stop after #
         max_sequences_to_consider = 2000000
         # Error message #
-        message = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
+        msg = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
         # Loop #
         self.open()
         for i, line in enumerate(self.handle):
@@ -161,20 +161,21 @@ class FASTQ(FASTA):
             if current_min &lt; glob_min or current_max &gt; glob_max:
                 glob_min = min(current_min, glob_min)
                 glob_max = max(current_max, glob_max)
-                valid_encodings = [e for e, r in self.intervals.items() if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
+                valid_encodings = [e for e, r in self.intervals.items()
+                                   if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
                 if len(valid_encodings) == 0:
-                    message = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
+                    msg = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
                     break
                 if len(valid_encodings) == 1:
                     return valid_encodings[0]
             # Stop condition #
             if i &gt;= max_sequences_to_consider: break
         # It didn&#39;t work #
-        message += &#34;Maximum detected value is: %s.\n&#34;
-        message += &#34;Minimum detected value is: %s.\n&#34;
-        message += &#34;Possibilities are: %s.&#34;
-        message  = message % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
-        raise Exception(message)
+        msg += &#34;Maximum detected value is: %s.\n&#34;
+        msg += &#34;Minimum detected value is: %s.\n&#34;
+        msg += &#34;Possibilities are: %s.&#34;
+        msg  = msg % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
+        raise Exception(msg)
 
     def get_qual_range(self, phred_string):
         &#34;&#34;&#34;
@@ -188,8 +189,10 @@ class FASTQ(FASTA):
     def phred_13_to_18(self, new_path=None, in_place=True):
         &#34;&#34;&#34;Illumina-1.3 format conversion to Illumina-1.8 format via BioPython.&#34;&#34;&#34;
         # New file #
-        if new_path is None: new_fastq = self.__class__(new_temp_path(suffix=self.extension))
-        else:                new_fastq = self.__class__(new_path)
+        if new_path is None:
+            new_fastq = self.__class__(new_temp_path(suffix=self.extension))
+        else:
+            new_fastq = self.__class__(new_path)
         # Do it #
         self.format = &#39;fastq-illumina&#39;
         new_fastq.open(&#39;w&#39;)
@@ -329,7 +332,7 @@ methods and properties for dealing with the quality scores.</p></div>
         # Stop after #
         max_sequences_to_consider = 2000000
         # Error message #
-        message = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
+        msg = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
         # Loop #
         self.open()
         for i, line in enumerate(self.handle):
@@ -343,20 +346,21 @@ methods and properties for dealing with the quality scores.</p></div>
             if current_min &lt; glob_min or current_max &gt; glob_max:
                 glob_min = min(current_min, glob_min)
                 glob_max = max(current_max, glob_max)
-                valid_encodings = [e for e, r in self.intervals.items() if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
+                valid_encodings = [e for e, r in self.intervals.items()
+                                   if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
                 if len(valid_encodings) == 0:
-                    message = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
+                    msg = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
                     break
                 if len(valid_encodings) == 1:
                     return valid_encodings[0]
             # Stop condition #
             if i &gt;= max_sequences_to_consider: break
         # It didn&#39;t work #
-        message += &#34;Maximum detected value is: %s.\n&#34;
-        message += &#34;Minimum detected value is: %s.\n&#34;
-        message += &#34;Possibilities are: %s.&#34;
-        message  = message % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
-        raise Exception(message)
+        msg += &#34;Maximum detected value is: %s.\n&#34;
+        msg += &#34;Minimum detected value is: %s.\n&#34;
+        msg += &#34;Possibilities are: %s.&#34;
+        msg  = msg % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
+        raise Exception(msg)
 
     def get_qual_range(self, phred_string):
         &#34;&#34;&#34;
@@ -370,8 +374,10 @@ methods and properties for dealing with the quality scores.</p></div>
     def phred_13_to_18(self, new_path=None, in_place=True):
         &#34;&#34;&#34;Illumina-1.3 format conversion to Illumina-1.8 format via BioPython.&#34;&#34;&#34;
         # New file #
-        if new_path is None: new_fastq = self.__class__(new_temp_path(suffix=self.extension))
-        else:                new_fastq = self.__class__(new_path)
+        if new_path is None:
+            new_fastq = self.__class__(new_temp_path(suffix=self.extension))
+        else:
+            new_fastq = self.__class__(new_path)
         # Do it #
         self.format = &#39;fastq-illumina&#39;
         new_fastq.open(&#39;w&#39;)
@@ -550,7 +556,7 @@ documentation was unable to correctly traverse a decorated property.</p></div>
 <span>def <span class="ident">get_qual_range</span></span>(<span>self, phred_string)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code class="python-repl">&gt;&gt;&gt; self.get_qual_range(&quot;DLXYXXRXWYYTPMLUUQWTXTRSXSWMDMTRNDNSMJFJFFRMV&quot;)
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; self.get_qual_range(&quot;DLXYXXRXWYYTPMLUUQWTXTRSXSWMDMTRNDNSMJFJFFRMV&quot;)
 (68, 89)
 </code></pre></div>
 <details class="source">
@@ -599,7 +605,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
     # Stop after #
     max_sequences_to_consider = 2000000
     # Error message #
-    message = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
+    msg = &#34;Multiple PHRED encodings possible for &#39;%s&#39;.\n&#34;
     # Loop #
     self.open()
     for i, line in enumerate(self.handle):
@@ -613,20 +619,21 @@ In other words, they finally gave up with their alternative standards.</p></div>
         if current_min &lt; glob_min or current_max &gt; glob_max:
             glob_min = min(current_min, glob_min)
             glob_max = max(current_max, glob_max)
-            valid_encodings = [e for e, r in self.intervals.items() if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
+            valid_encodings = [e for e, r in self.intervals.items()
+                               if glob_min &gt;= r[0] and glob_max &lt;= r[1]]
             if len(valid_encodings) == 0:
-                message = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
+                msg = &#34;Illegal PHRED encoding for &#39;%s&#39;.\n&#34;
                 break
             if len(valid_encodings) == 1:
                 return valid_encodings[0]
         # Stop condition #
         if i &gt;= max_sequences_to_consider: break
     # It didn&#39;t work #
-    message += &#34;Maximum detected value is: %s.\n&#34;
-    message += &#34;Minimum detected value is: %s.\n&#34;
-    message += &#34;Possibilities are: %s.&#34;
-    message  = message % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
-    raise Exception(message)</code></pre>
+    msg += &#34;Maximum detected value is: %s.\n&#34;
+    msg += &#34;Minimum detected value is: %s.\n&#34;
+    msg += &#34;Possibilities are: %s.&#34;
+    msg  = msg % (self, glob_max, glob_min, &#39; or &#39;.join(valid_encodings))
+    raise Exception(msg)</code></pre>
 </details>
 </dd>
 <dt id="fasta.fastq.FASTQ.phred_13_to_18"><code class="name flex">
@@ -641,8 +648,10 @@ In other words, they finally gave up with their alternative standards.</p></div>
 <pre><code class="python">def phred_13_to_18(self, new_path=None, in_place=True):
     &#34;&#34;&#34;Illumina-1.3 format conversion to Illumina-1.8 format via BioPython.&#34;&#34;&#34;
     # New file #
-    if new_path is None: new_fastq = self.__class__(new_temp_path(suffix=self.extension))
-    else:                new_fastq = self.__class__(new_path)
+    if new_path is None:
+        new_fastq = self.__class__(new_temp_path(suffix=self.extension))
+    else:
+        new_fastq = self.__class__(new_path)
     # Do it #
     self.format = &#39;fastq-illumina&#39;
     new_fastq.open(&#39;w&#39;)
@@ -801,7 +810,7 @@ In other words, they finally gave up with their alternative standards.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>
