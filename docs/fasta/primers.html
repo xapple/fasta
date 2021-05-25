@@ -47,7 +47,7 @@ import re
 from plumbing.color  import Color
 
 # Third party modules #
-import Bio, regex
+import Bio
 from Bio.Seq import Seq
 
 # Constants #
@@ -93,6 +93,7 @@ class TwoPrimers:
 
     def make_regex(self, pat, mismatches):
         &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+        import regex
         return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))
 
     def make_fwd_regex(self, mismatches):
@@ -431,6 +432,7 @@ Has methods for generating regexes to search for these primers.</p></div>
 
     def make_regex(self, pat, mismatches):
         &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+        import regex
         return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))
 
     def make_fwd_regex(self, mismatches):
@@ -484,6 +486,7 @@ Has methods for generating regexes to search for these primers.</p></div>
 </summary>
 <pre><code class="python">def make_regex(self, pat, mismatches):
     &#34;&#34;&#34;Complex search expression with mismatches this time.&#34;&#34;&#34;
+    import regex
     return regex.compile(&#34;(%s){s&lt;=%i}&#34; % (pat, mismatches))</code></pre>
 </details>
 </dd>
