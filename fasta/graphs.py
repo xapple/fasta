@@ -68,6 +68,8 @@ class LengthHist(Graph):
         self.path = FilePath(self.parent.prefix_path + '_len_hist.pdf')
 
     def plot(self, bins=80, **kwargs):
+        # Import numpy #
+        import numpy
         # Data #
         counts = list(self.parent.lengths)
         # Linear bins in logarithmic space #

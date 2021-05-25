@@ -14,7 +14,7 @@ import re
 from plumbing.color  import Color
 
 # Third party modules #
-import Bio, regex
+import Bio
 from Bio.Seq import Seq
 
 # Constants #
@@ -60,6 +60,7 @@ class TwoPrimers:
 
     def make_regex(self, pat, mismatches):
         """Complex search expression with mismatches this time."""
+        import regex
         return regex.compile("(%s){s<=%i}" % (pat, mismatches))
 
     def make_fwd_regex(self, mismatches):
