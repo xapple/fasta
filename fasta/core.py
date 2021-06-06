@@ -433,6 +433,51 @@ class FASTA(FilePath):
         # Return #
         return new_fasta
 
+    def _generator_mod(self, generator, new_path=None, in_place=True):
+        """
+        Generic way of modifying the current fasta either in place or
+        with a new destination pass.
+        Simply, pass a generator function that will yield the new sequences
+        given the current ones.
+        """
+        # Temporary path #
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else: new_fasta = self.__class__(new_path)
+        # Do it #
+        new_fasta.write(generator())
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
+
+    def remove_duplicates(self, new_path=None, in_place=True):
+        """
+        If several entries have the same ID in the FASTA file, keep only the
+        first appearance and remove all the others.
+        """
+        # Generator #
+        def unique_entries():
+            seen = set()
+            for i, read in enumerate(self):
+                if read.id in seen: continue
+                else:
+                    seen.add(read.id)
+                    yield read
+        # Return #
+        return self._generator_mod(unique_entries, new_path, in_place)
+
+    def convert_U_to_T(self, new_path=None, in_place=True):
+        # Generator #
+        def all_U_to_T():
+            for i, read in enumerate(self):
+                read.seq = read.seq.back_transcribe()
+                yield read
+        # Return #
+        return self._generator_mod(all_U_to_T, new_path, in_place)
+
     #---------------------------- Third party programs -----------------------#
     def align(self, out_path=None):
         """We align the sequences in the fasta file with muscle."""
