@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, multiprocessing
+import os, multiprocessing, platform
 from collections import OrderedDict
 
 # Internal modules #
@@ -18,9 +18,11 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
-import sh, shutil
+import shutil
 from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
+if platform.system() == 'Windows': import pbs3 as sh
+else: import sh
 
 ################################################################################
 class AlignedFASTA(FASTA):

@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, sys, shutil
+import os, sys, shutil, platform
 
 # Internal modules #
 from fasta import FASTA
@@ -20,8 +20,9 @@ from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
 # Third party modules #
-import sh
 from Bio import SeqIO
+if platform.system() == 'Windows': import pbs3 as sh
+else: import sh
 
 ################################################################################
 class FASTQ(FASTA):

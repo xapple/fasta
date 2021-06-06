@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, shutil, multiprocessing
+import os, shutil, multiprocessing, platform
 
 # First party modules #
 from fasta import FASTQ
@@ -20,7 +20,8 @@ from plumbing.apt_pkg         import get_apt_packages
 from plumbing.scraping        import download_from_url
 
 # Third party modules #
-import sh
+if platform.system() == 'Windows': import pbs3 as sh
+else: import sh
 
 ###############################################################################
 class FastQC:

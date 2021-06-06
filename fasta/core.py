@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, sys, io, gzip, shutil, itertools
+import os, sys, io, gzip, shutil, itertools, platform
 from collections import Counter, OrderedDict
 from six import string_types
 
@@ -23,11 +23,12 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path
 
 # Third party modules #
-import sh
 from tqdm import tqdm
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
+if platform.system() == 'Windows': import pbs3 as sh
+else: import sh
 
 # Constants #
 class Dummy: pass
