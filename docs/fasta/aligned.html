@@ -41,7 +41,7 @@ Contact at www.sinclair.bio
 &#34;&#34;&#34;
 
 # Built-in modules #
-import os, multiprocessing
+import os, multiprocessing, platform
 from collections import OrderedDict
 
 # Internal modules #
@@ -51,9 +51,11 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
-import sh, shutil
+import shutil
 from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
+if platform.system() == &#39;Windows&#39;: import pbs3 as sh
+else: import sh
 
 ################################################################################
 class AlignedFASTA(FASTA):
@@ -574,6 +576,7 @@ Need to rename all sequences, because it will complain with long names.</p></div
 <li><code><a title="fasta.core.FASTA.lengths_counter" href="core.html#fasta.core.FASTA.lengths_counter">lengths_counter</a></code></li>
 <li><code><a title="fasta.core.FASTA.parse_primers" href="core.html#fasta.core.FASTA.parse_primers">parse_primers</a></code></li>
 <li><code><a title="fasta.core.FASTA.progress" href="core.html#fasta.core.FASTA.progress">progress</a></code></li>
+<li><code><a title="fasta.core.FASTA.remove_duplicates" href="core.html#fasta.core.FASTA.remove_duplicates">remove_duplicates</a></code></li>
 <li><code><a title="fasta.core.FASTA.remove_trailing_stars" href="core.html#fasta.core.FASTA.remove_trailing_stars">remove_trailing_stars</a></code></li>
 <li><code><a title="fasta.core.FASTA.rename_sequences" href="core.html#fasta.core.FASTA.rename_sequences">rename_sequences</a></code></li>
 <li><code><a title="fasta.core.FASTA.rename_with_num" href="core.html#fasta.core.FASTA.rename_with_num">rename_with_num</a></code></li>

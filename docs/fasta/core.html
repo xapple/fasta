@@ -41,7 +41,7 @@ Contact at www.sinclair.bio
 &#34;&#34;&#34;
 
 # Built-in modules #
-import os, sys, io, gzip, shutil, itertools
+import os, sys, io, gzip, shutil, itertools, platform
 from collections import Counter, OrderedDict
 from six import string_types
 
@@ -56,11 +56,12 @@ from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path
 
 # Third party modules #
-import sh
 from tqdm import tqdm
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
+if platform.system() == &#39;Windows&#39;: import pbs3 as sh
+else: import sh
 
 # Constants #
 class Dummy: pass
@@ -465,6 +466,51 @@ class FASTA(FilePath):
         new_fasta.close()
         # Return #
         return new_fasta
+
+    def _generator_mod(self, generator, new_path=None, in_place=True):
+        &#34;&#34;&#34;
+        Generic way of modifying the current fasta either in place or
+        with a new destination pass.
+        Simply, pass a generator function that will yield the new sequences
+        given the current ones.
+        &#34;&#34;&#34;
+        # Temporary path #
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else: new_fasta = self.__class__(new_path)
+        # Do it #
+        new_fasta.write(generator())
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
+
+    def remove_duplicates(self, new_path=None, in_place=True):
+        &#34;&#34;&#34;
+        If several entries have the same ID in the FASTA file, keep only the
+        first appearance and remove all the others.
+        &#34;&#34;&#34;
+        # Generator #
+        def unique_entries():
+            seen = set()
+            for i, read in enumerate(self):
+                if read.id in seen: continue
+                else:
+                    seen.add(read.id)
+                    yield read
+        # Return #
+        return self._generator_mod(unique_entries, new_path, in_place)
+
+    def convert_U_to_T(self, new_path=None, in_place=True):
+        # Generator #
+        def all_U_to_T():
+            for i, read in enumerate(self):
+                read.seq = read.seq.back_transcribe()
+                yield read
+        # Return #
+        return self._generator_mod(all_U_to_T, new_path, in_place)
 
     #---------------------------- Third party programs -----------------------#
     def align(self, out_path=None):
@@ -982,6 +1028,51 @@ way. There are several other things you can do with a FASTA file.</p></div>
         new_fasta.close()
         # Return #
         return new_fasta
+
+    def _generator_mod(self, generator, new_path=None, in_place=True):
+        &#34;&#34;&#34;
+        Generic way of modifying the current fasta either in place or
+        with a new destination pass.
+        Simply, pass a generator function that will yield the new sequences
+        given the current ones.
+        &#34;&#34;&#34;
+        # Temporary path #
+        if new_path is None: new_fasta = self.__class__(new_temp_path())
+        elif isinstance(new_path, FASTA): new_fasta = new_path
+        else: new_fasta = self.__class__(new_path)
+        # Do it #
+        new_fasta.write(generator())
+        # Return #
+        if in_place:
+            os.remove(self.path)
+            shutil.move(new_fasta, self.path)
+            return self
+        else: return new_fasta
+
+    def remove_duplicates(self, new_path=None, in_place=True):
+        &#34;&#34;&#34;
+        If several entries have the same ID in the FASTA file, keep only the
+        first appearance and remove all the others.
+        &#34;&#34;&#34;
+        # Generator #
+        def unique_entries():
+            seen = set()
+            for i, read in enumerate(self):
+                if read.id in seen: continue
+                else:
+                    seen.add(read.id)
+                    yield read
+        # Return #
+        return self._generator_mod(unique_entries, new_path, in_place)
+
+    def convert_U_to_T(self, new_path=None, in_place=True):
+        # Generator #
+        def all_U_to_T():
+            for i, read in enumerate(self):
+                read.seq = read.seq.back_transcribe()
+                yield read
+        # Return #
+        return self._generator_mod(all_U_to_T, new_path, in_place)
 
     #---------------------------- Third party programs -----------------------#
     def align(self, out_path=None):
@@ -1541,6 +1632,25 @@ indexed fashion, and use the blaze library via sql.frame</p></div>
         shutil.copyfileobj(self.open(&#39;rb&#39;), handle)</code></pre>
 </details>
 </dd>
+<dt id="fasta.core.FASTA.convert_U_to_T"><code class="name flex">
+<span>def <span class="ident">convert_U_to_T</span></span>(<span>self, new_path=None, in_place=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_U_to_T(self, new_path=None, in_place=True):
+    # Generator #
+    def all_U_to_T():
+        for i, read in enumerate(self):
+            read.seq = read.seq.back_transcribe()
+            yield read
+    # Return #
+    return self._generator_mod(all_U_to_T, new_path, in_place)</code></pre>
+</details>
+</dd>
 <dt id="fasta.core.FASTA.create"><code class="name flex">
 <span>def <span class="ident">create</span></span>(<span>self)</span>
 </code></dt>
@@ -1784,6 +1894,33 @@ of all primers found.</p></div>
     generator = GenWithLength(generator, len(self))
     # Return #
     return generator</code></pre>
+</details>
+</dd>
+<dt id="fasta.core.FASTA.remove_duplicates"><code class="name flex">
+<span>def <span class="ident">remove_duplicates</span></span>(<span>self, new_path=None, in_place=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>If several entries have the same ID in the FASTA file, keep only the
+first appearance and remove all the others.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_duplicates(self, new_path=None, in_place=True):
+    &#34;&#34;&#34;
+    If several entries have the same ID in the FASTA file, keep only the
+    first appearance and remove all the others.
+    &#34;&#34;&#34;
+    # Generator #
+    def unique_entries():
+        seen = set()
+        for i, read in enumerate(self):
+            if read.id in seen: continue
+            else:
+                seen.add(read.id)
+                yield read
+    # Return #
+    return self._generator_mod(unique_entries, new_path, in_place)</code></pre>
 </details>
 </dd>
 <dt id="fasta.core.FASTA.remove_trailing_stars"><code class="name flex">
@@ -2037,6 +2174,7 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
 <li><code><a title="fasta.core.FASTA.compress" href="#fasta.core.FASTA.compress">compress</a></code></li>
 <li><code><a title="fasta.core.FASTA.compress_fast" href="#fasta.core.FASTA.compress_fast">compress_fast</a></code></li>
 <li><code><a title="fasta.core.FASTA.compress_slow" href="#fasta.core.FASTA.compress_slow">compress_slow</a></code></li>
+<li><code><a title="fasta.core.FASTA.convert_U_to_T" href="#fasta.core.FASTA.convert_U_to_T">convert_U_to_T</a></code></li>
 <li><code><a title="fasta.core.FASTA.count" href="#fasta.core.FASTA.count">count</a></code></li>
 <li><code><a title="fasta.core.FASTA.create" href="#fasta.core.FASTA.create">create</a></code></li>
 <li><code><a title="fasta.core.FASTA.ext" href="#fasta.core.FASTA.ext">ext</a></code></li>
@@ -2058,6 +2196,7 @@ the mapping dictionary also provided. In place or at a new path.</p></div>
 <li><code><a title="fasta.core.FASTA.parse" href="#fasta.core.FASTA.parse">parse</a></code></li>
 <li><code><a title="fasta.core.FASTA.parse_primers" href="#fasta.core.FASTA.parse_primers">parse_primers</a></code></li>
 <li><code><a title="fasta.core.FASTA.progress" href="#fasta.core.FASTA.progress">progress</a></code></li>
+<li><code><a title="fasta.core.FASTA.remove_duplicates" href="#fasta.core.FASTA.remove_duplicates">remove_duplicates</a></code></li>
 <li><code><a title="fasta.core.FASTA.remove_trailing_stars" href="#fasta.core.FASTA.remove_trailing_stars">remove_trailing_stars</a></code></li>
 <li><code><a title="fasta.core.FASTA.rename_sequences" href="#fasta.core.FASTA.rename_sequences">rename_sequences</a></code></li>
 <li><code><a title="fasta.core.FASTA.rename_with_num" href="#fasta.core.FASTA.rename_with_num">rename_with_num</a></code></li>
