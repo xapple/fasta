@@ -8,11 +8,12 @@ Contact at www.sinclair.bio
 """
 
 # Internal modules #
+
+# First party modules #
 from plumbing.graphs import Graph
 from autopaths.file_path import FilePath
 
 # Third party modules #
-import numpy
 
 # Constants #
 __all__ = ['LengthDist', 'LengthHist']
