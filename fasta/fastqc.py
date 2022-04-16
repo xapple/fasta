@@ -28,7 +28,7 @@ class FastQC:
     """
     Takes care of running the FastQC program on a given FASTQ file.
     See http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-    Expects version 0.11.9.
+    Expects version 0.11.9 from 2019-01-08.
     """
 
     def __repr__(self):
@@ -66,6 +66,8 @@ class FastQC:
             >>> FastQC.install()
 
         If you are on macOS you can just type: "brew install fastqc"
+        If you are on Ubuntu you can just type "sudo apt install fastqc"
+        Note that it requires a java runtime to be installed alongside.
         """
         # Start with required apt packages #
         get_apt_packages(cls.apt_packages, verbose=True)
