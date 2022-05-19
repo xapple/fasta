@@ -520,7 +520,7 @@ class FASTA(FilePath):
         sh.samtools('faidx', self.path)
         return FilePath(self.path + '.fai')
 
-    def index_bwa(self, out_path=None, verbose=False):
+    def index_bwa(self, out_path=None, verbose=True):
         """
         Create an index on the fasta file compatible with BWA.
         This will take up approximately five times the disk space of the
@@ -540,7 +540,9 @@ class FASTA(FilePath):
             options['_out'] = sys.stdout
             options['_err'] = sys.stderr
         # Call the BWA executable #
-        sh.bwa('index', self.path, **options)
+        cmd = sh.bwa('index', self.path, **options)
+        # Show the full command #
+        if verbose: print("Ran the following command:\n  $ %s" % cmd.ran)
         # Return #
         return FilePath(out_path + '.bwt')
 
