@@ -10,11 +10,18 @@ Contact at www.sinclair.bio
 # Imports #
 from setuptools import setup, find_namespace_packages
 from os import path
+from platform import system
 
 # Load the contents of the README file #
 this_dir = path.abspath(path.dirname(__file__))
 readme_path = path.join(this_dir, 'README.md')
 with open(readme_path, encoding='utf-8') as handle: readme = handle.read()
+
+install_requires = ['autopaths>=1.5.0', 'plumbing>=2.10.4', 'biopython', 'tqdm']
+if system() == 'Windows': 
+    install_requires.append('pbs3')
+else:
+    install_requires.append('sh')
 
 # Call setup #
 setup(
@@ -28,8 +35,7 @@ setup(
     author_email     = 'lucas.sinclair@me.com',
     classifiers      = ['Topic :: Scientific/Engineering :: Bio-Informatics'],
     packages         = find_namespace_packages(),
-    install_requires = ['autopaths>=1.5.0', 'plumbing>=2.10.4',
-                        'biopython', 'sh', 'tqdm'],
+    install_requires = install_requires,
     extras_require   = {'graphs':  ['numpy', 'matplotlib'],
                         'primers': ['regex']},
     python_requires  = ">=3.8",
