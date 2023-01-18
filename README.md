@@ -104,4 +104,4 @@ More documentation is available at:
 
 This documentation is simply generated from the source code with:
 
-    $ pdoc --html --output-dir docs --force fasta
+    $ pdoc --output-dir docs fasta
