@@ -24,16 +24,13 @@ from autopaths.tmp_path  import new_temp_path
 
 # Third party modules #
 from tqdm import tqdm
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
 if platform.system() == 'Windows': import pbs3 as sh
 else: import sh
 
 # Constants #
 class Dummy: pass
 
-################################################################################
+###############################################################################
 class FASTA(FilePath):
     """
     A single FASTA file somewhere in the filesystem. You can read from it in
@@ -73,6 +70,7 @@ class FASTA(FilePath):
     @property
     def first(self):
         """Just the first sequence."""
+        from Bio import SeqIO
         self.open()
         seq = next(SeqIO.parse(self.handle, self.format))
         self.close()
@@ -125,6 +123,7 @@ class FASTA(FilePath):
 
     def parse(self):
         self.open()
+        from Bio import SeqIO
         return SeqIO.parse(self.handle, self.format)
 
     @property
@@ -152,6 +151,8 @@ class FASTA(FilePath):
 
     def add_str(self, seq, name=None, description=""):
         """Use this method to add a sequence as a string to this fasta."""
+        from Bio.SeqRecord import SeqRecord
+        from Bio.Seq import Seq
         self.add_seq(SeqRecord(Seq(seq), id=name, description=description))
 
     def add_fasta(self, path):
@@ -165,11 +166,13 @@ class FASTA(FilePath):
 
     def flush(self):
         """Empty the buffer."""
+        from Bio import SeqIO
         for seq in self.buffer:
             SeqIO.write(seq, self.handle, self.format)
         self.buffer = []
 
     def write(self, reads):
+        from Bio import SeqIO
         if not self.directory.exists: self.directory.create()
         self.open('w')
         SeqIO.write(reads, self.handle, self.format)
@@ -561,4 +564,3 @@ class FASTA(FilePath):
         generator = GenWithLength(generator, len(self))
         # Return #
         return generator
-

@@ -20,7 +20,6 @@ from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
 # Third party modules #
-from Bio import SeqIO
 if platform.system() == 'Windows': import pbs3 as sh
 else: import sh
 
@@ -61,6 +60,7 @@ class FASTQ(FASTA):
 
     #----------------------------- Conversion --------------------------------#
     def to_fasta(self, path, verbose=False):
+        from Bio import SeqIO
         # Select verbosity #
         import tqdm
         wrapper = tqdm.tqdm if verbose else lambda x: x
@@ -71,6 +71,7 @@ class FASTQ(FASTA):
         return FASTA(path)
 
     def to_qual(self, path, verbose=False):
+        from Bio import SeqIO
         # Select verbosity #
         import tqdm
         wrapper = tqdm.tqdm if verbose else lambda x: x

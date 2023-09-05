@@ -14,8 +14,6 @@ import re
 from plumbing.color  import Color
 
 # Third party modules #
-import Bio
-from Bio.Seq import Seq
 
 # Constants #
 iupac = {'A':'A',    'G':'G',   'T':'T',   'C':'C',
@@ -36,6 +34,7 @@ class TwoPrimers:
     def __len__(self): return 2
 
     def __init__(self, fwd_str, rev_str):
+        from Bio.Seq import Seq
         # Original strings #
         self.fwd_str = fwd_str
         self.rev_str = rev_str
@@ -43,8 +42,8 @@ class TwoPrimers:
         self.fwd_len = len(self.fwd_str)
         self.rev_len = len(self.rev_str)
         # Sequences as biopython objects #
-        self.fwd_seq = Bio.Seq.Seq(self.fwd_str)
-        self.rev_seq = Bio.Seq.Seq(self.rev_str)
+        self.fwd_seq = Seq(self.fwd_str)
+        self.rev_seq = Seq(self.rev_str)
         # Create search patterns in regex syntax #
         self.fwd_pat = iupac_pattern(self.fwd_seq)
         self.rev_pat = iupac_pattern(self.rev_seq)

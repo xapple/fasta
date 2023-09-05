@@ -96,6 +96,8 @@ class PairedFASTA:
         dest_pair.close()
         # Did it work #
         assert len(dest_pair) == down_to
+        # Return #
+        return dest_pair
 
     #------------------------------- Extensions ------------------------------#
     def parse_primers(self, *args, **kwargs):
@@ -107,7 +109,7 @@ class PairedFASTA:
 ###############################################################################
 class PairedFASTQ(PairedFASTA):
     """Read and write FASTQ file pairs without using too much RAM."""
-    
+
     format = 'fastq'
 
     def __init__(self, fwd, rev, parent=None):

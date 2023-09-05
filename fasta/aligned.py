@@ -19,8 +19,6 @@ from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
 import shutil
-from Bio import AlignIO
-from Bio.Align import MultipleSeqAlignment
 if platform.system() == 'Windows': import pbs3 as sh
 else: import sh
 
@@ -33,15 +31,19 @@ class AlignedFASTA(FASTA):
 
     def parse(self):
         self.open()
+        from Bio import AlignIO
         return AlignIO.read(self.handle, self.format)
 
     def add_seq(self, seq):
         self.buffer.append(seq)
 
     def flush(self):
+        from Bio import AlignIO
+        from Bio.Align import MultipleSeqAlignment
         AlignIO.write(MultipleSeqAlignment(self.buffer), self.handle, self.format)
 
     def write(self, reads):
+        from Bio import AlignIO
         if not self.directory.exists: self.directory.create()
         self.open('w')
         AlignIO.write(reads, self.handle, self.format)
@@ -147,4 +149,3 @@ class AlignedFASTA(FASTA):
         sh.FastTree(*command_args)
         # Return #
         return FilePath(new_path)
-

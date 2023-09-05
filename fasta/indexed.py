@@ -16,9 +16,6 @@ from plumbing.databases.sqlite_database import SQLiteDatabase
 from plumbing.common import GenWithLength
 
 # Third party modules #
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
 from tqdm import tqdm
 
 # Constants #
@@ -28,6 +25,8 @@ base_keys = ('id', 'description', 'seq')
 class DatabaseFASTA(SQLiteDatabase):
 
     def __init__(self, path=None):
+        from Bio.SeqRecord import SeqRecord
+        from Bio.Seq import Seq
         self.path = path
         self.factory = lambda cursor, row: SeqRecord(Seq(row[2]), id=row[0], description=row[1])
 
@@ -36,6 +35,7 @@ class DatabaseFASTA(SQLiteDatabase):
 
 ###############################################################################
 def generate_values(path, progress=False):
+    from Bio import SeqIO
     seqs = SeqIO.parse(path, 'fasta')
     if not progress:
         for seq in seqs: yield seq.id, seq.description, str(seq.seq)

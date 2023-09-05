@@ -14,10 +14,6 @@ import re
 from fasta import FASTA
 from plumbing.cache import property_cached
 
-# Third party modules #
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
-
 ###############################################################################
 class SizesFASTA(FASTA):
     """A FASTA file with size annotation affecting the count."""
@@ -30,4 +26,6 @@ class SizesFASTA(FASTA):
 
     def add_str(self, seq, name=None, size=1, desc=""):
         """Use this method to add a sequence as a string to this fasta."""
+        from Bio.SeqRecord import SeqRecord
+        from Bio.Seq import Seq
         self.add_seq(SeqRecord(Seq(seq), id=name + ';size=%i;' % size, description=desc))

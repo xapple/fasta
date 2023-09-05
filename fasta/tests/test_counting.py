@@ -15,7 +15,7 @@ terminal from the repository root:
 """
 
 # Built-in modules #
-import sys, inspect
+import inspect
 
 # First party modules #
 from autopaths import Path
