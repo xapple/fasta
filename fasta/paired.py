@@ -85,7 +85,7 @@ class PairedFASTA:
     def subsample(self, down_to, dest_pair=None):
         # Check size #
         assert down_to < len(self)
-        # Make new pair of files #
+        # Make a new pair of files #
         if dest_pair is None:
             dest_fwd_path = self.fwd.path.new_name_insert("subsampled")
             dest_rev_path = self.rev.path.new_name_insert("subsampled")
