@@ -7,8 +7,6 @@ MIT Licensed.
 Contact at www.sinclair.bio
 """
 
-# Built-in modules #
-
 # Internal modules #
 from fasta import FASTA
 

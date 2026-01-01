@@ -7,7 +7,7 @@ MIT Licensed.
 Contact at www.sinclair.bio
 
 This file contains tests to be run automatically with the pytest
-executable. To run all the tests just type the following on your
+executable. To run all the tests, just type the following on your
 terminal from the repository root:
 
     $ python3 -m pip install --upgrade --user pytest

@@ -13,8 +13,6 @@ import os, sys, math, shutil
 # Internal modules #
 from fasta import FASTA
 
-# Third party modules #
-
 ###############################################################################
 class SplitableFASTA(FASTA):
     """

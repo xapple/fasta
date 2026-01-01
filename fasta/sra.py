@@ -4,8 +4,6 @@
 # Built-in modules #
 import sys, os, functools, uuid, inspect, multiprocessing
 
-# Internal modules #
-
 # First party modules #
 from autopaths import Path
 from autopaths.file_path import FilePath
