@@ -109,6 +109,50 @@ The `fasta` package is capable of producing certain types of graphs, such as a h
     graph = fastq.graphs.length_hist.plot()
     print(graph.path)
 
+### Renaming sequences
+
+If you need to rewrite sequence IDs (for example, to add a consistent sample prefix), you can do the following:
+
+    from fasta import FASTQ
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    renamed = fastq.rename_with_prefix(prefix="sample_", new_path="~/repos/fasta/test/data/seqs.renamed.fastq")
+    print(renamed.first.id)
+
+### Quality stats
+
+To get a quick average quality score across all reads in a FASTQ file:
+
+    from fasta import FASTQ
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    print(round(fastq.avg_quality, 2))
+
+### Converting FASTQ to FASTA
+
+If you need a FASTA version of a FASTQ file, you can convert it like this:
+
+    from fasta import FASTQ
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    fasta = fastq.to_fasta("~/repos/fasta/test/data/seqs.fasta")
+    print(fasta.count)
+
+### Removing duplicate sequences
+
+To drop duplicate sequences and write a new file:
+
+    from fasta import FASTA
+    fasta = FASTA("~/repos/fasta/test/data/seqs.fasta")
+    unique = fasta.remove_duplicates(new_path="~/repos/fasta/test/data/seqs.unique.fasta")
+    print(len(unique))
+
+### Indexing for aligners
+
+To create a BWA index for a FASTA reference:
+
+    from fasta import FASTA
+    fasta = FASTA("~/repos/fasta/test/data/seqs.fasta")
+    index = fasta.index_bwa()
+    print(index)
+
 ### Others
 
 The `fasta` package offers many other functions which have not been documented here yet. They can be discovered by looking at the source code or exploring the extra documentation below.
