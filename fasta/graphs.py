@@ -30,8 +30,13 @@ class LengthDist(Graph):
     remove_frame = True
 
     def __init__(self, parent):
+        # The instance that created us #
         self.parent = parent
-        self.path = FilePath(self.parent.prefix_path + '_len_dist.pdf')
+        # Add a seperator only if we need to #
+        if self.parent.prefix_path.endswith('/'): sep = ''
+        else: sep = '_'
+        # The output path of the graph #
+        self.path = FilePath(self.parent.prefix_path + sep + 'len_dist.pdf')
 
     def plot(self, **kwargs):
         # Data #

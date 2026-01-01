@@ -62,35 +62,52 @@ Then, to run the FastQC software on that file automatically, do the following:
 Next, to randomly pick a hundred sequences from the FASTQ file and put them in a new FASTQ file, use these commands:
 
     from fasta import FASTQ
-    #TODO this example is not completed yet
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    subsampled = fastq.subsample(100, new_path="~/repos/fasta/test/data/seqs.subsampled.fastq")
+    print(len(subsampled))
+    100
 
 ### Working with forward and reverse reads
 
 The `fasta` package also offers convenient ways of dealing with paired sequence files, where one has two FASTQ files with the same number of sequences in each file. Here is an example:
 
-    from fasta import FASTQ
-    #TODO this example is not completed yet
+    from fasta import PairedFASTQ
+    pair = PairedFASTQ("~/repos/fasta/test/data/reads_R1.fastq",
+                       "~/repos/fasta/test/data/reads_R2.fastq")
+    print(len(pair))
+    1401
+    fwd, rev = pair.first
+    print(fwd.id, rev.id)
 
 ### Splitting FASTA files into sub-files
 
 The `fasta` package also offers convenient ways of dealing with large number of sequences by automatically splitting them into an arbitrary number of smaller FASTA files. This is useful for the parallelization of certain operations. Here is an example:
 
-    from fasta import FASTQ
-    #TODO this example is not completed yet
+    from fasta import SplitableFASTA
+    fasta = SplitableFASTA("~/repos/fasta/test/data/seqs.fasta", num_parts=4)
+    fasta.run()
+    print([p.path for p in fasta.parts])
 
 ### Parsing FASTA files with primers
 
 The `fasta` package also offers functionality to parse reads from a FASTA file while automatically detecting the position of any forward and reverse primers, as well as the lack thereof. This is useful for filtering sequences and controlling quality. Here is an example:
 
     from fasta import FASTQ
-    #TODO this example is not completed yet
+    from fasta.primers import TwoPrimers
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    primers = TwoPrimers("GTGCCAGCMGCCGCGGTAA", "GGACTACHVGGGTWTCTAAT")
+    reads = fastq.parse_primers(primers, mismatches=2)
+    first = next(iter(reads))
+    print(first.fwd_srt, first.rev_srt)
 
 ### Producing visualizations
 
 The `fasta` package is capable of producing certain types of graphs, such as a histogram of the sequence length distribution within a FASTA file:
 
     from fasta import FASTQ
-    #TODO this example is not completed yet
+    fastq = FASTQ("~/repos/fasta/test/data/seqs.fastq")
+    graph = fastq.graphs.length_hist.plot()
+    print(graph.path)
 
 ### Others
 

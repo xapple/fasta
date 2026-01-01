@@ -35,17 +35,24 @@ class FASTQ(FASTA):
     format = 'fastq'
 
     #----------------------------- Properties --------------------------------#
-    @property_cached
-    def count(self):
+    def count_total(self):
+        # Message for debugging purposes #
+        if self.debug:
+            print("-> counting reads in `%s`" % self.path)
         # Import module #
         from shell_command import shell_output
         # Case when we are not compressed #
         if not self.gzipped:
-            return int(int(shell_output("cat %s | wc -l" % self.path)) / 4)
+            count = int(shell_output("cat %s | wc -l" % self.path))
         # If we are gzipped we can just use zcat or gzcat on macOS #
-        program = 'gzcat' if sys.platform != 'linux' else 'zcat'
-        command = "%s %s | wc -l" % (program, self.path)
-        return int(int(shell_output(command)) / 4)
+        else:
+            program = 'gzcat' if sys.platform != 'linux' else 'zcat'
+            command = "%s %s | wc -l" % (program, self.path)
+            count = int(shell_output(command))
+        # Check it is a multiple of four #
+        assert count % 4 == 0
+        # Return #
+        return int(count / 4)
 
     @property_cached
     def avg_quality(self):

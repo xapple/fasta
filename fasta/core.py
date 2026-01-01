@@ -13,24 +13,19 @@ from collections import Counter, OrderedDict
 from six import string_types
 
 # Internal modules #
-from fasta import graphs
 
 # First party modules #
-from plumbing.common     import isubsample
-from plumbing.color      import Color
-from plumbing.cache      import property_cached
-from autopaths.file_path import FilePath
-from autopaths.tmp_path  import new_temp_path
+from plumbing.common          import isubsample
+from plumbing.color           import Color
+from plumbing.cache           import property_cached, property_pickled
+from autopaths.file_path      import FilePath
+from autopaths.tmp_path       import new_temp_path
 
 # Third party modules #
+import sh
 from tqdm import tqdm
-if platform.system() == 'Windows': import pbs3 as sh
-else: import sh
 
-# Constants #
-class Dummy: pass
-
-###############################################################################
+################################################################################
 class FASTA(FilePath):
     """
     A single FASTA file somewhere in the filesystem. You can read from it in
@@ -41,6 +36,7 @@ class FASTA(FilePath):
     format      = 'fasta'
     ext         = 'fasta'
     buffer_size = 1000
+    debug       = False
 
     def __len__(self): return self.count
 
@@ -76,14 +72,29 @@ class FASTA(FilePath):
         self.close()
         return seq
 
+    count_cache_path = None
     @property_cached
     def count(self):
         """
-        Should probably check for file size changes instead of just
-        caching once TODO.
+        Count the total number sequences in the current FASTA files.
+        For some files this can take some time, so you can set the attribute
+        `self.count_cache_path` to point to a pickle file in which the result
+        will be memoized.
+        Note: we should probably check for file size changes instead of just
+        caching once.
         """
-        # For debugging purposes #
-        if False: print("-> counting reads in `%s`" % self.path)
+        # In case we want to record the result to disk #
+        if self.count_cache_path is not None:
+            memoize = property_pickled(self.__class__.count_total,
+                                       path=self.count_cache_path)
+            return memoize.__get__(self, self.__class__)
+        # Default case #
+        return self.count_total()
+
+    def count_total(self):
+        # Message for debugging purposes #
+        if self.debug:
+            print("-> counting reads in `%s`" % self.path)
         # If we are gzipped we can just use zgrep #
         if self.gzipped:
             return int(sh.zgrep('-c', "^>", self.path, _ok_code=[0,1]))
@@ -92,7 +103,7 @@ class FASTA(FilePath):
 
     @property
     def lengths(self):
-        """All the lengths, one by one, in a list."""
+        """All the sequence lengths, one by one, in an iterator."""
         return map(len, self)
 
     @property_cached
@@ -180,35 +191,22 @@ class FASTA(FilePath):
         return self
 
     #-------------------------- Compressing the data -------------------------#
-    def compress(self, new_path=None, remove_orig=False, method='slow'):
+    def compress(self,
+                 new_path    = None,
+                 remove_orig = False,
+                 method      = 'pigz',
+                 verbose     = False):
         """Turn this FASTA file into a gzipped FASTA file."""
         # Check we are not compressed already #
-        if self.gzipped:
-            msg = "The fasta file '%s' is already compressed."
-            raise Exception(msg % self.path)
-        # Pick the new path #
-        if new_path is None: new_path = self.path + '.gz'
-        # Do it the fast way or the slow way #
-        if method == 'fast': self.compress_fast(new_path)
-        else:                self.compress_slow(new_path)
-        # Optionally remove the original uncompressed file #
-        if remove_orig: self.remove()
-        # Update the internal path #
-        self.path = new_path
-        # Return #
-        return self.path
-
-    def compress_slow(self, new_path):
-        """Do the compression internally via python."""
-        with gzip.open(new_path, 'wb') as handle:
-            shutil.copyfileobj(self.open('rb'), handle)
-
-    def compress_fast(self, new_path):
-        """Do the compression with an external shell command call."""
-        # We don't want python to be buffering the text for speed #
-        from shell_command import shell_output
-        cmd = 'gzip --stdout %s > %s' % (self.path, new_path)
-        return shell_output(cmd)
+        if self.gzipped and new_path is not False:
+            msg = "The %s file '%s' is already compressed."
+            raise Exception(msg % (self.format, self.path))
+        # Print a message #
+        if verbose:
+            msg = "Compressing to '%s' with method '%s'."
+            print(msg % (self.path, method))
+        # Call method #
+        return self.gzip_to(new_path, remove_orig, method)
 
     #------------------------- When IDs are important ------------------------#
     @property_cached
@@ -222,7 +220,7 @@ class FASTA(FilePath):
     def get_id(self, id_num):
         """
         Extract one sequence from the file based on its ID.
-        This is highly ineffective.
+        This is highly ineffective on large files.
         Consider using the SQLite API instead or memory map the file.
         """
         for seq in self:
@@ -240,8 +238,8 @@ class FASTA(FilePath):
     def sql(self):
         """
         If you access this attribute, we will build an SQLite database
-        out of the FASTA file and you will be able access everything in an
-        indexed fashion, and use the blaze library via sql.frame
+        out of the FASTA file. You will be able to access everything in an
+        indexed fashion, and use the blaze library via `sql.frame`.
         """
         from fasta.indexed import DatabaseFASTA, fasta_to_sql
         db = DatabaseFASTA(self.prefix_path + ".db")
@@ -483,14 +481,14 @@ class FASTA(FilePath):
         return self._generator_mod(all_U_to_T, new_path, in_place)
 
     #---------------------------- Third party programs -----------------------#
-    def align(self, out_path=None):
+    def muscle_align(self, out_path=None):
         """We align the sequences in the fasta file with muscle."""
         if out_path is None: out_path = self.prefix_path + '.aln'
         sh.muscle38("-in", self.path, "-out", out_path)
         from fasta.aligned import AlignedFASTA
         return AlignedFASTA(out_path)
 
-    def template_align(self, ref_path):
+    def mothur_align(self, ref_path):
         """
         We align the sequences in the fasta file with mothur and a template.
         """
@@ -525,6 +523,32 @@ class FASTA(FilePath):
         sh.samtools('faidx', self.path)
         return FilePath(self.path + '.fai')
 
+    def index_bwa(self, out_path=None, verbose=True):
+        """
+        Create an index on the fasta file compatible with BWA.
+        This will take up approximately five times the disk space of the
+        original gzipped FASTA file it is based on.
+        """
+        # By default, in the same directory #
+        if out_path is None: out_path = self.path
+        # Message #
+        if verbose:
+            msg = "Creating BWA index on '%s' at '%s'."
+            print(msg % (self.path, out_path))
+        # Command line options #
+        options = {'p':    out_path,    # Prefix
+                   'a':    'bwtsw'}     # Algorithm
+        # Redirect output #
+        if verbose:
+            options['_out'] = sys.stdout
+            options['_err'] = sys.stderr
+        # Call the BWA executable #
+        cmd = sh.bwa('index', self.path, **options)
+        # Show the full command #
+        if verbose: print("Ran the following command:\n  $ %s" % cmd.ran)
+        # Return #
+        return FilePath(out_path + '.bwt')
+
     #--------------------------------- Graphs --------------------------------#
     @property_cached
     def graphs(self):
@@ -533,12 +557,14 @@ class FASTA(FilePath):
         are all the graphs found in `./graphs.py` initialized with this
         instance as only argument.
         """
-        # Make a dummy object #
-        result = Dummy()
-        # Loop over graphs #
+        # Make a dummy object that is empty at first #
+        class Graphs: pass
+        result = Graphs()
+        # Loop over graphs classes and add them as attributes #
+        from fasta import graphs
         for graph in graphs.__all__:
-            cls = getattr(graphs, graph)
-            setattr(result, cls.short_name, cls(self))
+            GraphClass = getattr(graphs, graph)
+            setattr(result, GraphClass.short_name, GraphClass(self))
         # Return #
         return result
 
