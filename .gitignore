@@ -10,6 +10,9 @@
 
 # IDE files #
 /.idea
+/.vscode
+/.cursorignore
+/.cursorrules
 
 # Distribution #
 /build/
