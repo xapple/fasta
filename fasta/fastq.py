@@ -39,12 +39,15 @@ class FASTQ(FASTA):
         # Message for debugging purposes #
         if self.debug:
             print("-> counting reads in `%s`" % self.path)
-        # Import module #
-        from shell_command import shell_output
+        # Local helper #
+        import subprocess
+        def shell_output(cmd):
+            output = subprocess.check_output(cmd, shell=True, text=True)
+            return output.strip()
         # Case when we are not compressed #
         if not self.gzipped:
             count = int(shell_output("cat %s | wc -l" % self.path))
-        # If we are gzipped we can just use zcat or gzcat on macOS #
+        # If we are gzipped, we can just use zcat or gzcat on macOS #
         else:
             program = 'gzcat' if sys.platform != 'linux' else 'zcat'
             command = "%s %s | wc -l" % (program, self.path)
