@@ -8,16 +8,14 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, sys, io, gzip, shutil, itertools, platform
+import os, sys, io, gzip, shutil, itertools
 from collections import Counter, OrderedDict
-from six import string_types
-
-# Internal modules #
+from functools import cached_property
 
 # First party modules #
 from plumbing.common          import isubsample
 from plumbing.color           import Color
-from plumbing.cache           import property_cached, property_pickled
+from plumbing.cache           import property_pickled
 from autopaths.file_path      import FilePath
 from autopaths.tmp_path       import new_temp_path
 
@@ -54,7 +52,7 @@ class FASTA(FilePath):
         self.close()
 
     def __getitem__(self, key):
-        if   isinstance(key, string_types): return self.sequences[key]
+        if   isinstance(key, str): return self.sequences[key]
         elif isinstance(key, int):          return self.sequences.items()[key]
         elif isinstance(key, slice):
             return itertools.islice(self, key.start, key.stop, key.step)
@@ -73,7 +71,7 @@ class FASTA(FilePath):
         return seq
 
     count_cache_path = None
-    @property_cached
+    @cached_property
     def count(self):
         """
         Count the total number sequences in the current FASTA files.
@@ -106,7 +104,7 @@ class FASTA(FilePath):
         """All the sequence lengths, one by one, in an iterator."""
         return map(len, self)
 
-    @property_cached
+    @cached_property
     def lengths_counter(self):
         """A Counter() object with all the lengths inside."""
         return Counter((len(s) for s in self.parse()))
@@ -209,7 +207,7 @@ class FASTA(FilePath):
         return self.gzip_to(new_path, remove_orig, method)
 
     #------------------------- When IDs are important ------------------------#
-    @property_cached
+    @cached_property
     def ids(self):
         """A frozen set of all unique IDs in the file."""
         as_list = [seq.description.split()[0] for seq in self]
@@ -226,7 +224,7 @@ class FASTA(FilePath):
         for seq in self:
             if seq.id == id_num: return seq
 
-    @property_cached
+    @cached_property
     def sequences(self):
         """
         Another way of easily retrieving sequences. Also highly ineffective.
@@ -234,7 +232,7 @@ class FASTA(FilePath):
         """
         return OrderedDict(((seq.id, seq) for seq in self))
 
-    @property_cached
+    @cached_property
     def sql(self):
         """
         If you access this attribute, we will build an SQLite database
@@ -246,7 +244,7 @@ class FASTA(FilePath):
         if not db.exists: fasta_to_sql(self.path, db.path)
         return db
 
-    @property_cached
+    @cached_property
     def length_by_id(self):
         """
         In some use cases you just need the sequence lengths in an indexed
@@ -550,7 +548,7 @@ class FASTA(FilePath):
         return FilePath(out_path + '.bwt')
 
     #--------------------------------- Graphs --------------------------------#
-    @property_cached
+    @cached_property
     def graphs(self):
         """
         Sorry for the black magic. The result is an object whose attributes

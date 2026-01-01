@@ -9,6 +9,7 @@ Contact at www.sinclair.bio
 
 # Built-in modules #
 import os, itertools
+from functools import cached_property
 
 # Internal modules #
 from fasta import FASTA, FASTQ
@@ -17,7 +18,6 @@ from fasta import FASTA, FASTQ
 from autopaths.file_size import FileSize
 from autopaths.dir_path import DirectoryPath
 from plumbing.common import isubsample, GenWithLength
-from plumbing.cache import property_cached
 
 # Third party modules #
 from tqdm import tqdm
@@ -62,7 +62,7 @@ class PairedFASTA:
         assert self.fwd.gzipped == self.rev.gzipped
         return self.fwd.gzipped
 
-    @property_cached
+    @cached_property
     def count(self):
         return self.fwd.count
 
@@ -208,10 +208,10 @@ class PairedFASTA:
         # Return #
         return self.base_class(path)
 
-    @property_cached
+    @cached_property
     def singletons(self): return self.file_with_suffix('singletons')
 
-    @property_cached
+    @cached_property
     def other_reads(self): return self.file_with_suffix('others')
 
 ###############################################################################

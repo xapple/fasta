@@ -9,12 +9,12 @@ Contact at www.sinclair.bio
 
 # Built-in modules #
 import os, shutil, multiprocessing, platform
+from functools import cached_property
 
 # First party modules #
 from fasta import FASTQ
 from autopaths.dir_path       import DirectoryPath
 from autopaths.tmp_path       import new_temp_dir
-from plumbing.cache           import property_cached
 from plumbing.check_cmd_found import check_cmd
 from plumbing.apt_pkg         import get_apt_packages
 from plumbing.scraping        import download_from_url
@@ -123,7 +123,7 @@ class FastQC:
         """
         return os.path.exists(self.dest + 'Images/per_base_quality.png')
 
-    @property_cached
+    @cached_property
     def results(self):
         # Check it was run #
         if not self:

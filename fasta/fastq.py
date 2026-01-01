@@ -9,13 +9,13 @@ Contact at www.sinclair.bio
 
 # Built-in modules #
 import os, sys, shutil, platform
+from functools import cached_property
 
 # Internal modules #
 from fasta import FASTA
 
 # First party modules #
 from plumbing.common     import average
-from plumbing.cache      import property_cached
 from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
@@ -54,7 +54,7 @@ class FASTQ(FASTA):
         # Return #
         return int(count / 4)
 
-    @property_cached
+    @cached_property
     def avg_quality(self):
         """
         Returns a single float.
@@ -89,13 +89,13 @@ class FASTQ(FASTA):
         return FilePath(path)
 
     #-------------------------------- Tools ----------------------------------#
-    @property_cached
+    @cached_property
     def validator(self):
         """Validate the format of this FASTQ."""
         from fasta.validator import Validator
         return Validator(self.path)
 
-    @property_cached
+    @cached_property
     def fastqc(self):
         """Run the FastQC software on this FASTQ."""
         from fasta.fastqc import FastQC

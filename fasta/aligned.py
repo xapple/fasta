@@ -10,10 +10,10 @@ Contact at www.sinclair.bio
 # Built-in modules #
 import os, multiprocessing, platform
 from collections import OrderedDict
+from functools import cached_property
 
 # Internal modules #
 from fasta import FASTA
-from plumbing.cache import property_cached
 from autopaths.file_path import FilePath
 from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
@@ -49,7 +49,7 @@ class AlignedFASTA(FASTA):
         AlignIO.write(reads, self.handle, self.format)
         self.close()
 
-    @property_cached
+    @cached_property
     def sequences(self):
         return OrderedDict(((seq.id, seq) for seq in self))
 
