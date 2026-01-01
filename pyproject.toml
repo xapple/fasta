@@ -15,7 +15,7 @@ authors = [
   { name = "Lucas Sinclair", email = "lucas.sinclair@me.com" },
 ]
 
-keywords = ["fasta", "fastq", "bioinformatics", "sequences"]
+keywords = ["fasta", "fastq", "bioinformatics", "dna", "sequences"]
 
 classifiers = [
   "License :: OSI Approved :: MIT License",
@@ -25,7 +25,7 @@ classifiers = [
 
 dependencies = [
   "autopaths>=1.6.2",
-  "plumbing>=2.10.4",
+  "plumbing>=2.11.3",
   "biopython",
   "tqdm",
   "sh",
