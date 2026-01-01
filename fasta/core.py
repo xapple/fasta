@@ -53,7 +53,7 @@ class FASTA(FilePath):
 
     def __getitem__(self, key):
         if   isinstance(key, str): return self.sequences[key]
-        elif isinstance(key, int):          return self.sequences.items()[key]
+        elif isinstance(key, int): return self.sequences.items()[key]
         elif isinstance(key, slice):
             return itertools.islice(self, key.start, key.stop, key.step)
 
