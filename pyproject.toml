@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fasta"
+version = "2.3.2"
+
+description = "The fasta python package enables you to deal with biological sequence files easily."
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE.txt" }
+requires-python = ">=3.8"
+
+authors = [
+  { name = "Lucas Sinclair", email = "lucas.sinclair@me.com" },
+]
+
+keywords = ["fasta", "fastq", "bioinformatics", "sequences"]
+
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+dependencies = [
+  "autopaths>=1.6.2",
+  "plumbing>=2.10.4",
+  "biopython",
+  "tqdm",
+  "sh",
+]
+
+[project.optional-dependencies]
+graphs = ["numpy", "matplotlib"]
+primers = ["regex"]
+
+[project.urls]
+Homepage = "http://github.com/xapple/fasta/"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
