@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fasta"
-version = "2.3.3"
+version = "2.3.4"
 
 description = "The fasta python package enables you to deal with biological sequence files easily."
 readme = { file = "README.md", content-type = "text/markdown" }
