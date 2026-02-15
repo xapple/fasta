@@ -13,7 +13,7 @@ from plumbing.scraping import download_from_url
 from fasta import FASTQ, PairedFASTQ
 
 # Third party modules #
-import sh
+from fasta.run import sh
 
 ###############################################################################
 class DumpSRA:

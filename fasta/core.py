@@ -20,8 +20,9 @@ from autopaths.file_path      import FilePath
 from autopaths.tmp_path       import new_temp_path
 
 # Third party modules #
-import sh
+import glob
 from tqdm import tqdm
+from fasta.run import sh
 
 ################################################################################
 class FASTA(FilePath):
@@ -503,7 +504,7 @@ class FASTA(FilePath):
             os.remove('formatdb.log')
         if os.path.exists('error.log') and os.path.getsize('error.log') == 0:
             os.remove('error.log')
-        for path in sh.glob('mothur.*.logfile'):
+        for path in glob.glob('mothur.*.logfile'):
             os.remove(path)
         # Return #
         return self.p.aligned

@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, multiprocessing, platform
+import os, multiprocessing
 from collections import OrderedDict
 from functools import cached_property
 
@@ -19,8 +19,7 @@ from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
 import shutil
-if platform.system() == 'Windows': import pbs3 as sh
-else: import sh
+from fasta.run import sh
 
 ################################################################################
 class AlignedFASTA(FASTA):

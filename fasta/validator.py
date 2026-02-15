@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import sys, platform
+import sys
 
 # Internal modules #
 from fasta.exceptions import ValidationError
@@ -20,8 +20,7 @@ from plumbing.scraping  import download_from_url
 from plumbing.check_cmd_found import check_cmd
 
 # Third party modules #
-if platform.system() == 'Windows': import pbs3 as sh
-else: import sh
+from fasta.run import sh
 
 ###############################################################################
 class Validator:

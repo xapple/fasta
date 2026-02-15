@@ -8,7 +8,7 @@ Contact at www.sinclair.bio
 """
 
 # Built-in modules #
-import os, sys, shutil, platform
+import os, sys, shutil
 from functools import cached_property
 
 # Internal modules #
@@ -20,8 +20,7 @@ from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
 # Third party modules #
-if platform.system() == 'Windows': import pbs3 as sh
-else: import sh
+from fasta.run import sh
 
 ################################################################################
 class FASTQ(FASTA):
