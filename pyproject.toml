@@ -28,7 +28,8 @@ dependencies = [
   "plumbing>=2.11.4",
   "biopython",
   "tqdm",
-  "sh",
+  "sh; sys_platform != 'win32'",
+  "runps; sys_platform == 'win32'",
 ]
 
 [project.optional-dependencies]
