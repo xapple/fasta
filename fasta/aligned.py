@@ -19,7 +19,7 @@ from autopaths.tmp_path  import new_temp_path, new_temp_dir
 
 # Third party modules #
 import shutil
-from fasta.run import sh
+from runps import sh
 
 ################################################################################
 class AlignedFASTA(FASTA):

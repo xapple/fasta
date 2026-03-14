@@ -20,7 +20,7 @@ from plumbing.scraping  import download_from_url
 from plumbing.check_cmd_found import check_cmd
 
 # Third party modules #
-from fasta.run import sh
+from runps import sh
 
 ###############################################################################
 class Validator:

@@ -22,7 +22,7 @@ from autopaths.tmp_path       import new_temp_path
 # Third party modules #
 import glob
 from tqdm import tqdm
-from fasta.run import sh
+from runps import sh
 
 ################################################################################
 class FASTA(FilePath):

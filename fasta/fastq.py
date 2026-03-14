@@ -20,7 +20,7 @@ from autopaths.tmp_path  import new_temp_path
 from autopaths.file_path import FilePath
 
 # Third party modules #
-from fasta.run import sh
+from runps import sh
 
 ################################################################################
 class FASTQ(FASTA):

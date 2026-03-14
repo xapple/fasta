@@ -20,7 +20,7 @@ from plumbing.apt_pkg         import get_apt_packages
 from plumbing.scraping        import download_from_url
 
 # Third party modules #
-from fasta.run import sh
+from runps import sh
 
 ###############################################################################
 class FastQC:
