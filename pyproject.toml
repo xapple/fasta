@@ -26,9 +26,9 @@ classifiers = [
 dependencies = [
   "autopaths>=1.6.2",
   "plumbing>=2.11.4",
+  "runps>=4.1.1",
   "biopython",
   "tqdm",
-  "runps",
 ]
 
 [project.optional-dependencies]
